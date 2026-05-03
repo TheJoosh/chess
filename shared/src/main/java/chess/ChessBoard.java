@@ -45,4 +45,17 @@ public class ChessBoard {
             }
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessBoard that = (ChessBoard) o;
+        return java.util.Arrays.deepEquals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Arrays.deepHashCode(board);
+    }
 }
