@@ -284,17 +284,8 @@ public class ChessPiece {
                     if (column - offset < 0) {
                         lblocked = true;
                     } else {
-
                         newPosition = new ChessPosition(i + 1, column - offset + 1);
-                        if (board.getPiece(newPosition) != null) {
-                            lblocked = true;
-                            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-                                moves.add(new ChessMove(myPosition, newPosition, null));
-                            }
-
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
+                        lblocked = checkPosition(board, myPosition, newPosition, piece, moves);
                     }
                 }
 
@@ -303,17 +294,8 @@ public class ChessPiece {
                     if (column + offset > 7) {
                         rblocked = true;
                     } else {
-
                         newPosition = new ChessPosition(i + 1, column + offset + 1);
-                        if (board.getPiece(newPosition) != null) {
-                            rblocked = true;
-                            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-                                moves.add(new ChessMove(myPosition, newPosition, null));
-                            }
-
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
+                        rblocked = checkPosition(board, myPosition, newPosition, piece, moves);
                     }
                 }
 
@@ -335,15 +317,7 @@ public class ChessPiece {
                     } else {
 
                         newPosition = new ChessPosition(i + 1, column - offset + 1);
-                        if (board.getPiece(newPosition) != null) {
-                            lblocked = true;
-                            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-                                moves.add(new ChessMove(myPosition, newPosition, null));
-                            }
-
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
+                        lblocked = checkPosition(board, myPosition, newPosition, piece, moves);
                     }
                 }
 
@@ -354,15 +328,7 @@ public class ChessPiece {
                     } else {
 
                         newPosition = new ChessPosition(i + 1, column + offset + 1);
-                        if (board.getPiece(newPosition) != null) {
-                            rblocked = true;
-                            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-                                moves.add(new ChessMove(myPosition, newPosition, null));
-                            }
-
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
+                        rblocked = checkPosition(board, myPosition, newPosition, piece, moves);
                     }
                 }
 
