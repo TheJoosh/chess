@@ -214,6 +214,31 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates a pawn capturing an enemy piece
+     */
+    public void calculatePawnCapture(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int xDirection, int yDirection, int end) {
+
+        if (column + xDirection <= 7 && column + xDirection >= 0) {
+
+                ChessPosition newPosition = new ChessPosition(row + 1 + yDirection, column + 1 + xDirection);
+                if (board.getPiece(newPosition) != null) {
+                    if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
+
+                        //calculate capture promotion
+                        if (row + yDirection == end) {
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+                        } else {
+                            moves.add(new ChessMove(myPosition, newPosition, null));
+                        }
+                    }
+                }
+            }
+    }
+
+    /**
      * Calculates the movement of a pawn
      */
     public void calculatePawn(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, int start, int end) {
@@ -221,6 +246,8 @@ public class ChessPiece {
         ChessPosition newPosition;
 
         if (row + direction <= 7 && row + direction >= 0) {
+
+            //calculate moving forward
             if (board.getPiece(new ChessPosition(row + 1 + direction, column + 1)) == null) {
 
                 //calculate move from start
@@ -242,44 +269,10 @@ public class ChessPiece {
             }
             
             //calculate right capture
-            if (column + 1 <= 7) {
-
-                newPosition = new ChessPosition(row + 1 + direction, column + 2);
-                if (board.getPiece(newPosition) != null) {
-                    if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-
-                        //calculate right capture promotion
-                        if (row + direction == end) {
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
-                    }
-                }
-            }
+            calculatePawnCapture(board, myPosition, piece, moves, row, column, 1, direction, end);
 
             //calculate left capture
-            if (column - 1 >= 0) {
-
-                newPosition = new ChessPosition(row + 1 + direction, column);
-                if (board.getPiece(newPosition) != null) {
-                    if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-
-                        //calculate white left capture promotion
-                        if (row + direction == end) {
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
-                    }
-                }
-            }
+            calculatePawnCapture(board, myPosition, piece, moves, row, column, -1, direction, end);
         }
     }
 
@@ -357,6 +350,7 @@ public class ChessPiece {
             int start;
             int end;
             
+            //set parameters based on color
             if (piece.getTeamColor() == TeamColor.WHITE) {
                 direction = 1;
                 start = 1;
