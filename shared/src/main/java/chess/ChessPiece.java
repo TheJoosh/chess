@@ -65,6 +65,10 @@ public class ChessPiece {
     }
 
     /**
+     * 
+     */
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -78,57 +82,48 @@ public class ChessPiece {
         
         int column = myPosition.getColumn() - 1;
         int row = myPosition.getRow() - 1;
-        ChessPosition newPosition;
 
         if (piece.getPieceType() == PieceType.KING) {
 
             if (row + 1 <= 7) {
 
                 //check forward
-                newPosition = new ChessPosition(row + 2, column + 1);
-                checkPosition(board, myPosition, newPosition, piece, moves);
+                checkPosition(board, myPosition, new ChessPosition(row + 2, column + 1), piece, moves);
 
                 //check forward right
-                newPosition = new ChessPosition(row + 2, column + 2);
                 if (column + 1 <= 7) {
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row + 2, column + 2), piece, moves);
                 }
 
                 //check forward left
-                newPosition = new ChessPosition(row + 2, column);
                 if (column - 1 >= 0) {
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row + 2, column), piece, moves);
                 }
             }
             if (row - 1 >= 0) {
 
                 //check backward 
-                newPosition = new ChessPosition(row, column + 1);
-                checkPosition(board, myPosition, newPosition, piece, moves);
+                checkPosition(board, myPosition, new ChessPosition(row, column + 1), piece, moves);
 
                 //check backward right
-                newPosition = new ChessPosition(row, column + 2);
                 if (column + 1 <= 7) {
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row, column + 2), piece, moves);
                 }
 
                 //check backward left
-                newPosition = new ChessPosition(row, column);
                 if (column - 1 >= 0) {
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row, column), piece, moves);
                 }
             }
 
             //check right
-            newPosition = new ChessPosition(row + 1, column + 2);
             if (column + 1 <= 7) {
-                checkPosition(board, myPosition, newPosition, piece, moves);
+                checkPosition(board, myPosition, new ChessPosition(row + 1, column + 2), piece, moves);
             }
 
             //check left
-            newPosition = new ChessPosition(row + 1, column);
             if (column - 1 >= 0) {
-                checkPosition(board, myPosition, newPosition, piece, moves);
+                checkPosition(board, myPosition, new ChessPosition(row + 1, column), piece, moves);
             }
         }
 
@@ -146,8 +141,7 @@ public class ChessPiece {
                     if (column - offset < 0) {
                         lblocked = true;
                     } else {
-                        newPosition = new ChessPosition(i + 1, column - offset + 1);
-                        lblocked = checkPosition(board, myPosition, newPosition, piece, moves);
+                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
                     }
                 }
 
@@ -156,8 +150,7 @@ public class ChessPiece {
                     if (column + offset > 7) {
                         rblocked = true;
                     } else {
-                        newPosition = new ChessPosition(i + 1, column + offset + 1);
-                        rblocked = checkPosition(board, myPosition, newPosition, piece, moves);
+                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
                     }
                 }
 
@@ -177,8 +170,7 @@ public class ChessPiece {
                     if (column - offset < 0) {
                         lblocked = true;
                     } else {
-                        newPosition = new ChessPosition(i + 1, column - offset + 1);
-                        lblocked = checkPosition(board, myPosition, newPosition, piece, moves);
+                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
                     }
                 }
 
@@ -187,8 +179,7 @@ public class ChessPiece {
                     if (column + offset > 7) {
                         rblocked = true;
                     } else {
-                        newPosition = new ChessPosition(i + 1, column + offset + 1);
-                        rblocked = checkPosition(board, myPosition, newPosition, piece, moves);
+                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
                     }
                 }
 
@@ -197,36 +188,28 @@ public class ChessPiece {
 
             //check forward
             for (int i = row + 1; i <= 7; i++) {
-
-                newPosition = new ChessPosition(i + 1, column + 1);
-                if (checkPosition(board, myPosition, newPosition, piece, moves)) {
+                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
                     break;
                 }
             }
             
             //check backward
             for (int i = row - 1; i >= 0; i--) {
-
-                newPosition = new ChessPosition(i + 1, column + 1);
-                if (checkPosition(board, myPosition, newPosition, piece, moves)) {
+                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
                     break;
                 }
             }
 
             //check left
             for (int i = column - 1; i >= 0; i--) {
-
-                newPosition = new ChessPosition(row + 1, i + 1);
-                if (checkPosition(board, myPosition, newPosition, piece, moves)) {
+                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
                     break;
                 }
             }
 
             //check right
             for (int i = column + 1; i <= 7; i++) {
-
-                newPosition = new ChessPosition(row + 1, i + 1);
-                if (checkPosition(board, myPosition, newPosition, piece, moves)) {
+                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
                     break;
                 }
             }
@@ -236,35 +219,28 @@ public class ChessPiece {
 
             //check forward
             for (int i = row + 1; i <= 7; i++) {
-
-                newPosition = new ChessPosition(i + 1, column + 1);
-                if (checkPosition(board, myPosition, newPosition, piece, moves)) {
+                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
                     break;
                 }
             }
             
             //check backward
             for (int i = row - 1; i >= 0; i--) {
-                newPosition = new ChessPosition(i + 1, column + 1);
-                if (checkPosition(board, myPosition, newPosition, piece, moves)) {
+                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
                     break;
                 }
             }
 
             //check left
             for (int i = column - 1; i >= 0; i--) {
-
-                newPosition = new ChessPosition(row + 1, i + 1);
-                if (checkPosition(board, myPosition, newPosition, piece, moves)) {
+                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
                     break;
                 }
             }
 
             //check right
             for (int i = column + 1; i <= 7; i++) {
-
-                newPosition = new ChessPosition(row + 1, i + 1);
-                if (checkPosition(board, myPosition, newPosition, piece, moves)) {
+                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
                     break;
                 }
             }
@@ -284,8 +260,7 @@ public class ChessPiece {
                     if (column - offset < 0) {
                         lblocked = true;
                     } else {
-                        newPosition = new ChessPosition(i + 1, column - offset + 1);
-                        lblocked = checkPosition(board, myPosition, newPosition, piece, moves);
+                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
                     }
                 }
 
@@ -294,8 +269,7 @@ public class ChessPiece {
                     if (column + offset > 7) {
                         rblocked = true;
                     } else {
-                        newPosition = new ChessPosition(i + 1, column + offset + 1);
-                        rblocked = checkPosition(board, myPosition, newPosition, piece, moves);
+                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
                     }
                 }
 
@@ -315,9 +289,7 @@ public class ChessPiece {
                     if (column - offset < 0) {
                         lblocked = true;
                     } else {
-
-                        newPosition = new ChessPosition(i + 1, column - offset + 1);
-                        lblocked = checkPosition(board, myPosition, newPosition, piece, moves);
+                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
                     }
                 }
 
@@ -326,9 +298,7 @@ public class ChessPiece {
                     if (column + offset > 7) {
                         rblocked = true;
                     } else {
-
-                        newPosition = new ChessPosition(i + 1, column + offset + 1);
-                        rblocked = checkPosition(board, myPosition, newPosition, piece, moves);
+                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
                     }
                 }
 
@@ -343,14 +313,12 @@ public class ChessPiece {
 
                 //check forward right
                 if (column + 1 <= 7) {
-                    newPosition = new ChessPosition(row + 3, column + 2);
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row + 3, column + 2), piece, moves);
                 }
 
                 //check forward left
                 if (column - 1 >= 0) {
-                    newPosition = new ChessPosition(row + 3, column);
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row + 3, column), piece, moves);
                 }
             }
 
@@ -359,14 +327,12 @@ public class ChessPiece {
 
                 //check backward right
                 if (column + 1 <= 7) {
-                    newPosition = new ChessPosition(row - 1, column + 2);
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row - 1, column + 2), piece, moves);
                 }
 
                 //check backward left
                 if (column - 1 >= 0) {
-                    newPosition = new ChessPosition(row - 1, column);
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row - 1, column), piece, moves);
                 }
             }
 
@@ -375,14 +341,12 @@ public class ChessPiece {
 
                 //check right forward
                 if (row + 1 <= 7) {
-                    newPosition = new ChessPosition(row + 2, column + 3);
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row + 2, column + 3), piece, moves);
                 }
 
                 //check right backward
                 if (row - 1 >= 0) {
-                    newPosition = new ChessPosition(row, column + 3);
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row, column + 3), piece, moves);
                 }
             }
 
@@ -391,19 +355,19 @@ public class ChessPiece {
 
                 //check left forward
                 if (row + 1 <= 7) {
-                    newPosition = new ChessPosition(row + 2, column - 1);
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row + 2, column - 1), piece, moves);
                 }
 
                 //check left backward
                 if (row - 1 >= 0) {
-                    newPosition = new ChessPosition(row, column - 1);
-                    checkPosition(board, myPosition, newPosition, piece, moves);
+                    checkPosition(board, myPosition, new ChessPosition(row, column - 1), piece, moves);
                 }
             }
         }
         
         if (piece.getPieceType() == PieceType.PAWN) {
+
+            ChessPosition newPosition;
             
             if (piece.getTeamColor() == TeamColor.WHITE) {
                 if (row + 1 <= 7) {
