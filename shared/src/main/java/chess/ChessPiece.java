@@ -279,62 +279,11 @@ public class ChessPiece {
 
         if (piece.getPieceType() == PieceType.BISHOP) {
 
-            int offset = 1;
-            boolean rblocked = false;
-            boolean lblocked = false;
-
             //check backward diagonals
-            for (int i = row - 1; i >= 0; i--) {
-
-                //check backward left
-                if (!lblocked){
-                    if (column - offset < 0) {
-                        lblocked = true;
-                    } else {
-                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
-                    }
-                }
-
-                //check backward right
-                if (!rblocked) {
-                    if (column + offset > 7) {
-                        rblocked = true;
-                    } else {
-                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
-                    }
-                }
-
-                offset++;
-            }
-
-            //reset variables
-            offset = 1;
-            rblocked = false;
-            lblocked = false;
+            checkDiagonal(board, myPosition, piece, moves, row, column, -1);
 
             //check forward diagonals
-            for (int i = row + 1; i <= 7; i++) {
-
-                //check forward left
-                if (!lblocked) {
-                    if (column - offset < 0) {
-                        lblocked = true;
-                    } else {
-                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
-                    }
-                }
-
-                //check forward right
-                if (!rblocked) {
-                    if (column + offset > 7) {
-                        rblocked = true;
-                    } else {
-                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
-                    }
-                }
-
-                offset++;
-            }
+            checkDiagonal(board, myPosition, piece, moves, row, column, 1);
         }
 
         if (piece.getPieceType() == PieceType.KNIGHT) {
