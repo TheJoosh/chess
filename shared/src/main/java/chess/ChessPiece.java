@@ -214,6 +214,20 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates whether a pawn is promoted
+     */
+    public void calculatePawnPromotion(ChessPosition myPosition, ChessPosition newPosition, ArrayList<ChessMove> moves, int row, int direction, int end) {
+        if (row + direction == end) {
+            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+        } else {
+            moves.add(new ChessMove(myPosition, newPosition, null));
+        }
+    }
+
+    /**
      * Calculates a pawn capturing an enemy piece
      */
     public void calculatePawnCapture(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int xDirection, int yDirection, int end) {
@@ -225,14 +239,7 @@ public class ChessPiece {
                     if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
 
                         //calculate capture promotion
-                        if (row + yDirection == end) {
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
+                        calculatePawnPromotion(myPosition, newPosition, moves, row, yDirection, end);
                     }
                 }
             }
@@ -258,14 +265,7 @@ public class ChessPiece {
 
                 //calculate promotion
                 newPosition = new ChessPosition(row + 1 + direction, column + 1);
-                if (row + direction == end) {
-                    moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                    moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                    moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                    moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                } else {
-                    moves.add(new ChessMove(myPosition, newPosition, null));
-                }
+                calculatePawnPromotion(myPosition, newPosition, moves, row, direction, end);
             }
             
             //calculate right capture
