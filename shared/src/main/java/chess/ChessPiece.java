@@ -52,7 +52,7 @@ public class ChessPiece {
      * Calculates if a piece can move to a given position
      * If the move is possible, adds it to the list
      * 
-     * @return Whether the position is occupied by another piece
+     * @return whether the position is occupied by another piece
      */
     public boolean checkPosition(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition, ChessPiece piece, ArrayList<ChessMove> moves) {
         if (board.getPiece(newPosition) != null) {
@@ -122,6 +122,38 @@ public class ChessPiece {
     }
 
     /**
+     * Checks horizontal L movements
+     */
+    public void checkKnightHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+        
+        //check forward
+        if (row + 1 <= 7) {
+            checkPosition(board, myPosition, new ChessPosition(row + 2, column + 1 + direction * 2), piece, moves);
+        }
+
+        //check backward
+        if (row - 1 >= 0) {
+            checkPosition(board, myPosition, new ChessPosition(row, column + 1 + direction * 2), piece, moves);
+        }
+    }
+
+    /**
+     * Checks vertical L movements
+     */
+    public void checkKnightVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+        
+        //check left
+        if (row + 1 <= 7) {
+            checkPosition(board, myPosition, new ChessPosition(row + 1 + direction * 2, column), piece, moves);
+        }
+
+        //check right
+        if (row - 1 >= 0) {
+            checkPosition(board, myPosition, new ChessPosition(row + 1 + direction * 2, column + 2), piece, moves);
+        }
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -153,6 +185,7 @@ public class ChessPiece {
                     checkPosition(board, myPosition, new ChessPosition(row + 2, column), piece, moves);
                 }
             }
+
             if (row - 1 >= 0) {
 
                 //check backward 
