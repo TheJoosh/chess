@@ -54,7 +54,7 @@ public class ChessPiece {
      * 
      * @return whether the position is occupied by another piece
      */
-    public boolean checkPosition(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition, ChessPiece piece, ArrayList<ChessMove> moves) {
+    public boolean calculatePosition(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition, ChessPiece piece, ArrayList<ChessMove> moves) {
         if (board.getPiece(newPosition) != null) {
             if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
                 moves.add(new ChessMove(myPosition, newPosition, null));
@@ -67,9 +67,9 @@ public class ChessPiece {
     }
 
     /**
-     * Checks all diagonal positions until it reaches an occupied position
+     * Calculates all diagonal positions until it reaches an occupied position
      */
-    public void checkDiagonal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+    public void calculateDiagonal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
 
         int offset = 1;
         boolean rblocked = false;
@@ -77,21 +77,21 @@ public class ChessPiece {
 
         for (int i = row + direction; i >= 0 && i <= 7; i += direction) {
 
-                //check left
+                //calculate left
                 if (!lblocked){
                     if (column - offset < 0) {
                         lblocked = true;
                     } else {
-                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
+                        lblocked = calculatePosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
                     }
                 }
 
-                //check right
+                //calculate right
                 if (!rblocked) {
                     if (column + offset > 7) {
                         rblocked = true;
                     } else {
-                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
+                        rblocked = calculatePosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
                     }
                 }
 
@@ -100,57 +100,75 @@ public class ChessPiece {
     }
 
     /**
-     * Checks all vertical positions until it reaches an occupied position
+     * Calculates all vertical positions until it reaches an occupied position
      */
-    public void checkVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+    public void calculateVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
         for (int i = row + direction; i <= 7 && i >= 0; i += direction) {
-                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
+                if (calculatePosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
                     break;
                 }
             }
     }
 
     /**
-     * Checks all horizontal positions until it reaches an occupied position
+     * Calculates all horizontal positions until it reaches an occupied position
      */
-    public void checkHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+    public void calculateHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
         for (int i = column + direction; i <= 7 && i >= 0; i += direction) {
-                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
+                if (calculatePosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
                     break;
                 }
             }
     }
 
     /**
-     * Checks horizontal L movements
+     * Calculates horizontal L movements
      */
-    public void checkKnightHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+    public void calculateKnightHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
         
-        //check forward
+        //calculate forward
         if (row + 1 <= 7) {
-            checkPosition(board, myPosition, new ChessPosition(row + 2, column + 1 + direction * 2), piece, moves);
+            calculatePosition(board, myPosition, new ChessPosition(row + 2, column + 1 + direction * 2), piece, moves);
         }
 
-        //check backward
+        //calculate backward
         if (row - 1 >= 0) {
-            checkPosition(board, myPosition, new ChessPosition(row, column + 1 + direction * 2), piece, moves);
+            calculatePosition(board, myPosition, new ChessPosition(row, column + 1 + direction * 2), piece, moves);
         }
     }
 
     /**
-     * Checks vertical L movements
+     * Calculates vertical L movements
      */
-    public void checkKnightVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+    public void calculateKnightVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
         
-        //check right
+        //calculate right
         if (column + 1 <= 7) {
-            checkPosition(board, myPosition, new ChessPosition(row + 1 + (direction * 2), column + 2), piece, moves);
+            calculatePosition(board, myPosition, new ChessPosition(row + 1 + (direction * 2), column + 2), piece, moves);
         }
 
-        //check left
+        //calculate left
         if (column - 1 >= 0) {
-            checkPosition(board, myPosition, new ChessPosition(row + 1 + (direction * 2), column), piece, moves);
+            calculatePosition(board, myPosition, new ChessPosition(row + 1 + (direction * 2), column), piece, moves);
         }
+    }
+
+    /**
+     * Calculates in all four cardinal directions
+     */
+    public void calculateRook(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column) {
+
+        //calculate forward
+        calculateVertical(board, myPosition, piece, moves, row, column, 1);
+        
+        //calculate backward
+        calculateVertical(board, myPosition, piece, moves, row, column, -1);
+
+        //calculate left
+        calculateHorizontal(board, myPosition, piece, moves, row, column, -1);
+
+        //calculate right
+        calculateHorizontal(board, myPosition, piece, moves, row, column, 1);
     }
 
     /**
@@ -172,112 +190,94 @@ public class ChessPiece {
 
             if (row + 1 <= 7) {
 
-                //check forward
-                checkPosition(board, myPosition, new ChessPosition(row + 2, column + 1), piece, moves);
+                //calculate forward
+                calculatePosition(board, myPosition, new ChessPosition(row + 2, column + 1), piece, moves);
 
-                //check forward right
+                //calculate forward right
                 if (column + 1 <= 7) {
-                    checkPosition(board, myPosition, new ChessPosition(row + 2, column + 2), piece, moves);
+                    calculatePosition(board, myPosition, new ChessPosition(row + 2, column + 2), piece, moves);
                 }
 
-                //check forward left
+                //calculate forward left
                 if (column - 1 >= 0) {
-                    checkPosition(board, myPosition, new ChessPosition(row + 2, column), piece, moves);
+                    calculatePosition(board, myPosition, new ChessPosition(row + 2, column), piece, moves);
                 }
             }
 
             if (row - 1 >= 0) {
 
-                //check backward 
-                checkPosition(board, myPosition, new ChessPosition(row, column + 1), piece, moves);
+                //calculate backward 
+                calculatePosition(board, myPosition, new ChessPosition(row, column + 1), piece, moves);
 
-                //check backward right
+                //calculate backward right
                 if (column + 1 <= 7) {
-                    checkPosition(board, myPosition, new ChessPosition(row, column + 2), piece, moves);
+                    calculatePosition(board, myPosition, new ChessPosition(row, column + 2), piece, moves);
                 }
 
-                //check backward left
+                //calculate backward left
                 if (column - 1 >= 0) {
-                    checkPosition(board, myPosition, new ChessPosition(row, column), piece, moves);
+                    calculatePosition(board, myPosition, new ChessPosition(row, column), piece, moves);
                 }
             }
 
-            //check right
+            //calculate right
             if (column + 1 <= 7) {
-                checkPosition(board, myPosition, new ChessPosition(row + 1, column + 2), piece, moves);
+                calculatePosition(board, myPosition, new ChessPosition(row + 1, column + 2), piece, moves);
             }
 
-            //check left
+            //calculate left
             if (column - 1 >= 0) {
-                checkPosition(board, myPosition, new ChessPosition(row + 1, column), piece, moves);
+                calculatePosition(board, myPosition, new ChessPosition(row + 1, column), piece, moves);
             }
         }
 
         if (piece.getPieceType() == PieceType.QUEEN) {
 
-            //Check backward diagonals
-            checkDiagonal(board, myPosition, piece, moves, row, column, -1);
+            //calculate backward diagonals
+            calculateDiagonal(board, myPosition, piece, moves, row, column, -1);
 
-            //check forward diagonals
-            checkDiagonal(board, myPosition, piece, moves, row, column, 1);
+            //calculate forward diagonals
+            calculateDiagonal(board, myPosition, piece, moves, row, column, 1);
 
-            //check forward
-            checkVertical(board, myPosition, piece, moves, row, column, 1);
-            
-            //check backward
-            checkVertical(board, myPosition, piece, moves, row, column, -1);
-
-            //check left
-            checkHorizontal(board, myPosition, piece, moves, row, column, -1);
-
-            //check right
-            checkHorizontal(board, myPosition, piece, moves, row, column, 1);
+            //calculate in all four cardinal directions
+            calculateRook(board, myPosition, piece, moves, row, column);
         }
 
         if (piece.getPieceType() == PieceType.ROOK) {
 
-            //check forward
-            checkVertical(board, myPosition, piece, moves, row, column, 1);
-            
-            //check backward
-            checkVertical(board, myPosition, piece, moves, row, column, -1);
-
-            //check left
-            checkHorizontal(board, myPosition, piece, moves, row, column, -1);
-
-            //check right
-            checkHorizontal(board, myPosition, piece, moves, row, column, 1);
+            //calculate in all four cardinal directions
+            calculateRook(board, myPosition, piece, moves, row, column);
         }
 
         if (piece.getPieceType() == PieceType.BISHOP) {
 
-            //check backward diagonals
-            checkDiagonal(board, myPosition, piece, moves, row, column, -1);
+            //calculate backward diagonals
+            calculateDiagonal(board, myPosition, piece, moves, row, column, -1);
 
-            //check forward diagonals
-            checkDiagonal(board, myPosition, piece, moves, row, column, 1);
+            //calculate forward diagonals
+            calculateDiagonal(board, myPosition, piece, moves, row, column, 1);
         }
 
         if (piece.getPieceType() == PieceType.KNIGHT) {
 
-            //check forward
+            //calculate forward
             if (row + 2 <= 7) {
-                checkKnightVertical(board, myPosition, piece, moves, row, column, 1);
+                calculateKnightVertical(board, myPosition, piece, moves, row, column, 1);
             }
 
-            //check backward
+            //calculate backward
             if (row - 2 >= 0) {
-                checkKnightVertical(board, myPosition, piece, moves, row, column, -1);
+                calculateKnightVertical(board, myPosition, piece, moves, row, column, -1);
             }
 
-            //check right
+            //calculate right
             if (column + 2 <= 7) {
-                checkKnightHorizontal(board, myPosition, piece, moves, row, column, 1);
+                calculateKnightHorizontal(board, myPosition, piece, moves, row, column, 1);
             }
 
-            //check left
+            //calculate left
             if (column - 2 >= 0) {
-                checkKnightHorizontal(board, myPosition, piece, moves, row, column, -1);
+                calculateKnightHorizontal(board, myPosition, piece, moves, row, column, -1);
             }
         }
         
@@ -289,13 +289,13 @@ public class ChessPiece {
                 if (row + 1 <= 7) {
                     if (board.getPiece(new ChessPosition(row + 2, column + 1)) == null) {
 
-                        //check white start
+                        //calculate white start
                         newPosition = new ChessPosition(row + 3, column + 1);
                         if (row == 1 && board.getPiece(newPosition) == null) {
                             moves.add(new ChessMove(myPosition, newPosition, null));
                         }
 
-                        //check white promotion
+                        //calculate white promotion
                         newPosition = new ChessPosition(row + 2, column + 1);
                         if (row + 1 == 7) {
                             moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
@@ -307,14 +307,14 @@ public class ChessPiece {
                         }
                     }
                     
-                    //check white right capture
+                    //calculate white right capture
                     if (column + 1 <= 7) {
 
                         newPosition = new ChessPosition(row + 2, column + 2);
                         if (board.getPiece(newPosition) != null) {
                             if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
 
-                                //check white right capture promotion
+                                //calculate white right capture promotion
                                 if (row + 1 == 7) {
                                     moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
                                     moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
@@ -327,14 +327,14 @@ public class ChessPiece {
                         }
                     }
 
-                    //check white left capture
+                    //calculate white left capture
                     if (column - 1 >= 0) {
 
                         newPosition = new ChessPosition(row + 2, column);
                         if (board.getPiece(newPosition) != null) {
                             if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
 
-                                //check white left capture promotion
+                                //calculate white left capture promotion
                                 if (row + 1 == 7) {
                                     moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
                                     moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
@@ -351,13 +351,13 @@ public class ChessPiece {
                 if (row - 1 >= 0) {
                     if (board.getPiece(new ChessPosition(row, column + 1)) == null) {
 
-                        //check black start
+                        //calculate black start
                         newPosition = new ChessPosition(row - 1, column + 1);
                         if (row == 6 && board.getPiece(newPosition) == null) {
                             moves.add(new ChessMove(myPosition, newPosition, null));
                         }
 
-                        //check black promotion
+                        //calculate black promotion
                         newPosition = new ChessPosition(row, column + 1);
                         if (row - 1 == 0) {
                             moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
@@ -369,14 +369,14 @@ public class ChessPiece {
                         }
                     }
                     
-                    //check black right capture
+                    //calculate black right capture
                     if (column + 1 <= 7) {
 
                         newPosition = new ChessPosition(row, column + 2);
                         if (board.getPiece(newPosition) != null) {
                             if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
 
-                                //check black right capture promotion
+                                //calculate black right capture promotion
                                 if (row - 1 == 0) {
                                     moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
                                     moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
@@ -389,13 +389,13 @@ public class ChessPiece {
                         }
                     }
 
-                    //check black left capture
+                    //calculate black left capture
                     if (column - 1 >= 0) {
 
                         newPosition = new ChessPosition(row, column);
                         if (board.getPiece(newPosition) != null) {
 
-                            //check black left capture promotion
+                            //calculate black left capture promotion
                             if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
                                 if (row - 1 == 0) {
                                     moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
