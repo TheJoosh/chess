@@ -58,4 +58,18 @@ public class ChessBoard {
     public int hashCode() {
         return java.util.Arrays.deepHashCode(board);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                ChessPiece piece = board[row][col];
+                sb.append(piece == null ? " " : piece);
+                sb.append(" ");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 }

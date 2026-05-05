@@ -108,5 +108,5 @@ public class ChessBoardTests extends EqualsTestingUtility<ChessBoard> {
 
         return board;
     }
-
+    
 }

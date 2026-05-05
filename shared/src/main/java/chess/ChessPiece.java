@@ -380,4 +380,19 @@ public class ChessPiece {
     public int hashCode() {
         return java.util.Objects.hash(pieceColor, type);
     }
+
+    @Override
+    public String toString() {
+        char letter = switch (type) {
+            case KING -> 'k';
+            case QUEEN -> 'q';
+            case ROOK -> 'r';
+            case BISHOP -> 'b';
+            case KNIGHT -> 'n';
+            case PAWN -> 'p';
+        };
+        return pieceColor == ChessGame.TeamColor.WHITE
+                ? Character.toString(Character.toUpperCase(letter))
+                : Character.toString(letter);
+    }
 }
