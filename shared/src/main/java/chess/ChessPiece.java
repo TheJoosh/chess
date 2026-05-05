@@ -67,9 +67,9 @@ public class ChessPiece {
     }
 
     /**
-     * Calculates bounds
+     * Calculates the bounds of a piece's movement based on whether or not it is the king
      * 
-     * @return the bounds for a piece's movement
+     * @return the upper and lower bounds
      */
     public int[] bounds(int axis, int direction, boolean king) {
         int[] bounds = {7,0};
@@ -214,6 +214,76 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates the movement of a pawn
+     */
+    public void calculatePawn(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, int start, int end) {
+
+        ChessPosition newPosition;
+
+        if (row + direction <= 7 && row + direction >= 0) {
+            if (board.getPiece(new ChessPosition(row + 1 + direction, column + 1)) == null) {
+
+                //calculate move from start
+                newPosition = new ChessPosition(row + 1 + (direction * 2), column + 1);
+                if (row == start && board.getPiece(newPosition) == null) {
+                    moves.add(new ChessMove(myPosition, newPosition, null));
+                }
+
+                //calculate promotion
+                newPosition = new ChessPosition(row + 1 + direction, column + 1);
+                if (row + direction == end) {
+                    moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+                    moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+                    moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+                    moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+                } else {
+                    moves.add(new ChessMove(myPosition, newPosition, null));
+                }
+            }
+            
+            //calculate right capture
+            if (column + 1 <= 7) {
+
+                newPosition = new ChessPosition(row + 1 + direction, column + 2);
+                if (board.getPiece(newPosition) != null) {
+                    if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
+
+                        //calculate right capture promotion
+                        if (row + direction == end) {
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+                        } else {
+                            moves.add(new ChessMove(myPosition, newPosition, null));
+                        }
+                    }
+                }
+            }
+
+            //calculate left capture
+            if (column - 1 >= 0) {
+
+                newPosition = new ChessPosition(row + 1 + direction, column);
+                if (board.getPiece(newPosition) != null) {
+                    if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
+
+                        //calculate white left capture promotion
+                        if (row + direction == end) {
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
+                            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
+                        } else {
+                            moves.add(new ChessMove(myPosition, newPosition, null));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -283,133 +353,22 @@ public class ChessPiece {
         
         if (piece.getPieceType() == PieceType.PAWN) {
 
-            ChessPosition newPosition;
+            int direction;
+            int start;
+            int end;
             
             if (piece.getTeamColor() == TeamColor.WHITE) {
-                if (row + 1 <= 7) {
-                    if (board.getPiece(new ChessPosition(row + 2, column + 1)) == null) {
-
-                        //calculate white start
-                        newPosition = new ChessPosition(row + 3, column + 1);
-                        if (row == 1 && board.getPiece(newPosition) == null) {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
-
-                        //calculate white promotion
-                        newPosition = new ChessPosition(row + 2, column + 1);
-                        if (row + 1 == 7) {
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
-                    }
-                    
-                    //calculate white right capture
-                    if (column + 1 <= 7) {
-
-                        newPosition = new ChessPosition(row + 2, column + 2);
-                        if (board.getPiece(newPosition) != null) {
-                            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-
-                                //calculate white right capture promotion
-                                if (row + 1 == 7) {
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                                } else {
-                                    moves.add(new ChessMove(myPosition, newPosition, null));
-                                }
-                            }
-                        }
-                    }
-
-                    //calculate white left capture
-                    if (column - 1 >= 0) {
-
-                        newPosition = new ChessPosition(row + 2, column);
-                        if (board.getPiece(newPosition) != null) {
-                            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-
-                                //calculate white left capture promotion
-                                if (row + 1 == 7) {
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                                } else {
-                                    moves.add(new ChessMove(myPosition, newPosition, null));
-                                }
-                            }
-                        }
-                    }
-                }
+                direction = 1;
+                start = 1;
+                end = 7;
             } else {
-                if (row - 1 >= 0) {
-                    if (board.getPiece(new ChessPosition(row, column + 1)) == null) {
-
-                        //calculate black start
-                        newPosition = new ChessPosition(row - 1, column + 1);
-                        if (row == 6 && board.getPiece(newPosition) == null) {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
-
-                        //calculate black promotion
-                        newPosition = new ChessPosition(row, column + 1);
-                        if (row - 1 == 0) {
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                            moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                        } else {
-                            moves.add(new ChessMove(myPosition, newPosition, null));
-                        }
-                    }
-                    
-                    //calculate black right capture
-                    if (column + 1 <= 7) {
-
-                        newPosition = new ChessPosition(row, column + 2);
-                        if (board.getPiece(newPosition) != null) {
-                            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-
-                                //calculate black right capture promotion
-                                if (row - 1 == 0) {
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                                } else {
-                                    moves.add(new ChessMove(myPosition, newPosition, null));
-                                }
-                            }
-                        }
-                    }
-
-                    //calculate black left capture
-                    if (column - 1 >= 0) {
-
-                        newPosition = new ChessPosition(row, column);
-                        if (board.getPiece(newPosition) != null) {
-
-                            //calculate black left capture promotion
-                            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
-                                if (row - 1 == 0) {
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.ROOK));
-                                    moves.add(new ChessMove(myPosition, newPosition, PieceType.KNIGHT));
-                                } else {
-                                    moves.add(new ChessMove(myPosition, newPosition, null));
-                                }
-                            }
-                        }
-                    }
-                }
+                direction = -1;
+                start = 6;
+                end = 0;
             }
+
+            //calculate moves
+            calculatePawn(board, myPosition, piece, moves, row, column, direction, start, end);
         }
 
         return moves;
