@@ -100,6 +100,18 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates in all diagonal directions
+     */
+    public void calculateBishop(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column) {
+
+        //calculate backward
+            calculateDiagonal(board, myPosition, piece, moves, row, column, -1);
+
+            //calculate forward
+            calculateDiagonal(board, myPosition, piece, moves, row, column, 1);
+    }
+
+    /**
      * Calculates all vertical positions until it reaches an occupied position
      */
     public void calculateVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
@@ -233,11 +245,8 @@ public class ChessPiece {
 
         if (piece.getPieceType() == PieceType.QUEEN) {
 
-            //calculate backward diagonals
-            calculateDiagonal(board, myPosition, piece, moves, row, column, -1);
-
-            //calculate forward diagonals
-            calculateDiagonal(board, myPosition, piece, moves, row, column, 1);
+            //calculate diagonals
+            calculateBishop(board, myPosition, piece, moves, row, column);
 
             //calculate in all four cardinal directions
             calculateRook(board, myPosition, piece, moves, row, column);
@@ -251,11 +260,8 @@ public class ChessPiece {
 
         if (piece.getPieceType() == PieceType.BISHOP) {
 
-            //calculate backward diagonals
-            calculateDiagonal(board, myPosition, piece, moves, row, column, -1);
-
-            //calculate forward diagonals
-            calculateDiagonal(board, myPosition, piece, moves, row, column, 1);
+            //calculate diagonals
+            calculateBishop(board, myPosition, piece, moves, row, column);
         }
 
         if (piece.getPieceType() == PieceType.KNIGHT) {
