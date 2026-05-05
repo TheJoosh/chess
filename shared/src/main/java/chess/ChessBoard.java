@@ -1,5 +1,9 @@
 package chess;
 
+import chess.ChessPiece.PieceType;
+import chess.ChessPiece;
+import chess.ChessGame.TeamColor;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -8,7 +12,7 @@ package chess;
  */
 public class ChessBoard {
 
-        ChessPiece[][] board = new ChessPiece[8][8];
+    ChessPiece[][] board = new ChessPiece[8][8];
 
     public ChessBoard() {
     }
@@ -43,6 +47,29 @@ public class ChessBoard {
             for (int j = 0; j < 8; j++) {
                 board[i][j] = null;
             }
+        }
+
+        //create the sequence to set up the board
+        PieceType[] sequence = {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+
+        //add the white pieces
+        for (int i = 1; i <= 8; i++) {
+            this.addPiece(new ChessPosition(1, i), new ChessPiece(TeamColor.WHITE, sequence[i - 1]));
+        }
+
+        //add the white pawns
+        for (int i = 1; i <= 8; i++) {
+            this.addPiece(new ChessPosition(2, i), new ChessPiece(TeamColor.WHITE, PieceType.PAWN));
+        }
+
+        //add the black pieces
+        for (int i = 1; i <= 8; i++) {
+            this.addPiece(new ChessPosition(8, i), new ChessPiece(TeamColor.BLACK, sequence[i - 1]));
+        }
+
+        //add the black pawns
+        for (int i = 1; i <= 8; i++) {
+            this.addPiece(new ChessPosition(7, i), new ChessPiece(TeamColor.BLACK, PieceType.PAWN));
         }
     }
 
