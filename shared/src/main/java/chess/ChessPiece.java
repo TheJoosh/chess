@@ -142,14 +142,14 @@ public class ChessPiece {
      */
     public void checkKnightVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
         
-        //check left
-        if (row + 1 <= 7) {
-            checkPosition(board, myPosition, new ChessPosition(row + 1 + direction * 2, column), piece, moves);
+        //check right
+        if (column + 1 <= 7) {
+            checkPosition(board, myPosition, new ChessPosition(row + 1 + (direction * 2), column + 2), piece, moves);
         }
 
-        //check right
-        if (row - 1 >= 0) {
-            checkPosition(board, myPosition, new ChessPosition(row + 1 + direction * 2, column + 2), piece, moves);
+        //check left
+        if (column - 1 >= 0) {
+            checkPosition(board, myPosition, new ChessPosition(row + 1 + (direction * 2), column), piece, moves);
         }
     }
 
