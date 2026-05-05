@@ -189,63 +189,31 @@ public class ChessPiece {
             checkDiagonal(board, myPosition, piece, moves, row, column, 1);
 
             //check forward
-            for (int i = row + 1; i <= 7; i++) {
-                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
-                    break;
-                }
-            }
+            checkVertical(board, myPosition, piece, moves, row, column, 1);
             
             //check backward
-            for (int i = row - 1; i >= 0; i--) {
-                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
-                    break;
-                }
-            }
+            checkVertical(board, myPosition, piece, moves, row, column, -1);
 
             //check left
-            for (int i = column - 1; i >= 0; i--) {
-                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
-                    break;
-                }
-            }
+            checkHorizontal(board, myPosition, piece, moves, row, column, -1);
 
             //check right
-            for (int i = column + 1; i <= 7; i++) {
-                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
-                    break;
-                }
-            }
+            checkHorizontal(board, myPosition, piece, moves, row, column, 1);
         }
 
         if (piece.getPieceType() == PieceType.ROOK) {
 
             //check forward
-            for (int i = row + 1; i <= 7; i++) {
-                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
-                    break;
-                }
-            }
+            checkVertical(board, myPosition, piece, moves, row, column, 1);
             
             //check backward
-            for (int i = row - 1; i >= 0; i--) {
-                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
-                    break;
-                }
-            }
+            checkVertical(board, myPosition, piece, moves, row, column, -1);
 
             //check left
-            for (int i = column - 1; i >= 0; i--) {
-                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
-                    break;
-                }
-            }
+            checkHorizontal(board, myPosition, piece, moves, row, column, -1);
 
             //check right
-            for (int i = column + 1; i <= 7; i++) {
-                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
-                    break;
-                }
-            }
+            checkHorizontal(board, myPosition, piece, moves, row, column, 1);
         }
 
         if (piece.getPieceType() == PieceType.BISHOP) {
