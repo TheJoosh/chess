@@ -1,7 +1,6 @@
 package chess;
 
 import chess.ChessPiece.PieceType;
-import chess.ChessPiece;
 import chess.ChessGame.TeamColor;
 
 /**
