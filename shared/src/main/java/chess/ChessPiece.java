@@ -49,6 +49,20 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates if a piece can move to a given position
+     * If the move is possible, adds it to the list
+     */
+    public void checkPosition(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition, ChessPiece piece, ArrayList<ChessMove> moves) {
+        if (board.getPiece(newPosition) != null) {
+            if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
+                moves.add(new ChessMove(myPosition, newPosition, null));
+            }
+        } else {
+            moves.add(new ChessMove(myPosition, newPosition, null));
+        }
+    }
+
+    /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
@@ -265,6 +279,7 @@ public class ChessPiece {
 
             //check forward
             for (int i = row + 1; i <= 7; i++) {
+
                 newPosition = new ChessPosition(i + 1, column + 1);
                 if (board.getPiece(newPosition) != null) {
                     if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
@@ -278,6 +293,7 @@ public class ChessPiece {
             
             //check backward
             for (int i = row - 1; i >= 0; i--) {
+
                 newPosition = new ChessPosition(i + 1, column + 1);
                 if (board.getPiece(newPosition) != null) {
                     if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
