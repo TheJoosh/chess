@@ -51,6 +51,8 @@ public class ChessPiece {
     /**
      * Calculates if a piece can move to a given position
      * If the move is possible, adds it to the list
+     * 
+     * @return Whether the position is occupied by another piece
      */
     public boolean checkPosition(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition, ChessPiece piece, ArrayList<ChessMove> moves) {
         if (board.getPiece(newPosition) != null) {
@@ -65,8 +67,37 @@ public class ChessPiece {
     }
 
     /**
-     * 
+     * Calculates all diagonal positions and checks them until it reaches an occupied position
      */
+    public void checkDiagonal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+
+        int offset = 1;
+        boolean rblocked = false;
+        boolean lblocked = false;
+
+        for (int i = row + direction; i >= 0 && i <= 7; i += direction) {
+
+                //check left
+                if (!lblocked){
+                    if (column - offset < 0) {
+                        lblocked = true;
+                    } else {
+                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
+                    }
+                }
+
+                //check right
+                if (!rblocked) {
+                    if (column + offset > 7) {
+                        rblocked = true;
+                    } else {
+                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
+                    }
+                }
+
+                offset++;
+            }
+    }
 
     /**
      * Calculates all the positions a chess piece can move to
