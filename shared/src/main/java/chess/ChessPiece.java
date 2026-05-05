@@ -262,58 +262,22 @@ public class ChessPiece {
 
             //check forward
             if (row + 2 <= 7) {
-
-                //check forward right
-                if (column + 1 <= 7) {
-                    checkPosition(board, myPosition, new ChessPosition(row + 3, column + 2), piece, moves);
-                }
-
-                //check forward left
-                if (column - 1 >= 0) {
-                    checkPosition(board, myPosition, new ChessPosition(row + 3, column), piece, moves);
-                }
+                checkKnightVertical(board, myPosition, piece, moves, row, column, 1);
             }
 
             //check backward
             if (row - 2 >= 0) {
-
-                //check backward right
-                if (column + 1 <= 7) {
-                    checkPosition(board, myPosition, new ChessPosition(row - 1, column + 2), piece, moves);
-                }
-
-                //check backward left
-                if (column - 1 >= 0) {
-                    checkPosition(board, myPosition, new ChessPosition(row - 1, column), piece, moves);
-                }
+                checkKnightVertical(board, myPosition, piece, moves, row, column, -1);
             }
 
             //check right
             if (column + 2 <= 7) {
-
-                //check right forward
-                if (row + 1 <= 7) {
-                    checkPosition(board, myPosition, new ChessPosition(row + 2, column + 3), piece, moves);
-                }
-
-                //check right backward
-                if (row - 1 >= 0) {
-                    checkPosition(board, myPosition, new ChessPosition(row, column + 3), piece, moves);
-                }
+                checkKnightHorizontal(board, myPosition, piece, moves, row, column, 1);
             }
 
             //check left
             if (column - 2 >= 0) {
-
-                //check left forward
-                if (row + 1 <= 7) {
-                    checkPosition(board, myPosition, new ChessPosition(row + 2, column - 1), piece, moves);
-                }
-
-                //check left backward
-                if (row - 1 >= 0) {
-                    checkPosition(board, myPosition, new ChessPosition(row, column - 1), piece, moves);
-                }
+                checkKnightHorizontal(board, myPosition, piece, moves, row, column, -1);
             }
         }
         
