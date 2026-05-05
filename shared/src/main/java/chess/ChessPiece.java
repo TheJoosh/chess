@@ -67,7 +67,7 @@ public class ChessPiece {
     }
 
     /**
-     * Calculates all diagonal positions and checks them until it reaches an occupied position
+     * Checks all diagonal positions until it reaches an occupied position
      */
     public void checkDiagonal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
 
@@ -96,6 +96,28 @@ public class ChessPiece {
                 }
 
                 offset++;
+            }
+    }
+
+    /**
+     * Checks all vertical positions until it reaches an occupied position
+     */
+    public void checkVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+        for (int i = row + direction; i <= 7 && i >= 0; i += direction) {
+                if (checkPosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
+                    break;
+                }
+            }
+    }
+
+    /**
+     * Checks all horizontal positions until it reaches an occupied position
+     */
+    public void checkHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+        for (int i = column + direction; i <= 7 && i >= 0; i += direction) {
+                if (checkPosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
+                    break;
+                }
             }
     }
 
@@ -159,63 +181,12 @@ public class ChessPiece {
         }
 
         if (piece.getPieceType() == PieceType.QUEEN) {
-            
-            int offset = 1;
-            boolean rblocked = false;
-            boolean lblocked = false;
 
             //Check backward diagonals
-            for (int i = row - 1; i >= 0; i--) {
-
-                //check backward left
-                if (!lblocked){
-                    if (column - offset < 0) {
-                        lblocked = true;
-                    } else {
-                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
-                    }
-                }
-
-                //check backward right
-                if (!rblocked) {
-                    if (column + offset > 7) {
-                        rblocked = true;
-                    } else {
-                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
-                    }
-                }
-
-                offset++;
-            }
-
-            //reset variables
-            offset = 1;
-            rblocked = false;
-            lblocked = false;
+            checkDiagonal(board, myPosition, piece, moves, row, column, -1);
 
             //check forward diagonals
-            for (int i = row + 1; i <= 7; i++) {
-
-                //check forward left
-                if (!lblocked) {
-                    if (column - offset < 0) {
-                        lblocked = true;
-                    } else {
-                        lblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column - offset + 1), piece, moves);
-                    }
-                }
-
-                //check forward right
-                if (!rblocked) {
-                    if (column + offset > 7) {
-                        rblocked = true;
-                    } else {
-                        rblocked = checkPosition(board, myPosition, new ChessPosition(i + 1, column + offset + 1), piece, moves);
-                    }
-                }
-
-                offset++;
-            }
+            checkDiagonal(board, myPosition, piece, moves, row, column, 1);
 
             //check forward
             for (int i = row + 1; i <= 7; i++) {
