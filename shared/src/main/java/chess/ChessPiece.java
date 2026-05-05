@@ -67,27 +67,37 @@ public class ChessPiece {
     }
 
     /**
+     * Calculates bounds
+     * 
+     * @return the bounds for a piece's movement
+     */
+    public int[] bounds(int axis, int direction, boolean king) {
+        int[] bounds = {7,0};
+
+        if (king) {
+            if (direction == 1 && axis + 1 <= 7) {
+                bounds[0] = axis + 1;
+            } else if (direction == -1 && axis - 1 >= 0) {
+                bounds[1] = axis - 1;
+            }
+        }
+
+        return bounds;
+    }
+
+    /**
      * Calculates all diagonal positions until it reaches an occupied position
      */
     public void calculateDiagonal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, boolean king) {
 
-        int highBound = 7;
-        int lowBound = 0;
-
         //set bounds for the king
-        if (king) {
-            if (direction == 1 && row + 1 <= 7) {
-                highBound = row + 1;
-            } else if (direction == -1 && row - 1 >= 0) {
-                lowBound = row - 1;
-            }
-        }
+        int[] bounds = bounds(row, direction, king);
 
         int offset = 1;
         boolean rblocked = false;
         boolean lblocked = false;
 
-        for (int i = row + direction; i >= lowBound && i <= highBound; i += direction) {
+        for (int i = row + direction; i >= bounds[1] && i <= bounds[0]; i += direction) {
 
                 //calculate left
                 if (!lblocked){
@@ -128,19 +138,10 @@ public class ChessPiece {
      */
     public void calculateVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, boolean king) {
         
-        int highBound = 7;
-        int lowBound = 0;
-
         //set bounds for the king
-        if (king) {
-            if (direction == 1 && row + 1 <= 7) {
-                highBound = row + 1;
-            } else if (direction == -1 && row - 1 >= 0) {
-                lowBound = row - 1;
-            }
-        }
+        int[] bounds = bounds(row, direction, king);
         
-        for (int i = row + direction; i <= highBound && i >= lowBound; i += direction) {
+        for (int i = row + direction; i <= bounds[0] && i >= bounds[1]; i += direction) {
                 if (calculatePosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
                     break;
                 }
@@ -152,19 +153,10 @@ public class ChessPiece {
      */
     public void calculateHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, boolean king) {
         
-        int highBound = 7;
-        int lowBound = 0;
-
         //set bounds for the king
-        if (king) {
-            if (direction == 1 && column + 1 <= 7) {
-                highBound = column + 1;
-            } else if (direction == -1 && column - 1 >= 0) {
-                lowBound = column - 1;
-            }
-        }
+        int[] bounds = bounds(column, direction, king);
 
-        for (int i = column + direction; i <= highBound && i >= lowBound; i += direction) {
+        for (int i = column + direction; i <= bounds[0] && i >= bounds[1]; i += direction) {
                 if (calculatePosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
                     break;
                 }
