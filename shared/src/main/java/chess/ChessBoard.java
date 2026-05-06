@@ -49,7 +49,16 @@ public class ChessBoard {
         }
 
         //create the sequence to set up the board
-        PieceType[] sequence = {PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+        PieceType[] sequence = {
+                        PieceType.ROOK, 
+                        PieceType.KNIGHT, 
+                        PieceType.BISHOP, 
+                        PieceType.QUEEN, 
+                        PieceType.KING, 
+                        PieceType.BISHOP, 
+                        PieceType.KNIGHT, 
+                        PieceType.ROOK
+                    };
 
         //add the white pieces
         for (int i = 1; i <= 8; i++) {
