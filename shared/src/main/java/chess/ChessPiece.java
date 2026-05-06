@@ -54,7 +54,13 @@ public class ChessPiece {
      * 
      * @return whether the position is occupied by another piece
      */
-    public boolean calculatePosition(ChessBoard board, ChessPosition myPosition, ChessPosition newPosition, ChessPiece piece, ArrayList<ChessMove> moves) {
+    public boolean calculatePosition(
+                    ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPosition newPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves
+                ) {
         if (board.getPiece(newPosition) != null) {
             if (board.getPiece(newPosition).getTeamColor() != piece.getTeamColor()) {
                 moves.add(new ChessMove(myPosition, newPosition, null));
@@ -88,7 +94,16 @@ public class ChessPiece {
     /**
      * Calculates all diagonal positions until it reaches an occupied position
      */
-    public void calculateDiagonal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, boolean king) {
+    public void calculateDiagonal(
+                    ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int column, 
+                    int direction, 
+                    boolean king
+                ) {
 
         //set bounds for the king
         int[] bounds = bounds(row, direction, king);
@@ -124,7 +139,15 @@ public class ChessPiece {
     /**
      * Calculates in all diagonal directions
      */
-    public void calculateBishop(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, boolean king) {
+    public void calculateBishop(
+                    ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int column, 
+                    boolean king
+                ) {
 
         //calculate backward
             calculateDiagonal(board, myPosition, piece, moves, row, column, -1, king);
@@ -134,39 +157,50 @@ public class ChessPiece {
     }
 
     /**
-     * Calculates all vertical positions until it reaches an occupied position
+     * Calculates all vertical and horizontal positions until it reaches an occupied position
      */
-    public void calculateVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, boolean king) {
+    public void calculateStraight(
+                    ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int column, 
+                    int direction, 
+                    boolean king
+                ) {
         
         //set bounds for the king
-        int[] bounds = bounds(row, direction, king);
+        int[] rBounds = bounds(row, direction, king);
+        int[] cBounds = bounds(column, direction, king);
         
-        for (int i = row + direction; i <= bounds[0] && i >= bounds[1]; i += direction) {
-                if (calculatePosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
-                    break;
-                }
+        //calculate vertically
+        for (int i = row + direction; i <= rBounds[0] && i >= rBounds[1]; i += direction) {
+            if (calculatePosition(board, myPosition, new ChessPosition(i + 1, column + 1), piece, moves)) {
+                break;
             }
-    }
+        }
 
-    /**
-     * Calculates all horizontal positions until it reaches an occupied position
-     */
-    public void calculateHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, boolean king) {
-        
-        //set bounds for the king
-        int[] bounds = bounds(column, direction, king);
-
-        for (int i = column + direction; i <= bounds[0] && i >= bounds[1]; i += direction) {
-                if (calculatePosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
-                    break;
-                }
+        //calculate horizontally
+        for (int i = column + direction; i <= cBounds[0] && i >= cBounds[1]; i += direction) {
+            if (calculatePosition(board, myPosition, new ChessPosition(row + 1, i + 1), piece, moves)) {
+                break;
             }
+        }
     }
 
     /**
      * Calculates horizontal L movements
      */
-    public void calculateKnightHorizontal(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+    public void calculateKnightHorizontal(
+                    ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int column, 
+                    int direction
+                ) {
         
         //calculate forward
         if (row + 1 <= 7) {
@@ -182,7 +216,15 @@ public class ChessPiece {
     /**
      * Calculates vertical L movements
      */
-    public void calculateKnightVertical(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction) {
+    public void calculateKnightVertical(
+                    ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int column, 
+                    int direction
+                ) {
         
         //calculate right
         if (column + 1 <= 7) {
@@ -198,25 +240,34 @@ public class ChessPiece {
     /**
      * Calculates in all four cardinal directions
      */
-    public void calculateRook(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, boolean king) {
+    public void calculateRook(
+                    ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int column, 
+                    boolean king
+                ) {
 
-        //calculate forward
-        calculateVertical(board, myPosition, piece, moves, row, column, 1, king);
+        //calculate in the positive directions
+        calculateStraight(board, myPosition, piece, moves, row, column, 1, king);
         
-        //calculate backward
-        calculateVertical(board, myPosition, piece, moves, row, column, -1, king);
-
-        //calculate left
-        calculateHorizontal(board, myPosition, piece, moves, row, column, -1, king);
-
-        //calculate right
-        calculateHorizontal(board, myPosition, piece, moves, row, column, 1, king);
+        //calculate in the negative directions
+        calculateStraight(board, myPosition, piece, moves, row, column, -1, king);
     }
 
     /**
      * Calculates whether a pawn is promoted
      */
-    public void calculatePawnPromotion(ChessPosition myPosition, ChessPosition newPosition, ArrayList<ChessMove> moves, int row, int direction, int end) {
+    public void calculatePawnPromotion(
+                    ChessPosition myPosition, 
+                    ChessPosition newPosition, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int direction, 
+                    int end
+                ) {
         if (row + direction == end) {
             moves.add(new ChessMove(myPosition, newPosition, PieceType.BISHOP));
             moves.add(new ChessMove(myPosition, newPosition, PieceType.QUEEN));
@@ -230,7 +281,17 @@ public class ChessPiece {
     /**
      * Calculates a pawn capturing an enemy piece
      */
-    public void calculatePawnCapture(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int xDirection, int yDirection, int end) {
+    public void calculatePawnCapture(
+                    ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int column, 
+                    int xDirection, 
+                    int yDirection, 
+                    int end
+                ) {
 
         if (column + xDirection <= 7 && column + xDirection >= 0) {
 
@@ -248,7 +309,16 @@ public class ChessPiece {
     /**
      * Calculates the movement of a pawn
      */
-    public void calculatePawn(ChessBoard board, ChessPosition myPosition, ChessPiece piece, ArrayList<ChessMove> moves, int row, int column, int direction, int start, int end) {
+    public void calculatePawn(ChessBoard board, 
+                    ChessPosition myPosition, 
+                    ChessPiece piece, 
+                    ArrayList<ChessMove> moves, 
+                    int row, 
+                    int column, 
+                    int direction, 
+                    int start, 
+                    int end
+                ) {
 
         ChessPosition newPosition;
 
@@ -298,30 +368,22 @@ public class ChessPiece {
 
             //calculate in all four cardinal directions
             calculateRook(board, myPosition, piece, moves, row, column, true);
-        }
-
-        if (piece.getPieceType() == PieceType.QUEEN) {
+        } else if (piece.getPieceType() == PieceType.QUEEN) {
 
             //calculate diagonals
             calculateBishop(board, myPosition, piece, moves, row, column, false);
 
             //calculate in all four cardinal directions
             calculateRook(board, myPosition, piece, moves, row, column, false);
-        }
-
-        if (piece.getPieceType() == PieceType.ROOK) {
+        } else if (piece.getPieceType() == PieceType.ROOK) {
 
             //calculate in all four cardinal directions
             calculateRook(board, myPosition, piece, moves, row, column, false);
-        }
-
-        if (piece.getPieceType() == PieceType.BISHOP) {
+        } else if (piece.getPieceType() == PieceType.BISHOP) {
 
             //calculate diagonals
             calculateBishop(board, myPosition, piece, moves, row, column, false);
-        }
-
-        if (piece.getPieceType() == PieceType.KNIGHT) {
+        } else if (piece.getPieceType() == PieceType.KNIGHT) {
 
             //calculate forward
             if (row + 2 <= 7) {
@@ -342,9 +404,7 @@ public class ChessPiece {
             if (column - 2 >= 0) {
                 calculateKnightHorizontal(board, myPosition, piece, moves, row, column, -1);
             }
-        }
-        
-        if (piece.getPieceType() == PieceType.PAWN) {
+        } else if (piece.getPieceType() == PieceType.PAWN) {
 
             int direction;
             int start;
@@ -370,8 +430,12 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ChessPiece that = (ChessPiece) o;
         return pieceColor == that.pieceColor && type == that.type;
     }
