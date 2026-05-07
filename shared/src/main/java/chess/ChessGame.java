@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Collection;
-
 import java.util.ArrayList;
 
 /**
@@ -92,7 +91,42 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        ChessPosition position;
+        ChessPiece king = null;
+        ChessPiece piece;
+        Collection<ChessMove> enemyMoves = new ArrayList<ChessMove>();
+
+        //find the given team's king and construct a collection of possible enemy moves
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+                position = new ChessPosition(i, j);
+                piece = board.getPiece(position);
+                if (piece != null) {
+
+                    //identifies the king
+                    if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                        king = piece;
+                    }
+
+                    //adds any possible enemy moves
+                    if (piece.getTeamColor() != teamColor) {
+                        enemyMoves.addAll(piece.pieceMoves(board, position));
+                    }
+                }
+            }
+        }
+
+        //checks enemy moves to see if they target the king
+        for (ChessMove move : enemyMoves) {
+            if (board.getPiece(move.getEndPosition()) == king) {
+                return true;
+            }
+        }
+
+        return false;
+
+
     }
 
     /**
