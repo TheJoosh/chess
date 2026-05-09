@@ -130,13 +130,97 @@ public class ChessGame {
     }
 
     /**
+     * Simulates a move being made to see if it will result in a check
+     * 
+     * @param piece the piece making the move
+     * @param teamColor the color of the team being checked
+     * @param move the move being simulated
+     * @param position the position of the piece making the move
+     * @return whether the move will result in a check
+     */
+    public boolean checkMove(ChessPiece piece, ChessGame.TeamColor teamColor, ChessMove move, ChessPosition position) {
+
+        //store the piece currently at the end position
+        ChessPiece destination = board.getPiece(move.getEndPosition());
+
+        //see if the piece can actually move there
+        if (destination == null || destination.getTeamColor() != teamColor) {
+        
+            //add the piece to the end position and replace its previous position with a null value
+            board.addPiece(move.getEndPosition(), piece);
+            board.addPiece(position, null);
+
+            //see if the current board state is in check, then set the board back to its previous configuration
+            if (!isInCheck(teamColor)) {
+                board.addPiece(position, piece);
+                board.addPiece(move.getEndPosition(), destination);
+                
+                return false;
+            }
+            
+            board.addPiece(position, piece);
+            board.addPiece(move.getEndPosition(), destination);
+        }
+
+        return true;
+    }
+
+    /**
+     * Determines if there is a possible move a given team can make that will not result in a check
+     * 
+     * @param teamColor the color of the team
+     * @return whether the team is able to make a move that will not result in a check
+     */
+    public boolean canAvoidCheck(ChessGame.TeamColor teamColor) {
+
+        ChessPosition position;
+        ChessPiece piece;
+        Collection<ChessMove> moves;
+
+        //find all allied pieces
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 1; j <= 8; j++) {
+
+                position = new ChessPosition(i, j);
+                piece = board.getPiece(position);
+
+                if (piece != null) {
+
+                    //get the moves of the piece
+                    if (piece.getTeamColor() == teamColor) {
+                        moves = piece.pieceMoves(board, position);
+                        boolean stillInCheck;
+
+                        //see if any possible moves get the king out of check
+                        for (ChessMove move : moves) {
+                            stillInCheck = checkMove(piece, teamColor, move, position);
+
+                            if (!stillInCheck) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Determines if the given team is in checkmate
      *
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        //if the king is in check, see if they can escape it
+        if (isInCheck(teamColor)) {
+            return !canAvoidCheck(teamColor);
+        }
+
+        return false;
     }
 
     /**
@@ -147,7 +231,13 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+
+        //if the king is not in check, see if they can avoid it
+        if (!isInCheck(teamColor)) {
+            return !canAvoidCheck(teamColor);
+        }
+
+        return false;
     }
 
     /**
