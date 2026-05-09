@@ -76,12 +76,41 @@ public class ChessGame {
             throw new InvalidMoveException("Not Your Turn");
         }
 
-        //check if a pawn is being promoted
+        //check if a move is possible
+        Collection<ChessMove> moves = piece.pieceMoves(board, move.getStartPosition());
+        boolean validMove = false;
+
+        //compare the move to each valid move in the list
+        for (ChessMove item : moves) {
+            if (item.equals(move)) {
+                validMove = true;
+            }
+        }
+
+        if (!validMove) {
+            throw new InvalidMoveException("Illegal Move");
+        }
+
+        //check if a move will result in a check
+        if (checkMove(piece, piece.getTeamColor(), move, move.getStartPosition())){
+            throw new InvalidMoveException("Cannot Leave Own King In Check");
+        }
+
+        //promote a pawn, if applicable
         if (move.getPromotionPiece() != null) {
             piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
         }
 
+        //update the board to make the move
         board.addPiece(move.getEndPosition(), piece);
+        board.addPiece(move.getStartPosition(), null);
+
+        //switch to the next team's turn
+        if (getTeamTurn() == TeamColor.BLACK) {
+            setTeamTurn(TeamColor.WHITE);
+        } else {
+            setTeamTurn(TeamColor.BLACK);
+        }
     }
 
     /**
