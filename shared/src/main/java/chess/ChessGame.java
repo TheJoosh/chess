@@ -72,20 +72,26 @@ public class ChessGame {
                 if (castles[1] && startPosition.getColumn() == 5 && startPosition.getRow() == 1) {
 
                     ChessPosition newPosition;
+                    ChessPosition interPosition;
 
                     //check left
                     if (castles[0]) {
 
                         newPosition = new ChessPosition(1, 3);
+                        interPosition = new ChessPosition(1, 4);
 
                         //make sure the spaces between are clear
                         if (board.getPiece(new ChessPosition(1, 2)) == null && 
                             board.getPiece(newPosition) == null && 
-                            board.getPiece(new ChessPosition(1, 4)) == null
+                            board.getPiece(interPosition) == null
                         ) {
+
+                            //verify the legality of intermediate moves
+                            if (!checkMove(piece, piece.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
 
                                 //add the king's move
                                 moves.add(new ChessMove(startPosition, newPosition, null));
+                            } 
                         }
                     }
 
@@ -93,15 +99,20 @@ public class ChessGame {
                     if (castles[2]) {
 
                         newPosition = new ChessPosition(1, 7);
+                        interPosition = new ChessPosition(1, 6);
 
                         //make sure the spaces between are clear
                         if (board.getPiece(newPosition) == null &&
-                            board.getPiece(new ChessPosition(1, 6)) == null
+                            board.getPiece(interPosition) == null
                         ) {
 
+                            //verify the legality of intermediate moves
+                            if (!checkMove(piece, piece.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
+                                
                                 //add the king's move
                                 moves.add(new ChessMove(startPosition, newPosition, null));
-                            }
+                            } 
+                        }
                     }
                 }
 
@@ -111,20 +122,26 @@ public class ChessGame {
                 if (castles[4] && startPosition.getColumn() == 5 && startPosition.getRow() == 8) {
 
                     ChessPosition newPosition;
+                    ChessPosition interPosition;
 
                     //check left
                     if (castles[3]) {
 
                         newPosition = new ChessPosition(8, 3);
+                        interPosition = new ChessPosition(8, 4);
 
                         //make sure the spaces between are clear
                         if (board.getPiece(new ChessPosition(8, 2)) == null && 
                             board.getPiece(newPosition) == null && 
-                            board.getPiece(new ChessPosition(8, 4)) == null
+                            board.getPiece(interPosition) == null
                         ) {
 
+                            //verify the legality of intermediate moves
+                            if (!checkMove(piece, piece.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
+                                
                                 //add the king's move
                                 moves.add(new ChessMove(startPosition, newPosition, null));
+                            } 
                         }
                     }
 
@@ -132,14 +149,19 @@ public class ChessGame {
                     if (castles[5]) {
 
                         newPosition = new ChessPosition(8, 7);
+                        interPosition = new ChessPosition(8, 6);
 
                         //make sure the spaces between are clear
                         if (board.getPiece(newPosition) == null &&
-                            board.getPiece(new ChessPosition(8, 6)) == null
+                            board.getPiece(interPosition) == null
                         ) {
 
+                            //verify the legality of intermediate moves
+                            if (!checkMove(piece, piece.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
+                                
                                 //add the king's move
                                 moves.add(new ChessMove(startPosition, newPosition, null));
+                            } 
                         }
                     }
                 }
