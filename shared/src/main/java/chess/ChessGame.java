@@ -51,8 +51,19 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+
+        //get all possible moves
         Collection<ChessMove> moves = board.getPiece(startPosition).pieceMoves(board, startPosition);
-        return moves;
+        Collection<ChessMove> realMoves = new ArrayList<ChessMove>();
+        ChessPiece piece = board.getPiece(startPosition);
+
+        //check if any of the possible moves leave the king in check
+        for (ChessMove move : moves) {
+            if (!checkMove(piece, piece.getTeamColor(), move, startPosition)) {
+                realMoves.add(move);
+            }
+        }
+        return realMoves;
     }
 
     /**
@@ -76,8 +87,8 @@ public class ChessGame {
             throw new InvalidMoveException("Not Your Turn");
         }
 
-        //check if a move is possible
-        Collection<ChessMove> moves = piece.pieceMoves(board, move.getStartPosition());
+        //get a list of valid moves
+        Collection<ChessMove> moves = validMoves(move.getStartPosition());
         boolean validMove = false;
 
         //compare the move to each valid move in the list
@@ -89,11 +100,6 @@ public class ChessGame {
 
         if (!validMove) {
             throw new InvalidMoveException("Illegal Move");
-        }
-
-        //check if a move will result in a check
-        if (checkMove(piece, piece.getTeamColor(), move, move.getStartPosition())){
-            throw new InvalidMoveException("Cannot Leave Own King In Check");
         }
 
         //promote a pawn, if applicable
