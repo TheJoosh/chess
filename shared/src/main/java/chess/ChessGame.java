@@ -1,6 +1,9 @@
 package chess;
 
 import java.util.Collection;
+
+import chess.ChessPiece.PieceType;
+
 import java.util.ArrayList;
 
 /**
@@ -11,12 +14,14 @@ import java.util.ArrayList;
  */
 public class ChessGame {
 
-    public TeamColor team = TeamColor.WHITE;
+    public TeamColor team;
     public ChessBoard board;
+    public boolean[] castles = {true, true, true, true, true, true};
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
+        team = TeamColor.WHITE;
     }
 
     /**
@@ -57,12 +62,96 @@ public class ChessGame {
         Collection<ChessMove> realMoves = new ArrayList<ChessMove>();
         ChessPiece piece = board.getPiece(startPosition);
 
+        //check if the king can castle
+        if (piece.getPieceType() == PieceType.KING) {
+
+            if (piece.getTeamColor() == TeamColor.WHITE) {
+
+                //check if the white king has moved yet
+                if (castles[1] && startPosition.getColumn() == 5 && startPosition.getRow() == 1) {
+
+                    ChessPosition newPosition;
+
+                    //check left
+                    if (castles[0]) {
+
+                        newPosition = new ChessPosition(1, 3);
+
+                        //make sure the spaces between are clear
+                        if (board.getPiece(new ChessPosition(1, 2)) == null && 
+                            board.getPiece(newPosition) == null && 
+                            board.getPiece(new ChessPosition(1, 4)) == null
+                        ) {
+
+                                //add the king's move
+                                moves.add(new ChessMove(startPosition, newPosition, null));
+                        }
+                    }
+
+                    //check right
+                    if (castles[2]) {
+
+                        newPosition = new ChessPosition(1, 7);
+
+                        //make sure the spaces between are clear
+                        if (board.getPiece(newPosition) == null &&
+                            board.getPiece(new ChessPosition(1, 6)) == null
+                        ) {
+
+                                //add the king's move
+                                moves.add(new ChessMove(startPosition, newPosition, null));
+                            }
+                    }
+                }
+
+            } else {
+            
+                //check if the black king has moved yet
+                if (castles[4] && startPosition.getColumn() == 5 && startPosition.getRow() == 8) {
+
+                    ChessPosition newPosition;
+
+                    //check left
+                    if (castles[3]) {
+
+                        newPosition = new ChessPosition(8, 3);
+
+                        //make sure the spaces between are clear
+                        if (board.getPiece(new ChessPosition(8, 2)) == null && 
+                            board.getPiece(newPosition) == null && 
+                            board.getPiece(new ChessPosition(8, 4)) == null
+                        ) {
+
+                                //add the king's move
+                                moves.add(new ChessMove(startPosition, newPosition, null));
+                        }
+                    }
+
+                    //check right
+                    if (castles[5]) {
+
+                        newPosition = new ChessPosition(8, 7);
+
+                        //make sure the spaces between are clear
+                        if (board.getPiece(newPosition) == null &&
+                            board.getPiece(new ChessPosition(8, 6)) == null
+                        ) {
+
+                                //add the king's move
+                                moves.add(new ChessMove(startPosition, newPosition, null));
+                        }
+                    }
+                }
+            }
+        } 
+
         //check if any of the possible moves leave the king in check
         for (ChessMove move : moves) {
             if (!checkMove(piece, piece.getTeamColor(), move, startPosition)) {
                 realMoves.add(move);
             }
         }
+
         return realMoves;
     }
 
@@ -105,6 +194,61 @@ public class ChessGame {
         //promote a pawn, if applicable
         if (move.getPromotionPiece() != null) {
             piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
+
+        //castle a king, if applicable
+        if (piece.getPieceType() == PieceType.KING) {
+            if (piece.getTeamColor() == TeamColor.WHITE && castles[1]) {
+
+                ChessPiece rook = new ChessPiece(TeamColor.WHITE, PieceType.ROOK);
+
+                //castle to the left
+                if (move.getEndPosition().getColumn() == 3) {
+
+                    //move the rook
+                    board.addPiece(new ChessPosition(1, 1), null);
+                    board.addPiece(new ChessPosition(1, 4), rook);
+
+                    castles[0] = false;
+
+                //castle to the right
+                } else if (move.getEndPosition().getColumn() == 7) {
+
+                    //move the rook
+                    board.addPiece(new ChessPosition(1, 8), null);
+                    board.addPiece(new ChessPosition(1, 6), rook);
+
+                    castles[2] = false;
+                }
+
+                castles[1] = false;
+
+            } else if (piece.getTeamColor() == TeamColor.BLACK && castles[4]) {
+
+                ChessPiece rook = new ChessPiece(TeamColor.BLACK, PieceType.ROOK);
+
+                //castle to the left
+                if (move.getEndPosition().getColumn() == 3) {
+
+                    //move the rook
+                    board.addPiece(new ChessPosition(8, 1), null);
+                    board.addPiece(new ChessPosition(8, 4), rook);
+
+                    castles[3] = false;
+
+                //castle to the right
+                } else if (move.getEndPosition().getColumn() == 7) {
+
+                    //move the rook
+                    board.addPiece(new ChessPosition(8, 8), null);
+                    board.addPiece(new ChessPosition(8, 6), rook);
+
+                    castles[5] = false;
+                }
+
+                castles[4] = false;
+            }
+            
         }
 
         //update the board to make the move
@@ -223,7 +367,7 @@ public class ChessGame {
 
                     //get the moves of the piece
                     if (piece.getTeamColor() == teamColor) {
-                        moves = piece.pieceMoves(board, position);
+                        moves = validMoves(position);
                         boolean stillInCheck;
 
                         //see if any possible moves get the king out of check
