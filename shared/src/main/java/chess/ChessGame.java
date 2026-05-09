@@ -50,6 +50,80 @@ public class ChessGame {
     }
 
     /**
+     * Checks if a particular castling move is possible and adds it to the list
+     * 
+     * @param king the king trying to castle
+     * @param startPosition the starting position of the king
+     * @param moves a list of possible moves
+     * @param direction an integer representing the direction of movement
+     */
+    public void castle(ChessPiece king, ChessPosition startPosition, Collection<ChessMove> moves, int direction) {
+
+        int end;
+
+        if (direction == 1) {
+            end = 1;
+        } else {
+            end = 8;
+        }
+
+        ChessPosition newPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + (2 * direction));
+        ChessPosition interPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + direction);
+        ChessPosition thirdPosition = new ChessPosition(startPosition.getRow(), end + (3 * direction));
+
+        //make sure the spaces between are clear
+        if (board.getPiece(newPosition) == null &&
+            board.getPiece(interPosition) == null &&
+            (board.getPiece(thirdPosition) == null || board.getPiece(thirdPosition) == king)
+        ) {
+
+            //verify the legality of intermediate moves
+            if (!checkMove(king, king.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
+                
+                //add the king's move
+                moves.add(new ChessMove(startPosition, newPosition, null));
+            } 
+        }
+    }
+
+    /**
+     * Checks if a king can castle in either direction
+     * 
+     * @param startPosition the starting position of the king
+     * @param king the king trying to castle
+     * @param moves a collection of possible moves
+     * @param color the team color of the king
+     */
+    public void checkCastle(ChessPosition startPosition, ChessPiece king, Collection<ChessMove> moves, TeamColor color) {
+
+        int kingIndex;
+        int start;
+        if (color == TeamColor.WHITE) {
+            kingIndex = 1;
+            start = 1;
+        } else {
+            kingIndex = 4;
+            start = 8;
+        }
+
+        int lRookIndex = kingIndex - 1;
+        int rRookIndex = kingIndex + 1;
+
+        if (castles[kingIndex] && startPosition.getColumn() == 5 && startPosition.getRow() == start) {
+
+            //check left
+            if (castles[lRookIndex]) {
+                castle(king, startPosition, moves, -1);
+            }
+
+            //check right
+            if (castles[rRookIndex]) {
+                castle(king, startPosition, moves, 1);
+            }
+        }
+    }
+
+    /**
      * Gets all valid moves for a piece at the given location
      *
      * @param startPosition the piece to get valid moves for
@@ -65,107 +139,7 @@ public class ChessGame {
 
         //check if the king can castle
         if (piece.getPieceType() == PieceType.KING && !isInCheck(piece.getTeamColor())) {
-
-            if (piece.getTeamColor() == TeamColor.WHITE) {
-
-                //check if the white king has moved yet
-                if (castles[1] && startPosition.getColumn() == 5 && startPosition.getRow() == 1) {
-
-                    ChessPosition newPosition;
-                    ChessPosition interPosition;
-
-                    //check left
-                    if (castles[0]) {
-
-                        newPosition = new ChessPosition(1, 3);
-                        interPosition = new ChessPosition(1, 4);
-
-                        //make sure the spaces between are clear
-                        if (board.getPiece(new ChessPosition(1, 2)) == null && 
-                            board.getPiece(newPosition) == null && 
-                            board.getPiece(interPosition) == null
-                        ) {
-
-                            //verify the legality of intermediate moves
-                            if (!checkMove(piece, piece.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
-
-                                //add the king's move
-                                moves.add(new ChessMove(startPosition, newPosition, null));
-                            } 
-                        }
-                    }
-
-                    //check right
-                    if (castles[2]) {
-
-                        newPosition = new ChessPosition(1, 7);
-                        interPosition = new ChessPosition(1, 6);
-
-                        //make sure the spaces between are clear
-                        if (board.getPiece(newPosition) == null &&
-                            board.getPiece(interPosition) == null
-                        ) {
-
-                            //verify the legality of intermediate moves
-                            if (!checkMove(piece, piece.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
-                                
-                                //add the king's move
-                                moves.add(new ChessMove(startPosition, newPosition, null));
-                            } 
-                        }
-                    }
-                }
-
-            } else {
-            
-                //check if the black king has moved yet
-                if (castles[4] && startPosition.getColumn() == 5 && startPosition.getRow() == 8) {
-
-                    ChessPosition newPosition;
-                    ChessPosition interPosition;
-
-                    //check left
-                    if (castles[3]) {
-
-                        newPosition = new ChessPosition(8, 3);
-                        interPosition = new ChessPosition(8, 4);
-
-                        //make sure the spaces between are clear
-                        if (board.getPiece(new ChessPosition(8, 2)) == null && 
-                            board.getPiece(newPosition) == null && 
-                            board.getPiece(interPosition) == null
-                        ) {
-
-                            //verify the legality of intermediate moves
-                            if (!checkMove(piece, piece.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
-                                
-                                //add the king's move
-                                moves.add(new ChessMove(startPosition, newPosition, null));
-                            } 
-                        }
-                    }
-
-                    //check right
-                    if (castles[5]) {
-
-                        newPosition = new ChessPosition(8, 7);
-                        interPosition = new ChessPosition(8, 6);
-
-                        //make sure the spaces between are clear
-                        if (board.getPiece(newPosition) == null &&
-                            board.getPiece(interPosition) == null
-                        ) {
-
-                            //verify the legality of intermediate moves
-                            if (!checkMove(piece, piece.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
-                                
-                                //add the king's move
-                                moves.add(new ChessMove(startPosition, newPosition, null));
-                            } 
-                        }
-                    }
-                }
-            }
+            checkCastle(startPosition, piece, moves, piece.getTeamColor());
         } 
 
         //check if any of the possible moves leave the king in check
