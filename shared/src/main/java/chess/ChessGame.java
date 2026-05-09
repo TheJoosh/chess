@@ -5,6 +5,7 @@ import java.util.Collection;
 import chess.ChessPiece.PieceType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -63,7 +64,7 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
 
         //check if the king can castle
-        if (piece.getPieceType() == PieceType.KING) {
+        if (piece.getPieceType() == PieceType.KING && !isInCheck(piece.getTeamColor())) {
 
             if (piece.getTeamColor() == TeamColor.WHITE) {
 
@@ -164,7 +165,8 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
 
         //get the piece making the move
-        ChessPiece piece = board.getPiece(move.getStartPosition());
+        ChessPosition position = move.getStartPosition();
+        ChessPiece piece = board.getPiece(position);
 
         //check if there actually is a piece at that position
         if (piece == null) {
@@ -177,7 +179,7 @@ public class ChessGame {
         }
 
         //get a list of valid moves
-        Collection<ChessMove> moves = validMoves(move.getStartPosition());
+        Collection<ChessMove> moves = validMoves(position);
         boolean validMove = false;
 
         //compare the move to each valid move in the list
@@ -248,12 +250,37 @@ public class ChessGame {
 
                 castles[4] = false;
             }
-            
+        }
+
+        //register the movement of a rook
+        if (piece.getPieceType() == PieceType.ROOK) {
+            if (position.getRow() == 1) {
+
+                if (position.getColumn() == 1 && castles[0]) {
+
+                    castles[0] = false;
+
+                } else if (position.getColumn() == 8 && castles[2]) {
+
+                    castles[2] = false;
+
+                }
+            } else if (position.getRow() == 8) {
+
+                if (position.getColumn() == 1 && castles[3]) {
+
+                    castles[3] = false;
+                
+                } else if (position.getColumn() == 8 && castles[5]) {
+
+                    castles[5] = false;
+                }
+            }
         }
 
         //update the board to make the move
         board.addPiece(move.getEndPosition(), piece);
-        board.addPiece(move.getStartPosition(), null);
+        board.addPiece(position, null);
 
         //switch to the next team's turn
         if (getTeamTurn() == TeamColor.BLACK) {
@@ -443,6 +470,7 @@ public class ChessGame {
         int result = 1;
         result = prime * result + ((team == null) ? 0 : team.hashCode());
         result = prime * result + ((board == null) ? 0 : board.hashCode());
+        result = prime * result + Arrays.hashCode(castles);
         return result;
     }
 
@@ -461,6 +489,8 @@ public class ChessGame {
             if (other.board != null)
                 return false;
         } else if (!board.equals(other.board))
+            return false;
+        if (!Arrays.equals(castles, other.castles))
             return false;
         return true;
     }
