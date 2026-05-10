@@ -1,17 +1,11 @@
 package chess;
-
 import java.util.Collection;
-
 import chess.ChessPiece.PieceType;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
  * A class that can manage a chess game, making moves on a board
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
  */
 public class ChessGame {
 
@@ -36,8 +30,6 @@ public class ChessGame {
 
     /**
      * Sets which teams turn it is
-     *
-     * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
         this.team = team;
@@ -53,11 +45,7 @@ public class ChessGame {
 
     /**
      * Checks if a particular castling move is possible and adds it to the list
-     * 
-     * @param king the king trying to castle
-     * @param startPosition the starting position of the king
-     * @param moves a list of possible moves
-     * @param direction an integer representing the direction of movement
+     *
      */
     public void castle(ChessPiece king, ChessPosition startPosition, Collection<ChessMove> moves, int direction) {
 
@@ -67,7 +55,6 @@ public class ChessGame {
         } else {
             end = 8;
         }
-
         ChessPosition newPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + (2 * direction));
         ChessPosition interPosition = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + direction);
         ChessPosition thirdPosition = new ChessPosition(startPosition.getRow(), end + (3 * direction));
@@ -77,7 +64,6 @@ public class ChessGame {
             board.getPiece(interPosition) == null &&
             (board.getPiece(thirdPosition) == null || board.getPiece(thirdPosition) == king)
         ) {
-
             //verify the legality of intermediate moves
             if (!checkMove(king, king.getTeamColor(), new ChessMove(startPosition, interPosition, null), startPosition)) {
                 
@@ -89,11 +75,6 @@ public class ChessGame {
 
     /**
      * Checks if a king can castle in either direction
-     * 
-     * @param startPosition the starting position of the king
-     * @param king the king trying to castle
-     * @param moves a collection of possible moves
-     * @param color the team color of the king
      */
     public void checkCastle(ChessPosition startPosition, ChessPiece king, Collection<ChessMove> moves, TeamColor color) {
 
@@ -106,7 +87,6 @@ public class ChessGame {
             kingIndex = 4;
             start = 8;
         }
-
         int lRookIndex = kingIndex - 1;
         int rRookIndex = kingIndex + 1;
 
@@ -126,10 +106,6 @@ public class ChessGame {
 
     /**
      * Moves the rooks during a castle
-     * 
-     * @param move the move being made
-     * @param teamColor the color of the team making the move
-     * @param the direction of castling
      */
     public void executeCastle(ChessMove move, TeamColor teamColor, int direction) throws InvalidMoveException {
 
@@ -144,12 +120,9 @@ public class ChessGame {
             start = 8;
         }
         int rookIndex = kingIndex + direction;
-
         if(!castles[kingIndex] || !castles[rookIndex]) {
             throw new InvalidMoveException("Illegal Move");    
         }
-
-
         int end;
         int offset;
         if (direction == 1) {
@@ -163,7 +136,6 @@ public class ChessGame {
         //move the rook
         board.addPiece(new ChessPosition(start, end), null);
         board.addPiece(new ChessPosition(start, end - (direction * offset)), new ChessPiece(teamColor, PieceType.ROOK));
-
         castles[rookIndex] = false;
         castles[kingIndex] = false;
     }
@@ -171,9 +143,7 @@ public class ChessGame {
     /**
      * Gets all valid moves for a piece at the given location
      *
-     * @param startPosition the piece to get valid moves for
      * @return Set of valid moves for requested piece, or null if no piece at
-     * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
 
@@ -191,13 +161,11 @@ public class ChessGame {
         if (piece.getPieceType() == PieceType.PAWN && enPassant != null) {
 
             int direction;
-
             if (piece.getTeamColor() == TeamColor.WHITE) {
                 direction = 1;
             } else {
                 direction = -1;
             }
-
             if (enPassant.getRow() == startPosition.getRow() + direction && 
                 (enPassant.getColumn() == startPosition.getColumn() + 1 || 
                 enPassant.getColumn() == startPosition.getColumn() -1)
@@ -212,7 +180,6 @@ public class ChessGame {
                 realMoves.add(move);
             }
         }
-
         return realMoves;
     }
 
@@ -228,14 +195,9 @@ public class ChessGame {
         ChessPosition position = move.getStartPosition();
         ChessPiece piece = board.getPiece(position);
 
-        //check if there actually is a piece at that position
-        if (piece == null) {
-            throw new InvalidMoveException("No Piece");
-        }
-
         //check if a player is moving out of turn
-        if (piece.getTeamColor() != getTeamTurn()) {
-            throw new InvalidMoveException("Not Your Turn");
+        if (piece == null || piece.getTeamColor() != getTeamTurn()) {
+            throw new InvalidMoveException("Illegal Move");
         }
 
         //get a list of valid moves
@@ -248,7 +210,6 @@ public class ChessGame {
                 validMove = true;
             }
         }
-
         if (!validMove) {
             throw new InvalidMoveException("Illegal Move");
         }
@@ -260,10 +221,8 @@ public class ChessGame {
 
         //activate en passant, if applicable
         if (piece.getPieceType() == PieceType.PAWN) {
-
             int start;
             int direction;
-
             if (piece.getTeamColor() == TeamColor.WHITE) {
                 start = 2;
                 direction = 1;
@@ -290,28 +249,26 @@ public class ChessGame {
         }
 
         //castle a king, if applicable
-        if (piece.getPieceType() == PieceType.KING) {
-            if (position.getColumn() == 5) {
-                if (castles[1] || castles[4]) {
-                    if (move.getEndPosition().getColumn() == 7 || move.getEndPosition().getColumn() == 3) {
+        if (piece.getPieceType() == PieceType.KING && position.getColumn() == 5) {
+            if (castles[1] || castles[4]) {
+                if (move.getEndPosition().getColumn() == 7 || move.getEndPosition().getColumn() == 3) {
 
-                        //determine the direction
-                        int direction = 1;
-                        if (move.getEndPosition().getColumn() == 3) {
-                            direction = -1;
-                        }
-
-                        //move the rook
-                        executeCastle(move, piece.getTeamColor(), direction);
+                    //determine the direction
+                    int direction = 1;
+                    if (move.getEndPosition().getColumn() == 3) {
+                        direction = -1;
                     }
-                }
 
-                //register the movement of a king
-                if (position.getRow() == 1) {
-                    castles[1] = false;
-                } else if (position.getRow() == 8) {
-                    castles[4] = false;
+                    //move the rook
+                    executeCastle(move, piece.getTeamColor(), direction);
                 }
+            }
+
+            //register the movement of a king
+            if (position.getRow() == 1) {
+                castles[1] = false;
+            } else if (position.getRow() == 8) {
+                castles[4] = false;
             }
         }
 
@@ -356,7 +313,6 @@ public class ChessGame {
     /**
      * Determines if the given team is in check
      *
-     * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
@@ -392,19 +348,12 @@ public class ChessGame {
                 return true;
             }
         }
-
         return false;
-
-
     }
 
     /**
      * Simulates a move being made to see if it will result in a check
      * 
-     * @param piece the piece making the move
-     * @param teamColor the color of the team being checked
-     * @param move the move being simulated
-     * @param position the position of the piece making the move
      * @return whether the move will result in a check
      */
     public boolean checkMove(ChessPiece piece, ChessGame.TeamColor teamColor, ChessMove move, ChessPosition position) {
@@ -423,21 +372,17 @@ public class ChessGame {
             if (!isInCheck(teamColor)) {
                 board.addPiece(position, piece);
                 board.addPiece(move.getEndPosition(), destination);
-                
                 return false;
             }
-            
             board.addPiece(position, piece);
             board.addPiece(move.getEndPosition(), destination);
         }
-
         return true;
     }
 
     /**
      * Determines if there is a possible move a given team can make that will not result in a check
      * 
-     * @param teamColor the color of the team
      * @return whether the team is able to make a move that will not result in a check
      */
     public boolean canAvoidCheck(ChessGame.TeamColor teamColor) {
@@ -449,37 +394,28 @@ public class ChessGame {
         //find all allied pieces
         for (int i = 1; i <= 8; i++) {
             for (int j = 1; j <= 8; j++) {
-
                 position = new ChessPosition(i, j);
                 piece = board.getPiece(position);
 
-                if (piece != null) {
+                //get the moves of the piece
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    moves = validMoves(position);
+                    boolean stillInCheck;
 
-                    //get the moves of the piece
-                    if (piece.getTeamColor() == teamColor) {
-                        moves = validMoves(position);
-                        boolean stillInCheck;
-
-                        //see if any possible moves get the king out of check
-                        for (ChessMove move : moves) {
-                            stillInCheck = checkMove(piece, teamColor, move, position);
-
-                            if (!stillInCheck) {
-                                return true;
-                            }
-                        }
+                    //see if any possible moves get the king out of check
+                    for (ChessMove move : moves) {
+                        stillInCheck = checkMove(piece, teamColor, move, position);
+                        return !stillInCheck;
                     }
                 }
             }
         }
-
         return false;
     }
 
     /**
      * Determines if the given team is in checkmate
      *
-     * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
@@ -488,7 +424,6 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return !canAvoidCheck(teamColor);
         }
-
         return false;
     }
 
@@ -505,7 +440,6 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return !canAvoidCheck(teamColor);
         }
-
         return false;
     }
 
@@ -540,27 +474,27 @@ public class ChessGame {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) {
+            return true; }
+        if (obj == null)  {
+            return false; }
+        if (getClass() != obj.getClass()) {
+            return false; }
         ChessGame other = (ChessGame) obj;
-        if (team != other.team)
-            return false;
+        if (team != other.team) {
+            return false; }
         if (board == null) {
-            if (other.board != null)
-                return false;
-        } else if (!board.equals(other.board))
-            return false;
-        if (!Arrays.equals(castles, other.castles))
-            return false;
+            if (other.board != null) {
+                return false; }
+        } else if (!board.equals(other.board)) {
+            return false; }
+        if (!Arrays.equals(castles, other.castles)) {
+            return false; }
         if (enPassant == null) {
-            if (other.enPassant != null)
-                return false;
-        } else if (!enPassant.equals(other.enPassant))
-            return false;
+            if (other.enPassant != null) {
+                return false; }
+        } else if (!enPassant.equals(other.enPassant)) {
+            return false; }
         return true;
     }
 }
