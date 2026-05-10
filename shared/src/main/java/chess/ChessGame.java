@@ -112,6 +112,8 @@ public class ChessGame {
         //ensure the move is legal
         int kingIndex;
         int start;
+        int end;
+        int offset;
         if (teamColor == TeamColor.WHITE) {
             kingIndex = 1;
             start = 1;
@@ -123,8 +125,6 @@ public class ChessGame {
         if(!castles[kingIndex] || !castles[rookIndex]) {
             throw new InvalidMoveException("Illegal Move");    
         }
-        int end;
-        int offset;
         if (direction == 1) {
             end = 8;
             offset = 2;
@@ -146,8 +146,6 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-
-        //get all possible moves
         Collection<ChessMove> moves = board.getPiece(startPosition).pieceMoves(board, startPosition);
         Collection<ChessMove> realMoves = new ArrayList<ChessMove>();
         ChessPiece piece = board.getPiece(startPosition);
@@ -159,7 +157,6 @@ public class ChessGame {
 
         //check if a pawn can capture en passant
         if (piece.getPieceType() == PieceType.PAWN && enPassant != null) {
-
             int direction;
             if (piece.getTeamColor() == TeamColor.WHITE) {
                 direction = 1;
@@ -181,6 +178,34 @@ public class ChessGame {
             }
         }
         return realMoves;
+    }
+
+    /**
+     * Executes en passant
+     */
+    public void executeEnPassant(ChessPiece piece, ChessMove move, ChessPosition position) {
+        int start;
+        int direction;
+        if (piece.getTeamColor() == TeamColor.WHITE) {
+            start = 2;
+            direction = 1;
+        } else {
+            start = 7;
+            direction = -1;
+        }
+
+        //capture and reset en passant
+        if (enPassant != null) {
+            if (enPassant.equals(move.getEndPosition())) {
+                board.addPiece(new ChessPosition(enPassant.getRow() - direction, enPassant.getColumn()), null);
+            }
+            enPassant = null;
+        }
+
+        //set en passant to the position that the pawn skipped
+        if (position.getRow() == start && move.getEndPosition().getRow() != start + direction) {
+            enPassant = new ChessPosition(start + direction, position.getColumn());
+        } 
     }
 
     /**
@@ -221,45 +246,17 @@ public class ChessGame {
 
         //activate en passant, if applicable
         if (piece.getPieceType() == PieceType.PAWN) {
-            int start;
-            int direction;
-            if (piece.getTeamColor() == TeamColor.WHITE) {
-                start = 2;
-                direction = 1;
-            } else {
-                start = 7;
-                direction = -1;
-            }
-
-            if (enPassant != null) {
-
-                //capture en passant
-                if (enPassant.equals(move.getEndPosition())) {
-                    board.addPiece(new ChessPosition(enPassant.getRow() - direction, enPassant.getColumn()), null);
-                }
-
-                //reset en passant
-                enPassant = null;
-            }
-
-            //set en passant to the position that the pawn skipped
-            if (position.getRow() == start && move.getEndPosition().getRow() != start + direction) {
-                enPassant = new ChessPosition(start + direction, position.getColumn());
-            } 
+            executeEnPassant(piece, move, position);
         }
 
         //castle a king, if applicable
         if (piece.getPieceType() == PieceType.KING && position.getColumn() == 5) {
             if (castles[1] || castles[4]) {
                 if (move.getEndPosition().getColumn() == 7 || move.getEndPosition().getColumn() == 3) {
-
-                    //determine the direction
                     int direction = 1;
                     if (move.getEndPosition().getColumn() == 3) {
                         direction = -1;
                     }
-
-                    //move the rook
                     executeCastle(move, piece.getTeamColor(), direction);
                 }
             }
@@ -269,8 +266,7 @@ public class ChessGame {
                 castles[1] = false;
             } else if (position.getRow() == 8) {
                 castles[4] = false;
-            }
-        }
+        }}
 
         //register the movement of a rook
         if (piece.getPieceType() == PieceType.ROOK) {
@@ -307,8 +303,7 @@ public class ChessGame {
             setTeamTurn(TeamColor.WHITE);
         } else {
             setTeamTurn(TeamColor.BLACK);
-        }
-    }
+    }}
 
     /**
      * Determines if the given team is in check
@@ -316,7 +311,6 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
         ChessPosition position;
         ChessPiece king = null;
         ChessPiece piece;
@@ -328,8 +322,6 @@ public class ChessGame {
                 position = new ChessPosition(i, j);
                 piece = board.getPiece(position);
                 if (piece != null) {
-
-                    //identifies the king
                     if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
                         king = piece;
                     }
@@ -337,10 +329,7 @@ public class ChessGame {
                     //adds any possible enemy moves
                     if (piece.getTeamColor() != teamColor) {
                         enemyMoves.addAll(piece.pieceMoves(board, position));
-                    }
-                }
-            }
-        }
+        }}}}
 
         //checks enemy moves to see if they target the king
         for (ChessMove move : enemyMoves) {
@@ -406,10 +395,7 @@ public class ChessGame {
                     for (ChessMove move : moves) {
                         stillInCheck = checkMove(piece, teamColor, move, position);
                         return !stillInCheck;
-                    }
-                }
-            }
-        }
+        }}}}
         return false;
     }
 
