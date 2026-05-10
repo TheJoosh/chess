@@ -18,11 +18,13 @@ public class ChessGame {
     public TeamColor team;
     public ChessBoard board;
     public boolean[] castles = {true, true, true, true, true, true};
+    public ChessPosition enPassant;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
         team = TeamColor.WHITE;
+        enPassant = null;
     }
 
     /**
@@ -185,6 +187,25 @@ public class ChessGame {
             checkCastle(startPosition, piece, moves, piece.getTeamColor());
         } 
 
+        //check if a pawn can capture en passant
+        if (piece.getPieceType() == PieceType.PAWN && enPassant != null) {
+
+            int direction;
+
+            if (piece.getTeamColor() == TeamColor.WHITE) {
+                direction = 1;
+            } else {
+                direction = -1;
+            }
+
+            if (enPassant.getRow() == startPosition.getRow() + direction && 
+                (enPassant.getColumn() == startPosition.getColumn() + 1 || 
+                enPassant.getColumn() == startPosition.getColumn() -1)
+            ) {
+                moves.add(new ChessMove(startPosition, enPassant, null));
+            }
+        }
+
         //check if any of the possible moves leave the king in check
         for (ChessMove move : moves) {
             if (!checkMove(piece, piece.getTeamColor(), move, startPosition)) {
@@ -237,6 +258,37 @@ public class ChessGame {
             piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
         }
 
+        //activate en passant, if applicable
+        if (piece.getPieceType() == PieceType.PAWN) {
+
+            int start;
+            int direction;
+
+            if (piece.getTeamColor() == TeamColor.WHITE) {
+                start = 2;
+                direction = 1;
+            } else {
+                start = 7;
+                direction = -1;
+            }
+
+            if (enPassant != null) {
+
+                //capture en passant
+                if (enPassant.equals(move.getEndPosition())) {
+                    board.addPiece(new ChessPosition(enPassant.getRow() - direction, enPassant.getColumn()), null);
+                }
+
+                //reset en passant
+                enPassant = null;
+            }
+
+            //set en passant to the position that the pawn skipped
+            if (position.getRow() == start && move.getEndPosition().getRow() != start + direction) {
+                enPassant = new ChessPosition(start + direction, position.getColumn());
+            } 
+        }
+
         //castle a king, if applicable
         if (piece.getPieceType() == PieceType.KING) {
             if (position.getColumn() == 5) {
@@ -254,6 +306,7 @@ public class ChessGame {
                     }
                 }
 
+                //register the movement of a king
                 if (position.getRow() == 1) {
                     castles[1] = false;
                 } else if (position.getRow() == 8) {
@@ -481,6 +534,7 @@ public class ChessGame {
         result = prime * result + ((team == null) ? 0 : team.hashCode());
         result = prime * result + ((board == null) ? 0 : board.hashCode());
         result = prime * result + Arrays.hashCode(castles);
+        result = prime * result + ((enPassant == null) ? 0 : enPassant.hashCode());
         return result;
     }
 
@@ -501,6 +555,11 @@ public class ChessGame {
         } else if (!board.equals(other.board))
             return false;
         if (!Arrays.equals(castles, other.castles))
+            return false;
+        if (enPassant == null) {
+            if (other.enPassant != null)
+                return false;
+        } else if (!enPassant.equals(other.enPassant))
             return false;
         return true;
     }
