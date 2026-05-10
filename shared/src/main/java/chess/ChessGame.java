@@ -60,7 +60,6 @@ public class ChessGame {
     public void castle(ChessPiece king, ChessPosition startPosition, Collection<ChessMove> moves, int direction) {
 
         int end;
-
         if (direction == 1) {
             end = 1;
         } else {
@@ -121,6 +120,50 @@ public class ChessGame {
                 castle(king, startPosition, moves, 1);
             }
         }
+    }
+
+    /**
+     * Moves the rooks during a castle
+     * 
+     * @param move the move being made
+     * @param teamColor the color of the team making the move
+     * @param the direction of castling
+     */
+    public void executeCastle(ChessMove move, TeamColor teamColor, int direction) throws InvalidMoveException {
+
+        //ensure the move is legal
+        int kingIndex;
+        int start;
+        if (teamColor == TeamColor.WHITE) {
+            kingIndex = 1;
+            start = 1;
+        } else {
+            kingIndex = 4;
+            start = 8;
+        }
+        int rookIndex = kingIndex + direction;
+
+        if(!castles[kingIndex] || !castles[rookIndex]) {
+            throw new InvalidMoveException("Illegal Move");    
+        }
+
+
+        int end;
+        int offset;
+        if (direction == 1) {
+            end = 8;
+            offset = 2;
+        } else {
+            end = 1;
+            offset = 3;
+        }
+
+        //move the rook
+        board.addPiece(new ChessPosition(start, end), null);
+        board.addPiece(new ChessPosition(start, end - (direction * offset)), new ChessPiece(teamColor, PieceType.ROOK));
+
+        castles[rookIndex] = false;
+        castles[kingIndex] = false;
     }
 
     /**
@@ -196,55 +239,26 @@ public class ChessGame {
 
         //castle a king, if applicable
         if (piece.getPieceType() == PieceType.KING) {
-            if (piece.getTeamColor() == TeamColor.WHITE && castles[1]) {
+            if (position.getColumn() == 5) {
+                if (castles[1] || castles[4]) {
+                    if (move.getEndPosition().getColumn() == 7 || move.getEndPosition().getColumn() == 3) {
 
-                ChessPiece rook = new ChessPiece(TeamColor.WHITE, PieceType.ROOK);
+                        //determine the direction
+                        int direction = 1;
+                        if (move.getEndPosition().getColumn() == 3) {
+                            direction = -1;
+                        }
 
-                //castle to the left
-                if (move.getEndPosition().getColumn() == 3) {
-
-                    //move the rook
-                    board.addPiece(new ChessPosition(1, 1), null);
-                    board.addPiece(new ChessPosition(1, 4), rook);
-
-                    castles[0] = false;
-
-                //castle to the right
-                } else if (move.getEndPosition().getColumn() == 7) {
-
-                    //move the rook
-                    board.addPiece(new ChessPosition(1, 8), null);
-                    board.addPiece(new ChessPosition(1, 6), rook);
-
-                    castles[2] = false;
+                        //move the rook
+                        executeCastle(move, piece.getTeamColor(), direction);
+                    }
                 }
 
-                castles[1] = false;
-
-            } else if (piece.getTeamColor() == TeamColor.BLACK && castles[4]) {
-
-                ChessPiece rook = new ChessPiece(TeamColor.BLACK, PieceType.ROOK);
-
-                //castle to the left
-                if (move.getEndPosition().getColumn() == 3) {
-
-                    //move the rook
-                    board.addPiece(new ChessPosition(8, 1), null);
-                    board.addPiece(new ChessPosition(8, 4), rook);
-
-                    castles[3] = false;
-
-                //castle to the right
-                } else if (move.getEndPosition().getColumn() == 7) {
-
-                    //move the rook
-                    board.addPiece(new ChessPosition(8, 8), null);
-                    board.addPiece(new ChessPosition(8, 6), rook);
-
-                    castles[5] = false;
+                if (position.getRow() == 1) {
+                    castles[1] = false;
+                } else if (position.getRow() == 8) {
+                    castles[4] = false;
                 }
-
-                castles[4] = false;
             }
         }
 
