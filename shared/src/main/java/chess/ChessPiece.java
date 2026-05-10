@@ -52,6 +52,11 @@ public class ChessPiece {
      * Calculates if a piece can move to a given position
      * If the move is possible, adds it to the list
      * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param newPosition the position to which the piece is trying to move
+     * @param piece the piece in question
+     * @param moves a list of possible moves
      * @return whether the position is occupied by another piece
      */
     public boolean calculatePosition(
@@ -75,6 +80,9 @@ public class ChessPiece {
     /**
      * Calculates the bounds of a piece's movement based on whether or not it is the king
      * 
+     * @param axis the position of the piece along the given axis
+     * @param direction the direction of motion being measured
+     * @param king whether or not the piece is a king
      * @return the upper and lower bounds
      */
     public int[] bounds(int axis, int direction, boolean king) {
@@ -93,6 +101,15 @@ public class ChessPiece {
 
     /**
      * Calculates all diagonal positions until it reaches an occupied position
+     * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param piece the piece in question
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param column the column of the current position
+     * @param direction the vertical direction of motion being measured
+     * @param king whether or not the piece is a king
      */
     public void calculateDiagonal(
                     ChessBoard board, 
@@ -138,6 +155,14 @@ public class ChessPiece {
 
     /**
      * Calculates in all diagonal directions
+     * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param piece the piece in question
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param column the column of the current position
+     * @param king whether or not the piece is a king
      */
     public void calculateBishop(
                     ChessBoard board, 
@@ -158,6 +183,15 @@ public class ChessPiece {
 
     /**
      * Calculates all vertical and horizontal positions until it reaches an occupied position
+     * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param piece the piece in question
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param column the column of the current position
+     * @param direction the vertical direction of motion being measured
+     * @param king whether or not the piece is a king
      */
     public void calculateStraight(
                     ChessBoard board, 
@@ -191,6 +225,14 @@ public class ChessPiece {
 
     /**
      * Calculates horizontal L movements
+     * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param piece the piece in question
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param column the column of the current position
+     * @param direction the vertical direction of motion being measured
      */
     public void calculateKnightHorizontal(
                     ChessBoard board, 
@@ -215,6 +257,14 @@ public class ChessPiece {
 
     /**
      * Calculates vertical L movements
+     * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param piece the piece in question
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param column the column of the current position
+     * @param direction the vertical direction of motion being measured
      */
     public void calculateKnightVertical(
                     ChessBoard board, 
@@ -239,6 +289,14 @@ public class ChessPiece {
 
     /**
      * Calculates in all four cardinal directions
+     * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param piece the piece in question
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param column the column of the current position
+     * @param king whether or not the piece is a king
      */
     public void calculateRook(
                     ChessBoard board, 
@@ -259,6 +317,13 @@ public class ChessPiece {
 
     /**
      * Calculates whether a pawn is promoted
+     * 
+     * @param myPosition the starting position of the piece
+     * @param newPosition the position to which the piece is trying to move
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param direction the vertical direction of motion being measured
+     * @param end the end row of a pawn
      */
     public void calculatePawnPromotion(
                     ChessPosition myPosition, 
@@ -280,6 +345,16 @@ public class ChessPiece {
 
     /**
      * Calculates a pawn capturing an enemy piece
+     * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param piece the piece in question
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param column the column of the current position
+     * @param xDirection the horizontal direction of a capturing pawn
+     * @param yDirection the vertical direction of a capturing pawn
+     * @param end the end row of a pawn
      */
     public void calculatePawnCapture(
                     ChessBoard board, 
@@ -308,6 +383,16 @@ public class ChessPiece {
 
     /**
      * Calculates the movement of a pawn
+     * 
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
+     * @param piece the piece in question
+     * @param moves a list of possible moves
+     * @param row the row of the current position
+     * @param column the column of the current position
+     * @param direction the vertical direction of motion being measured
+     * @param start the starting row of a pawn
+     * @param end the end row of a pawn
      */
     public void calculatePawn(ChessBoard board, 
                     ChessPosition myPosition, 
@@ -351,6 +436,8 @@ public class ChessPiece {
      * Does not take into account moves that are illegal due to leaving the king in
      * danger
      *
+     * @param board the chess board
+     * @param myPosition the starting position of the piece
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
