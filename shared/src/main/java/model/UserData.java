@@ -12,4 +12,19 @@ public class UserData {
         this.password = password;
         this.email = email;
     }
+
+    //get the username
+    public String getUsername() {
+        return username;
+    }
+
+    //get the password
+    public String getPassword() {
+        return password;
+    }
+
+    //get the email
+    public String getEmail() {
+        return email;
+    }
 }
