@@ -4,6 +4,10 @@ import io.javalin.*;
 import service.*;
 import model.*;
 import dataaccess.*;
+import exception.ResponseException;
+
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 
 public class Server {
 
@@ -18,8 +22,10 @@ public class Server {
         this.gameService = new GameService();
         this.userService = new UserService();
 
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
-
+        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+            .delete("/db", this::clear)
+            .exception(ResponseException.class, this::exceptionHandler)
+        ;
 
     }
 
@@ -30,5 +36,17 @@ public class Server {
 
     public void stop() {
         javalin.stop();
+    }
+
+    private void exceptionHandler(ResponseException ex, Context ctx) {
+        ctx.status(ex.toHttpStatusCode());
+        ctx.result(ex.toJson());
+    }
+
+    private void clear(Context ctx) throws ResponseException {
+        authService.clear();
+        userService.clear();
+        gameService.clear();
+        ctx.status(204);
     }
 }

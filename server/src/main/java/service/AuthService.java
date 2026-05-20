@@ -1,6 +1,9 @@
 package service;
 
 import dataaccess.AuthAccess;
+import exception.*;
+import model.*;
+import java.util.Collection;
 
 public class AuthService {
 
@@ -8,6 +11,13 @@ public class AuthService {
 
     public AuthService(AuthAccess authAccess) {
         this.authAccess = authAccess;
+    }
+
+    public void clear() throws ResponseException {
+        Collection<AuthData> auth = authAccess.listAuth();
+        if (!auth.isEmpty()) {
+            authAccess.clear();
+        }
     }
 
 }
