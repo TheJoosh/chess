@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.*;
+import results.JoinRequest;
 
 public interface GameDAO {
 
@@ -8,8 +9,8 @@ public interface GameDAO {
 
     GameList listGames() throws DataAccessException;
 
-    void joinGame(String gameName) throws DataAccessException;
+    void joinGame(JoinRequest gameName) throws DataAccessException;
 
-    GameData createGame(GameData game) throws DataAccessException;
+    int createGame(String game) throws DataAccessException;
 
 }

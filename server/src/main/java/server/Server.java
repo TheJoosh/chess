@@ -96,9 +96,15 @@ public class Server {
     }
 
     private void createGame(Context ctx) throws DataAccessException {
-        GameData game = new Gson().fromJson(ctx.body(), GameData.class);
-        game = gameService.createGame(game);
-        ctx.status(200);
+        CreateRequest request = new Gson().fromJson(ctx.body(), CreateRequest.class);
+        if (authService.authenticate(request.authToken())) {
+            int gameID = gameService.createGame(request.gameName());
+            CreateResult result = new CreateResult(gameID);
+            ctx.result(new Gson().toJson(result));
+            ctx.status(200);
+        } else {
+            ctx.status(401);
+        }
     }
 
     private void listGames(Context ctx) throws DataAccessException {
@@ -113,7 +119,7 @@ public class Server {
     }
 
     private void joinGame(Context ctx) throws DataAccessException {
-        GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+        JoinRequest game = new Gson().fromJson(ctx.body(), JoinRequest.class);
         gameService.joinGame(game);
         ctx.status(200);
     }

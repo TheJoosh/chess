@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import model.GameData;
 import model.GameList;
 import java.util.Collection;
+import results.JoinRequest;
 
 public class GameService {
 
@@ -21,16 +22,15 @@ public class GameService {
         }
     }
 
-    public GameData createGame(GameData game) throws DataAccessException {
-        gameAccess.createGame(game);
-        return game;
+    public int createGame(String game) throws DataAccessException {
+        return gameAccess.createGame(game);
     }
 
     public GameList listGames() throws DataAccessException {
         return gameAccess.listGames();
     }
 
-    public void joinGame(String game) throws DataAccessException {
+    public void joinGame(JoinRequest game) throws DataAccessException {
         gameAccess.joinGame(game);
     }
 

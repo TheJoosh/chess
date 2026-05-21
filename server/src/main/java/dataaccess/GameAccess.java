@@ -1,17 +1,18 @@
 package dataaccess;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 import com.google.gson.Gson;
 
-import chess.ChessGame;
+import results.JoinRequest;
 import model.GameList;
 import model.GameData;
+import chess.ChessGame;
 
 public class GameAccess implements GameDAO {
 
-    final private HashMap<String, String> games = new HashMap<>();
+    final private HashMap<Integer, String> games = new HashMap<>();
+    private int next = 1;
 
     public GameList listGames() throws DataAccessException {
         return new GameList(games.values());
@@ -21,14 +22,15 @@ public class GameAccess implements GameDAO {
         games.clear();
     }
 
-    public void joinGame(String gameName) throws DataAccessException {
-        String game = games.get(gameName);
+    public void joinGame(JoinRequest gameRequest) throws DataAccessException {
+        String game = games.get(gameRequest.gameID());
     }
 
-    public GameData createGame(GameData game) throws DataAccessException {
+    public int createGame(String name) throws DataAccessException {
         var serializer = new Gson();
+        GameData game = new GameData(next++, null, null, name, new ChessGame());
         String gameString = serializer.toJson(game.game());
-        games.put(game.gameName(), gameString);
-        return game;
+        games.put(game.gameID(), gameString);
+        return game.gameID();
     }
 }
