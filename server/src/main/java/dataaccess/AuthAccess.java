@@ -36,4 +36,7 @@ public class AuthAccess implements AuthDAO {
         return auth;
     }
 
+    public String getUsername(String authToken) {
+        return auth.get(authToken);
+    }
 }

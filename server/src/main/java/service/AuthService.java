@@ -35,4 +35,8 @@ public class AuthService {
     public AuthData login(UserData user) throws DataAccessException {
         return authAccess.login(user);
     }
+
+    public String getUsername(String authToken) {
+        return authAccess.getUsername(authToken);
+    }
 }

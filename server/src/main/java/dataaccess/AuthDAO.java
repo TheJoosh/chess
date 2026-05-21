@@ -14,4 +14,6 @@ public interface AuthDAO {
 
     AuthList listAuth() throws DataAccessException;
 
+    String getUsername(String auth) throws DataAccessException;
+
 }
