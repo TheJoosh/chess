@@ -79,4 +79,14 @@ public class Server {
         game = gameService.createGame(game);
         ctx.status(200);
     }
+
+    private void listGames(Context ctx) throws ResponseException {
+        AuthData authData = new Gson().fromJson(ctx.body(), AuthData.class);
+        if (authService.authenticate(authData)) {
+            gameService.listGames();
+            ctx.status(200);
+        } else {
+            ctx.status(401);
+        }
+    }
 }

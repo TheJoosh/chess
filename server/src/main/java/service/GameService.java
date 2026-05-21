@@ -3,6 +3,7 @@ package service;
 import dataaccess.GameAccess;
 import exception.ResponseException;
 import model.GameData;
+import model.GameList;
 import java.util.Collection;
 
 public class GameService {
@@ -23,6 +24,10 @@ public class GameService {
     public GameData createGame(GameData game) {
         gameAccess.createGame(game);
         return game;
+    }
+
+    public GameList listGames() {
+        return gameAccess.listGames();
     }
 
 }
