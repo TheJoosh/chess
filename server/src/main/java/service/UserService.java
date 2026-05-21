@@ -24,5 +24,4 @@ public class UserService {
         userAccess.register(user);
         return user;
     }
-
 }

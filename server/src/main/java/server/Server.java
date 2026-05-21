@@ -27,8 +27,11 @@ public class Server {
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
             .delete("/db", this::clear)
+            .delete("/session", this::logout)
             .post("user", this::register)
             .post("game", this::createGame)
+            .get("game", this::listGames)
+            .put("game", this::joinGame)
             .exception(ResponseException.class, this::exceptionHandler)
         ;
 
@@ -52,18 +55,28 @@ public class Server {
         authService.clear();
         userService.clear();
         gameService.clear();
-        ctx.status(204);
+        ctx.status(200);
     }
 
     private void register(Context ctx) throws ResponseException {
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
         user = userService.register(user);
-        ctx.status(204);
+        ctx.status(200);
+    }
+
+    private void logout(Context ctx) throws ResponseException {
+        AuthData authToken = new Gson().fromJson(ctx.body(), AuthData.class);
+        if (authService.authenticate(authToken)) {
+            authService.removeAuth(authToken);
+            ctx.status(200);
+        } else {
+            ctx.status(401);
+        }
     }
 
     private void createGame(Context ctx) throws ResponseException {
         GameData game = new Gson().fromJson(ctx.body(), GameData.class);
         game = gameService.createGame(game);
-        ctx.status(204);
+        ctx.status(200);
     }
 }

@@ -5,12 +5,12 @@ import java.util.ArrayList;
 
 import com.google.gson.Gson;
 
-public class AuthList extends ArrayList<AuthData> {
+public class AuthList extends ArrayList<String> {
     public AuthList() {
 
     }
 
-    public AuthList(Collection<AuthData> data) {
+    public AuthList(Collection<String> data) {
         super(data);
     }
 

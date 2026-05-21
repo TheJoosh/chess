@@ -14,10 +14,17 @@ public class AuthService {
     }
 
     public void clear() throws ResponseException {
-        Collection<AuthData> auth = authAccess.listAuth();
+        Collection<String> auth = authAccess.listAuth();
         if (!auth.isEmpty()) {
             authAccess.clear();
         }
     }
 
+    public boolean authenticate(AuthData auth) {
+        return authAccess.authenticate(auth);
+    }
+
+    public void removeAuth(AuthData auth) {
+        authAccess.removeAuth(auth);
+    }
 }

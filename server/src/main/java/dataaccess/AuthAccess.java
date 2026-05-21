@@ -6,7 +6,7 @@ import model.*;
 
 public class AuthAccess implements AuthDAO {
 
-    final private HashMap<Integer, AuthData> auth = new HashMap<>();
+    final private HashMap<String, String> auth = new HashMap<>();
 
     public void clear() {
         auth.clear();
@@ -14,6 +14,14 @@ public class AuthAccess implements AuthDAO {
 
     public AuthList listAuth() {
         return new AuthList(auth.values());
+    }
+
+    public boolean authenticate(AuthData authData) {
+        return auth.containsValue(authData.username());
+    }
+
+    public void removeAuth(AuthData authData) {
+        auth.remove(authData.authToken(), authData.username());
     }
 
 }
