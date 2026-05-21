@@ -23,6 +23,16 @@ public class ServerHandler {
         sendRequest(request);
     }
 
+    public void register(String body) throws ResponseException{
+        var request = buildRequest("POST", "/user", body);
+        sendRequest(request);
+    }
+
+    public void createGame(String body) throws ResponseException{
+        var request = buildRequest("POST", "/game", body);
+        sendRequest(request);
+    }
+
     private HttpRequest buildRequest(String method, String path, Object body) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))

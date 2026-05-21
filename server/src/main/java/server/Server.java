@@ -3,6 +3,9 @@ package server;
 import io.javalin.*;
 import service.*;
 import model.*;
+
+import com.google.gson.Gson;
+
 import dataaccess.*;
 import exception.ResponseException;
 
@@ -24,6 +27,8 @@ public class Server {
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
             .delete("/db", this::clear)
+            .post("user", this::register)
+            .post("game", this::createGame)
             .exception(ResponseException.class, this::exceptionHandler)
         ;
 
@@ -47,6 +52,18 @@ public class Server {
         authService.clear();
         userService.clear();
         gameService.clear();
+        ctx.status(204);
+    }
+
+    private void register(Context ctx) throws ResponseException {
+        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+        user = userService.register(user);
+        ctx.status(204);
+    }
+
+    private void createGame(Context ctx) throws ResponseException {
+        GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+        game = gameService.createGame(game);
         ctx.status(204);
     }
 }

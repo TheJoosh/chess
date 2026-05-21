@@ -20,4 +20,8 @@ public class UserService {
         }
     }
 
+    public UserData register(UserData user) {
+        return user;
+    }
+
 }
