@@ -89,4 +89,10 @@ public class Server {
             ctx.status(401);
         }
     }
+
+    private void joinGame(Context ctx) throws ResponseException {
+        GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+        gameService.joinGame(game);
+        ctx.status(200);
+    }
 }
