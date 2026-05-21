@@ -19,8 +19,8 @@ public class Server {
     public Server() {
 
         this.authService = new AuthService(new AuthAccess());
-        this.gameService = new GameService();
-        this.userService = new UserService();
+        this.gameService = new GameService(new GameAccess());
+        this.userService = new UserService(new UserAccess());
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
             .delete("/db", this::clear)
