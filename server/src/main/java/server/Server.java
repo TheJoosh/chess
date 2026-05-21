@@ -2,6 +2,7 @@ package server;
 
 import service.*;
 import model.*;
+import results.*;
 
 import com.google.gson.Gson;
 
@@ -10,6 +11,7 @@ import exception.ResponseException;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import java.util.ArrayList;
 
 public class Server {
 
@@ -87,7 +89,7 @@ public class Server {
         if (authService.authenticate(authToken)) {
             authService.removeAuth(authToken);
             ctx.status(200);
-            ctx.result();
+            ctx.result(new Gson().toJson(new LogoutResult("")));
         } else {
             ctx.status(401);
         }
@@ -100,10 +102,11 @@ public class Server {
     }
 
     private void listGames(Context ctx) throws DataAccessException {
-        String authData = new Gson().fromJson(ctx.body(), String.class);
-        if (authService.authenticate(authData)) {
-            gameService.listGames();
+        String authToken = new Gson().fromJson(ctx.body(), String.class);
+        if (authService.authenticate(authToken)) {
+            ArrayList<String> games = gameService.listGames();
             ctx.status(200);
+            ctx.result(new Gson().toJson(games));
         } else {
             ctx.status(401);
         }

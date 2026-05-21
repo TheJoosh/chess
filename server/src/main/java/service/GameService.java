@@ -15,7 +15,7 @@ public class GameService {
     }
 
     public void clear() throws DataAccessException {
-        Collection<GameData> games = gameAccess.listGames();
+        Collection<String> games = gameAccess.listGames();
         if (!games.isEmpty()) {
             gameAccess.clear();
         }
@@ -30,7 +30,7 @@ public class GameService {
         return gameAccess.listGames();
     }
 
-    public void joinGame(GameData game) throws DataAccessException {
+    public void joinGame(String game) throws DataAccessException {
         gameAccess.joinGame(game);
     }
 
