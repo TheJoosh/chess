@@ -19,4 +19,10 @@ public class GameService {
             gameAccess.clear();
         }
     }
+
+    public GameData createGame(GameData game) {
+        gameAccess.createGame(game);
+        return game;
+    }
+
 }

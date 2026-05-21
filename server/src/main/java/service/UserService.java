@@ -21,6 +21,7 @@ public class UserService {
     }
 
     public UserData register(UserData user) {
+        userAccess.register(user);
         return user;
     }
 
