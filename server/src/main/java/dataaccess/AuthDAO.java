@@ -6,9 +6,11 @@ public interface AuthDAO {
 
     void clear() throws DataAccessException;
 
-    void removeAuth(AuthData auth) throws DataAccessException;
+    void removeAuth(String token) throws DataAccessException;
+    
+    boolean authenticate(String token) throws DataAccessException;
 
-    String login(UserData user) throws DataAccessException;
+    AuthData login(UserData user) throws DataAccessException;
 
     AuthList listAuth() throws DataAccessException;
 

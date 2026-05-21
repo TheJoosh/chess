@@ -17,22 +17,23 @@ public class AuthAccess implements AuthDAO {
         return new AuthList(auth.values());
     }
 
-    public boolean authenticate(AuthData authData) {
-        return auth.containsValue(authData.username());
+    public boolean authenticate(String token) {
+        return auth.containsKey(token);
     }
 
-    public void removeAuth(AuthData authData) {
-        auth.remove(authData.authToken(), authData.username());
+    public void removeAuth(String token) {
+        auth.remove(token);
     }
 
     public void addAuth(AuthData authData) {
         auth.put(authData.authToken(), authData.username());
     }
 
-    public String login(UserData user) {
+    public AuthData login(UserData user) {
         String token = UUID.randomUUID().toString();
-        auth.put(token, user.username());
-        return token;
+        AuthData auth = new AuthData(token, user.username());
+        addAuth(auth);
+        return auth;
     }
 
 }

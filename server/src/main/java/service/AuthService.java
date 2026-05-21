@@ -20,11 +20,11 @@ public class AuthService {
         }
     }
 
-    public boolean authenticate(AuthData auth) throws DataAccessException {
+    public boolean authenticate(String auth) throws DataAccessException {
         return authAccess.authenticate(auth);
     }
 
-    public void removeAuth(AuthData auth) throws DataAccessException {
+    public void removeAuth(String auth) throws DataAccessException {
         authAccess.removeAuth(auth);
     }
 
@@ -32,7 +32,7 @@ public class AuthService {
         authAccess.addAuth(auth);
     }
 
-    public String login(UserData user) throws DataAccessException {
+    public AuthData login(UserData user) throws DataAccessException {
         return authAccess.login(user);
     }
 }

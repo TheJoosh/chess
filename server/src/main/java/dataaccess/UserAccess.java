@@ -8,7 +8,7 @@ import model.*;
 
 public class UserAccess implements UserDAO {
 
-    final private HashMap<String, UserData> users = new HashMap<>();
+    final private HashMap<String, String> users = new HashMap<>();
 
     public UserData getUser(int id) {
         return new UserData();
@@ -22,9 +22,13 @@ public class UserAccess implements UserDAO {
         users.clear();
     }
 
+    public boolean getUser(UserData user) {
+        return users.containsValue(user.username()) || users.containsKey(user.email());
+    }
+
     public AuthData register(UserData user) {
         String token = UUID.randomUUID().toString();
-        users.put(token, user);
+        users.put(user.email(), user.username());
         AuthData auth = new AuthData(token, user.username());
         return auth;
     }

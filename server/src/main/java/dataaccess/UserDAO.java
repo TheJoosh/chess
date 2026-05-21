@@ -4,7 +4,7 @@ import model.*;
 
 public interface UserDAO {
 
-    UserData getUser(int id) throws DataAccessException;
+    boolean getUser(UserData user) throws DataAccessException;
 
     AuthData register (UserData user) throws DataAccessException;
 

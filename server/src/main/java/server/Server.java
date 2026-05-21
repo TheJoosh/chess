@@ -60,24 +60,34 @@ public class Server {
 
     private void register(Context ctx) throws DataAccessException {
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-        AuthData auth = userService.register(user);
-        authService.addAuth(auth);
-        ctx.status(200);
-        ctx.result(new Gson().toJson(auth));
+        if (!userService.getUser(user)) {
+            AuthData auth = userService.register(user);
+            authService.addAuth(auth);
+            ctx.status(200);
+            ctx.result(new Gson().toJson(auth));
+        } else {
+            ctx.status(403);
+        }
     }
 
-    private String login(Context ctx) throws DataAccessException {
+    private void login(Context ctx) throws DataAccessException {
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-        String token = authService.login(user);
-        ctx.status(200);
-        return token;
+        if(userService.getUser(user)) {
+            AuthData auth = authService.login(user);
+            authService.addAuth(auth);
+            ctx.status(200);
+            ctx.result(new Gson().toJson(auth));
+        } else {
+            ctx.status(401);
+        }
     }
 
     private void logout(Context ctx) throws DataAccessException {
-        AuthData authToken = new Gson().fromJson(ctx.body(), AuthData.class);
+        String authToken = new Gson().fromJson(ctx.body(), String.class);
         if (authService.authenticate(authToken)) {
             authService.removeAuth(authToken);
             ctx.status(200);
+            ctx.result();
         } else {
             ctx.status(401);
         }
@@ -90,7 +100,7 @@ public class Server {
     }
 
     private void listGames(Context ctx) throws DataAccessException {
-        AuthData authData = new Gson().fromJson(ctx.body(), AuthData.class);
+        String authData = new Gson().fromJson(ctx.body(), String.class);
         if (authService.authenticate(authData)) {
             gameService.listGames();
             ctx.status(200);

@@ -13,8 +13,12 @@ public class UserService {
         this.userAccess = userAccess;
     }
 
+    public boolean getUser(UserData user) {
+        return userAccess.getUser(user);
+    }
+
     public void clear() throws DataAccessException {
-        Collection<UserData> users = userAccess.listUsers();
+        Collection<String> users = userAccess.listUsers();
         if (!users.isEmpty()) {
             userAccess.clear();
         }
