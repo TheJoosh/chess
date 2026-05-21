@@ -60,8 +60,10 @@ public class Server {
 
     private void register(Context ctx) throws DataAccessException {
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-        user = userService.register(user);
+        AuthData auth = userService.register(user);
+        authService.addAuth(auth);
         ctx.status(200);
+        ctx.result(new Gson().toJson(auth));
     }
 
     private String login(Context ctx) throws DataAccessException {

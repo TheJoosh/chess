@@ -20,8 +20,8 @@ public class UserService {
         }
     }
 
-    public UserData register(UserData user) throws DataAccessException {
-        userAccess.register(user);
-        return user;
+    public AuthData register(UserData user) throws DataAccessException {
+        AuthData auth = userAccess.register(user);
+        return auth;
     }
 }

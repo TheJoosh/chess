@@ -25,6 +25,10 @@ public class AuthAccess implements AuthDAO {
         auth.remove(authData.authToken(), authData.username());
     }
 
+    public void addAuth(AuthData authData) {
+        auth.put(authData.authToken(), authData.username());
+    }
+
     public String login(UserData user) {
         String token = UUID.randomUUID().toString();
         auth.put(token, user.username());

@@ -28,6 +28,10 @@ public class AuthService {
         authAccess.removeAuth(auth);
     }
 
+    public void addAuth(AuthData auth) throws DataAccessException {
+        authAccess.addAuth(auth);
+    }
+
     public String login(UserData user) throws DataAccessException {
         return authAccess.login(user);
     }

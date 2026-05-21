@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import model.UserList;
-import model.UserData;
+import model.*;
 
 public class UserAccess implements UserDAO {
 
@@ -22,9 +22,11 @@ public class UserAccess implements UserDAO {
         users.clear();
     }
 
-    public UserData register(UserData user) {
-        users.put(UUID.randomUUID().toString(), user);
-        return user;
+    public AuthData register(UserData user) {
+        String token = UUID.randomUUID().toString();
+        users.put(token, user);
+        AuthData auth = new AuthData(token, user.username());
+        return auth;
     }
 }
 
