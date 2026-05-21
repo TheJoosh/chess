@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.*;
+import results.LoginRequest;
 
 public interface AuthDAO {
 
@@ -10,7 +11,7 @@ public interface AuthDAO {
     
     boolean authenticate(String token) throws DataAccessException;
 
-    AuthData login(UserData user) throws DataAccessException;
+    AuthData login(LoginRequest user) throws DataAccessException;
 
     AuthList listAuth() throws DataAccessException;
 

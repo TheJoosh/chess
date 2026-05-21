@@ -32,12 +32,14 @@ public class ServerHandler {
 
     public void login(String body) throws ResponseException{
         var request = buildRequest("POST", "/session", body);
-        sendRequest(request);
+        var response = sendRequest(request);
+        handleResponse(response, AuthData.class);
     }
 
     public void logout(String body) throws ResponseException{
         var request = buildRequest("DELETE", "/session", body);
-        sendRequest(request);
+        var response = sendRequest(request);
+        handleResponse(response, String.class);
     }
 
     public void createGame(String body) throws ResponseException{

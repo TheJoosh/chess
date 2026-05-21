@@ -1,5 +1,5 @@
 package results;
 
-public record JoinRequest(String color, int gameID) {
+public record JoinRequest(String color, Integer gameID) {
 
 }

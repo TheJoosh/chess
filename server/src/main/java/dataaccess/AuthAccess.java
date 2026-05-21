@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import model.*;
+import results.LoginRequest;
 
 public class AuthAccess implements AuthDAO {
 
@@ -29,7 +30,7 @@ public class AuthAccess implements AuthDAO {
         auth.put(authData.authToken(), authData.username());
     }
 
-    public AuthData login(UserData user) {
+    public AuthData login(LoginRequest user) {
         String token = UUID.randomUUID().toString();
         AuthData auth = new AuthData(token, user.username());
         addAuth(auth);

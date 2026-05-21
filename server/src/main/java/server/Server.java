@@ -74,26 +74,27 @@ public class Server {
             ctx.status(200);
             ctx.result(new Gson().toJson(auth));
         } else {
-            ctx.status(403);
+            ctx.status(403).result(new Gson().toJson(new Result("Error: already taken")));
         }
     }
 
     private void login(Context ctx) throws DataAccessException {
-        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+        LoginRequest user = new Gson().fromJson(ctx.body(), LoginRequest.class);
 
         if (user == null || user.username() == null || user.password() == null) {
             ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
             return;
         }
 
-        if(userService.getUser(user)) {
+        if(userService.verifyPassword(user)) {
             AuthData auth = authService.login(user);
             authService.addAuth(auth);
             ctx.status(200);
             ctx.result(new Gson().toJson(auth));
-        } else {
-            ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
+            return;
         }
+
+        ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
     }
 
     private void logout(Context ctx) throws DataAccessException {
@@ -151,7 +152,7 @@ public class Server {
             ctx.status(200);
             ctx.result(new Gson().toJson(result));
         } else {
-            ctx.status(401);
+            ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
         }
     }
 
@@ -163,10 +164,11 @@ public class Server {
             ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
             return;
         }
+
         if (authService.authenticate(authToken)) {
             JoinRequest game = new Gson().fromJson(ctx.body(), JoinRequest.class);
 
-            if (game == null || game.gameID() == 0 || game.color() == null) {
+            if (game == null || game.color() == null || game.gameID() == null) {
                 ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
                 return;
             }

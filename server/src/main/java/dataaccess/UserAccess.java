@@ -3,8 +3,8 @@ package dataaccess;
 import java.util.HashMap;
 import java.util.UUID;
 
-import model.UserList;
 import model.*;
+import results.LoginRequest;
 
 public class UserAccess implements UserDAO {
 
@@ -15,7 +15,7 @@ public class UserAccess implements UserDAO {
     }
 
     public UserList listUsers() {
-        return new UserList(users.values());
+        return new UserList(users.keySet());
     } 
 
     public void clear() {
@@ -23,12 +23,19 @@ public class UserAccess implements UserDAO {
     }
 
     public boolean getUser(UserData user) {
-        return users.containsValue(user.username()) || users.containsKey(user.email());
+        return users.containsKey(user.username());
+    }
+
+    public boolean verifyPassword(LoginRequest user) {
+        if (users.containsKey(user.username())) {
+            return user.password().equals(users.get(user.username()));
+        }
+        return false;
     }
 
     public AuthData register(UserData user) {
         String token = UUID.randomUUID().toString();
-        users.put(user.email(), user.username());
+        users.put(user.username(), user.password());
         AuthData auth = new AuthData(token, user.username());
         return auth;
     }

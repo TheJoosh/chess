@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.UserAccess;
 import model.*;
+import results.LoginRequest;
 import java.util.Collection;
 
 public class UserService {
@@ -27,5 +28,9 @@ public class UserService {
     public AuthData register(UserData user) throws DataAccessException {
         AuthData auth = userAccess.register(user);
         return auth;
+    }
+
+    public boolean verifyPassword(LoginRequest user) {
+        return userAccess.verifyPassword(user);
     }
 }

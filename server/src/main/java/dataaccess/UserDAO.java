@@ -1,12 +1,15 @@
 package dataaccess;
 
 import model.*;
+import results.LoginRequest;
 
 public interface UserDAO {
 
-    boolean getUser(UserData user) throws DataAccessException;
+    public boolean getUser(UserData user) throws DataAccessException;
+    
+    public boolean verifyPassword(LoginRequest user);
 
-    AuthData register (UserData user) throws DataAccessException;
+    public AuthData register (UserData user) throws DataAccessException;
 
-    void clear() throws DataAccessException;
+    public void clear() throws DataAccessException;
 }

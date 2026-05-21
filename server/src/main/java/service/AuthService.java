@@ -4,6 +4,7 @@ import dataaccess.AuthAccess;
 import dataaccess.DataAccessException;
 import model.*;
 import java.util.Collection;
+import results.LoginRequest;
 
 public class AuthService {
 
@@ -32,7 +33,7 @@ public class AuthService {
         authAccess.addAuth(auth);
     }
 
-    public AuthData login(UserData user) throws DataAccessException {
+    public AuthData login(LoginRequest user) throws DataAccessException {
         return authAccess.login(user);
     }
 
