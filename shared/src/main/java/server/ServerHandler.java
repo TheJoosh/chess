@@ -28,8 +28,28 @@ public class ServerHandler {
         sendRequest(request);
     }
 
+    public void login(String body) throws ResponseException{
+        var request = buildRequest("POST", "/session", body);
+        sendRequest(request);
+    }
+
+    public void logout(String body) throws ResponseException{
+        var request = buildRequest("DELETE", "/session", body);
+        sendRequest(request);
+    }
+
     public void createGame(String body) throws ResponseException{
         var request = buildRequest("POST", "/game", body);
+        sendRequest(request);
+    }
+
+    public void listGames(String body) throws ResponseException {
+        var request = buildRequest("GET", "/game", body);
+        sendRequest(request);
+    }
+
+    public void joinGame(String body) throws ResponseException{
+        var request = buildRequest("PUT", "/game", body);
         sendRequest(request);
     }
 
