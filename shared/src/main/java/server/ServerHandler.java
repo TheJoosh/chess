@@ -42,7 +42,8 @@ public class ServerHandler {
 
     public void createGame(String body) throws ResponseException{
         var request = buildRequest("POST", "/game", body);
-        sendRequest(request);
+        var response = sendRequest(request);
+        handleResponse(response, Integer.class);
     }
 
     public void listGames(String body) throws ResponseException {
@@ -77,7 +78,7 @@ public class ServerHandler {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new ResponseException(ResponseException.Code.BadRequest, ex.getMessage());
         }
     }
 

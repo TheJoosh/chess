@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.GameAccess;
 import dataaccess.DataAccessException;
-import model.GameData;
 import model.GameList;
 import java.util.Collection;
 import results.JoinRequest;
