@@ -3,6 +3,8 @@ package service;
 import dataaccess.GameAccess;
 import dataaccess.DataAccessException;
 import model.GameList;
+import model.GameData;
+import model.ListGameResult;
 import java.util.Collection;
 import results.JoinRequest;
 
@@ -15,7 +17,7 @@ public class GameService {
     }
 
     public void clear() throws DataAccessException {
-        Collection<String> games = gameAccess.listGames();
+        Collection<ListGameResult> games = gameAccess.listGames();
         if (!games.isEmpty()) {
             gameAccess.clear();
         }

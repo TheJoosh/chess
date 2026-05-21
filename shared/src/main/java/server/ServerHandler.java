@@ -48,7 +48,8 @@ public class ServerHandler {
 
     public void listGames(String body) throws ResponseException {
         var request = buildRequest("GET", "/game", body);
-        sendRequest(request);
+        var response = sendRequest(request);
+        handleResponse(response, String.class);
     }
 
     public void joinGame(String body) throws ResponseException{

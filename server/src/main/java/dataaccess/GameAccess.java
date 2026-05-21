@@ -7,11 +7,12 @@ import com.google.gson.Gson;
 import results.JoinRequest;
 import model.GameList;
 import model.GameData;
+import model.ListGameResult;
 import chess.ChessGame;
 
 public class GameAccess implements GameDAO {
 
-    final private HashMap<Integer, String> games = new HashMap<>();
+    final private HashMap<Integer, ListGameResult> games = new HashMap<>();
     private int next = 1;
 
     public GameList listGames() throws DataAccessException {
@@ -23,14 +24,15 @@ public class GameAccess implements GameDAO {
     }
 
     public void joinGame(JoinRequest gameRequest) throws DataAccessException {
-        String game = games.get(gameRequest.gameID());
+        ListGameResult game = games.get(gameRequest.gameID());
     }
 
     public int createGame(String name) throws DataAccessException {
-        var serializer = new Gson();
+        //var serializer = new Gson();
         GameData game = new GameData(next++, null, null, name, new ChessGame());
-        String gameString = serializer.toJson(game.game());
-        games.put(game.gameID(), gameString);
+        ListGameResult gameResult = new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
+        //String gameString = serializer.toJson(game.game());
+        games.put(game.gameID(), gameResult);
         return game.gameID();
     }
 }

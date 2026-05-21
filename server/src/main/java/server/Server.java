@@ -89,6 +89,7 @@ public class Server {
 
         if (authToken == null) {
             ctx.status(400).result("Error: bad request");
+            return;
         }
 
         if (authService.authenticate(authToken)) {
@@ -106,6 +107,7 @@ public class Server {
 
         if (authToken == null) {
             ctx.status(400).result("Error: bad request");
+            return;
         }
 
         if (authToken != null && authService.authenticate(authToken)) {
@@ -123,18 +125,28 @@ public class Server {
 
         if (authToken == null) {
             ctx.status(400).result("Error: bad request");
+            return;
         }
 
         if (authService.authenticate(authToken)) {
-            ArrayList<String> games = gameService.listGames();
+            ArrayList<ListGameResult> games = gameService.listGames();
+            ListGamesResults result = new ListGamesResults(games);
             ctx.status(200);
-            ctx.result(new Gson().toJson(games));
+            ctx.result(new Gson().toJson(result));
         } else {
             ctx.status(401);
         }
     }
 
     private void joinGame(Context ctx) throws DataAccessException {
+
+        String authToken = ctx.header("authorization");
+
+        if (authToken == null) {
+            ctx.status(400).result("Error: bad request");
+            return;
+        }
+        
         JoinRequest game = new Gson().fromJson(ctx.body(), JoinRequest.class);
         gameService.joinGame(game);
         ctx.status(200);
