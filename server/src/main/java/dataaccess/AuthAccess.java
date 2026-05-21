@@ -1,6 +1,7 @@
 package dataaccess;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import model.*;
 
@@ -22,6 +23,12 @@ public class AuthAccess implements AuthDAO {
 
     public void removeAuth(AuthData authData) {
         auth.remove(authData.authToken(), authData.username());
+    }
+
+    public String login(UserData user) {
+        String token = UUID.randomUUID().toString();
+        auth.put(token, user.username());
+        return token;
     }
 
 }

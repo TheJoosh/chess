@@ -1,6 +1,5 @@
 package server;
 
-import io.javalin.*;
 import service.*;
 import model.*;
 
@@ -28,10 +27,11 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
             .delete("/db", this::clear)
             .delete("/session", this::logout)
-            .post("user", this::register)
-            .post("game", this::createGame)
-            .get("game", this::listGames)
-            .put("game", this::joinGame)
+            .post("/user", this::register)
+            .post("/session", this::login)
+            .post("/game", this::createGame)
+            .get("/game", this::listGames)
+            .put("/game", this::joinGame)
             .exception(ResponseException.class, this::exceptionHandler)
         ;
 
@@ -51,20 +51,27 @@ public class Server {
         ctx.result(ex.toJson());
     }
 
-    private void clear(Context ctx) throws ResponseException {
+    private void clear(Context ctx) throws DataAccessException {
         authService.clear();
         userService.clear();
         gameService.clear();
         ctx.status(200);
     }
 
-    private void register(Context ctx) throws ResponseException {
+    private void register(Context ctx) throws DataAccessException {
         UserData user = new Gson().fromJson(ctx.body(), UserData.class);
         user = userService.register(user);
         ctx.status(200);
     }
 
-    private void logout(Context ctx) throws ResponseException {
+    private String login(Context ctx) throws DataAccessException {
+        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+        String token = authService.login(user);
+        ctx.status(200);
+        return token;
+    }
+
+    private void logout(Context ctx) throws DataAccessException {
         AuthData authToken = new Gson().fromJson(ctx.body(), AuthData.class);
         if (authService.authenticate(authToken)) {
             authService.removeAuth(authToken);
@@ -74,13 +81,13 @@ public class Server {
         }
     }
 
-    private void createGame(Context ctx) throws ResponseException {
+    private void createGame(Context ctx) throws DataAccessException {
         GameData game = new Gson().fromJson(ctx.body(), GameData.class);
         game = gameService.createGame(game);
         ctx.status(200);
     }
 
-    private void listGames(Context ctx) throws ResponseException {
+    private void listGames(Context ctx) throws DataAccessException {
         AuthData authData = new Gson().fromJson(ctx.body(), AuthData.class);
         if (authService.authenticate(authData)) {
             gameService.listGames();
@@ -90,7 +97,7 @@ public class Server {
         }
     }
 
-    private void joinGame(Context ctx) throws ResponseException {
+    private void joinGame(Context ctx) throws DataAccessException {
         GameData game = new Gson().fromJson(ctx.body(), GameData.class);
         gameService.joinGame(game);
         ctx.status(200);

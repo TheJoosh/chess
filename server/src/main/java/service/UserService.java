@@ -1,7 +1,7 @@
 package service;
 
+import dataaccess.DataAccessException;
 import dataaccess.UserAccess;
-import exception.*;
 import model.*;
 import java.util.Collection;
 
@@ -13,14 +13,14 @@ public class UserService {
         this.userAccess = userAccess;
     }
 
-    public void clear() throws ResponseException {
+    public void clear() throws DataAccessException {
         Collection<UserData> users = userAccess.listUsers();
         if (!users.isEmpty()) {
             userAccess.clear();
         }
     }
 
-    public UserData register(UserData user) {
+    public UserData register(UserData user) throws DataAccessException {
         userAccess.register(user);
         return user;
     }
