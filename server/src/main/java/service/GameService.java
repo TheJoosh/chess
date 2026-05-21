@@ -31,8 +31,8 @@ public class GameService {
         return gameAccess.listGames();
     }
 
-    public void joinGame(JoinRequest game, String username) throws DataAccessException {
-        gameAccess.joinGame(game, username);
+    public boolean joinGame(JoinRequest game, String username) throws DataAccessException {
+        return gameAccess.joinGame(game, username);
     }
 
 }

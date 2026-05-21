@@ -23,13 +23,16 @@ public class GameAccess implements GameDAO {
         games.clear();
     }
 
-    public void joinGame(JoinRequest gameRequest, String username) throws DataAccessException {
+    public boolean joinGame(JoinRequest gameRequest, String username) throws DataAccessException {
         ListGameResult game = games.get(gameRequest.gameID());
         if (gameRequest.color() == "WHITE" && game.whiteUsername() == null) {
             games.replace(gameRequest.gameID(), new ListGameResult(game.gameID(), username, game.blackUsername(), game.gameName()));
+            return true;
         } else if (gameRequest.color() == "BLACK" && game.blackUsername() == null) {
             games.replace(gameRequest.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), username, game.gameName()));
+            return true;
         }
+        return false;
     }
 
     public int createGame(String name) throws DataAccessException {
