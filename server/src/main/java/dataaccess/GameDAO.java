@@ -1,7 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.*;
-import results.JoinRequest;
 
 public interface GameDAO {
 
@@ -9,7 +9,7 @@ public interface GameDAO {
 
     GameList listGames() throws DataAccessException;
 
-    boolean joinGame(JoinRequest gameName, String username) throws DataAccessException;
+    boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException;
 
     int createGame(String game) throws DataAccessException;
 

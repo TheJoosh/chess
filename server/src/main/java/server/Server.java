@@ -6,6 +6,7 @@ import results.*;
 
 import com.google.gson.Gson;
 
+import chess.ChessGame;
 import dataaccess.*;
 import exception.ResponseException;
 
@@ -168,13 +169,16 @@ public class Server {
         if (authService.authenticate(authToken)) {
             JoinRequest game = new Gson().fromJson(ctx.body(), JoinRequest.class);
 
-            if (game == null || game.color() == null || game.gameID() == null) {
-                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
-                return;
+            if (game == null || game.playerColor() == null || game.gameID() <= 0) {
+                 ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
+                 return;
             }
             
             String username = authService.getUsername(authToken);
-            if (gameService.joinGame(game, username)) {
+            ChessGame.TeamColor color = game.playerColor();
+            int gameID = game.gameID();
+
+            if (gameService.joinGame(username, color, gameID)) {
                 ctx.status(200).result(new Gson().toJson(new Result("")));
             } else {
                 ctx.status(403).result(new Gson().toJson(new Result("Error: already taken")));

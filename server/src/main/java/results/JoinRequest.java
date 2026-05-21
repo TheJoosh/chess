@@ -1,5 +1,5 @@
 package results;
 
-public record JoinRequest(String color, Integer gameID) {
+import chess.ChessGame;
 
-}
+public record JoinRequest(ChessGame.TeamColor playerColor, int gameID) {}

@@ -2,7 +2,6 @@ package dataaccess;
 
 import java.util.HashMap;
 
-import results.JoinRequest;
 import model.GameList;
 import model.GameData;
 import model.ListGameResult;
@@ -21,18 +20,18 @@ public class GameAccess implements GameDAO {
         games.clear();
     }
 
-    public boolean joinGame(JoinRequest gameRequest, String username) throws DataAccessException {
-        ListGameResult game = games.get(gameRequest.gameID());
+    public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
+        ListGameResult game = games.get(gameID);
 
-        if (gameRequest.color() == "WHITE" && game.whiteUsername() == null) {
-            games.replace(gameRequest.gameID(), new ListGameResult(game.gameID(), username, game.blackUsername(), game.gameName()));
+        if (color == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) {
+            games.replace(gameID, new ListGameResult(gameID, username, game.blackUsername(), game.gameName()));
             return true;
 
-        } else if (gameRequest.color() == "BLACK" && game.blackUsername() == null) {
-            games.replace(gameRequest.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), username, game.gameName()));
+        } else if (color == ChessGame.TeamColor.BLACK && game.blackUsername() == null) {
+            games.replace(gameID, new ListGameResult(gameID, game.whiteUsername(), username, game.gameName()));
             return true;
         }
-        
+
         return false;
     }
 

@@ -56,7 +56,8 @@ public class ServerHandler {
 
     public void joinGame(String body) throws ResponseException{
         var request = buildRequest("PUT", "/game", body);
-        sendRequest(request);
+        var response = sendRequest(request);
+        handleResponse(response, String.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {

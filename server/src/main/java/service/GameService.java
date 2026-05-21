@@ -5,7 +5,8 @@ import dataaccess.DataAccessException;
 import model.GameList;
 import model.ListGameResult;
 import java.util.Collection;
-import results.JoinRequest;
+
+import chess.ChessGame;
 
 public class GameService {
 
@@ -30,8 +31,8 @@ public class GameService {
         return gameAccess.listGames();
     }
 
-    public boolean joinGame(JoinRequest game, String username) throws DataAccessException {
-        return gameAccess.joinGame(game, username);
+    public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
+        return gameAccess.joinGame(username, color, gameID);
     }
 
 }
