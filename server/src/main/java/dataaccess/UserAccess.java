@@ -10,10 +10,6 @@ public class UserAccess implements UserDAO {
 
     final private HashMap<String, String> users = new HashMap<>();
 
-    public UserData getUser(int id) {
-        return new UserData();
-    }
-
     public UserList listUsers() {
         return new UserList(users.keySet());
     } 
