@@ -24,6 +24,9 @@ public class GameService {
     }
 
     public int createGame(String game) throws DataAccessException {
+        if (game == null) {
+            throw new DataAccessException("Invalid Name");
+        }
         return gameAccess.createGame(game);
     }
 
@@ -32,6 +35,9 @@ public class GameService {
     }
 
     public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
+        if ((color != ChessGame.TeamColor.BLACK && color != ChessGame.TeamColor.WHITE) || username == null) {
+            throw new DataAccessException("Invalid Input");
+        }
         return gameAccess.joinGame(username, color, gameID);
     }
 

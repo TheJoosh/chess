@@ -18,6 +18,10 @@ public class UserService {
         return userAccess.getUser(user);
     }
 
+    public UserList listUsers() {
+        return userAccess.listUsers();
+    }
+
     public void clear() throws DataAccessException {
         Collection<String> users = userAccess.listUsers();
         if (!users.isEmpty()) {
@@ -26,6 +30,10 @@ public class UserService {
     }
 
     public AuthData register(UserData user) throws DataAccessException {
+        if (user == null || user.username() == null || user.email() == null || user.password() == null) {
+            throw new DataAccessException("Invalid Input");
+        }
+        
         AuthData auth = userAccess.register(user);
         return auth;
     }

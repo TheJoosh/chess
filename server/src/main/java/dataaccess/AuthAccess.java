@@ -30,14 +30,17 @@ public class AuthAccess implements AuthDAO {
         auth.put(authData.authToken(), authData.username());
     }
 
-    public AuthData login(LoginRequest user) {
+    public AuthData login(LoginRequest user) throws DataAccessException {
         String token = UUID.randomUUID().toString();
         AuthData auth = new AuthData(token, user.username());
         addAuth(auth);
         return auth;
     }
 
-    public String getUsername(String authToken) {
+    public String getUsername(String authToken) throws DataAccessException {
+        if (!auth.containsKey(authToken)) {
+            throw new DataAccessException("Invalid Token");
+        }
         return auth.get(authToken);
     }
 }

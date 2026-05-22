@@ -89,7 +89,6 @@ public class Server {
 
         if(userService.verifyPassword(user)) {
             AuthData auth = authService.login(user);
-            authService.addAuth(auth);
             ctx.status(200);
             ctx.result(new Gson().toJson(auth));
             return;

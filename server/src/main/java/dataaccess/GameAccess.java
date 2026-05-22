@@ -36,10 +36,11 @@ public class GameAccess implements GameDAO {
     }
 
     public int createGame(String name) throws DataAccessException {
-        //var serializer = new Gson();
         GameData game = new GameData(next++, null, null, name, new ChessGame());
         ListGameResult gameResult = new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
-        //String gameString = serializer.toJson(game.game());
+        if (games.containsValue(gameResult)) {
+            throw new DataAccessException("Game Already Exists");
+        }
         games.put(game.gameID(), gameResult);
         return game.gameID();
     }
