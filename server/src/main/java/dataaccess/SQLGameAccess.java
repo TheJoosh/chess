@@ -4,8 +4,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.google.gson.Gson;
+
 import chess.ChessGame;
+import model.AuthData;
+import model.AuthList;
 import model.GameList;
+import model.GameData;
+import model.ListGameResult;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 import static java.sql.Types.NULL;
@@ -13,21 +19,71 @@ import java.sql.Connection;
 
 public class SQLGameAccess implements GameDAO {
 
+    private int next = 1;
+
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE TABLE games";
         executeUpdate (statement);
     }
 
     public GameList listGames() throws DataAccessException {
-        return new GameList();
+        var result = new GameList();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, json FROM games";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        GameData game = readGames(rs);
+                        result.add(game.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result;
     }
 
     public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
-        return false;
+        var statement = "";
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var get = "SELECT gameID, whiteUsername, blackUsername, gameName FROM games";
+            try (PreparedStatement ps = conn.prepareStatement(get)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        if (readGames(rs).gameID() == gameID) {
+                            if (color == ChessGame.TeamColor.WHITE && readGames(rs).whiteUsername() == null) {
+                                statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
+                            } else if (color == ChessGame.TeamColor.BLACK && readGames(rs).blackUsername() == null) {
+                                statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            executeUpdate(statement, username, gameID);
+            return true;
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     public int createGame(String game) throws DataAccessException {
-        return 0;
+        GameData newGame = new GameData(next++, null, null, game, new ChessGame());
+        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game, json) VALUES (?, ?, ?, ?, ?, ?)";
+        String json = new Gson().toJson(newGame);
+        executeUpdate(statement, newGame.gameID(), newGame.whiteUsername(), newGame.blackUsername(), game, new Gson().toJson(newGame.game()), json);
+        return newGame.gameID();
+    }
+
+    private GameData readGames(ResultSet rs) throws SQLException {
+        var json = rs.getString("json");
+        GameData auth = new Gson().fromJson(json, GameData.class);
+        return auth;
     }
 
     public int executeUpdate(String statement, Object... params) throws DataAccessException {

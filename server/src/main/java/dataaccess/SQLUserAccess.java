@@ -11,7 +11,6 @@ import com.google.gson.Gson;
 
 import chess.ChessGame;
 import model.AuthData;
-import model.AuthList;
 import model.UserData;
 import model.UserList;
 import results.LoginRequest;
@@ -25,7 +24,7 @@ public class SQLUserAccess implements UserDAO{
     public UserList listUsers() throws DataAccessException {
         var result = new UserList();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, hashedpassword, json FROM users";
+            var statement = "SELECT username, password, json FROM users";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -40,15 +39,40 @@ public class SQLUserAccess implements UserDAO{
     } 
 
     public boolean getUser(UserData user) throws DataAccessException {
-        return false;
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password, json FROM users";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    boolean found = false;
+
+                    while (rs.next()) {
+                        found = readUsers(rs).username().equals(user.username());
+                    }
+                    return found;
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
     
-    public boolean verifyPassword(LoginRequest user) {
-        return false;
+    public boolean verifyPassword(LoginRequest user) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password FROM users WHERE username = ?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ResultSet result = ps.executeQuery(user.username());
+                if (result.next()) {
+                    return result.getString("password") == BCrypt.hashpw(user.password(), BCrypt.gensalt());
+                }
+                throw new DataAccessException("Invalid Username");
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     public AuthData register (UserData user) throws DataAccessException {
-        var statement = "INSERT INTO users (username, email, hashedpassword, json) VALUES (?, ?, ?, ?)";
+        var statement = "INSERT INTO users (username, email, password, json) VALUES (?, ?, ?, ?)";
         String json = new Gson().toJson(user);
         String hashWord = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         executeUpdate(statement, user.username(), user.email(), hashWord, json);

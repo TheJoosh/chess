@@ -39,7 +39,7 @@ public class SQLDataAccess implements DataAccess {
         return userAccess.listUsers();
     } 
 
-    public boolean verifyPassword(LoginRequest user) {
+    public boolean verifyPassword(LoginRequest user) throws DataAccessException {
         return userAccess.verifyPassword(user);
     }
 

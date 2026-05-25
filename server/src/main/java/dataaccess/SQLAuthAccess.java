@@ -31,7 +31,7 @@ public class SQLAuthAccess implements AuthDAO{
     }
 
     public void removeAuth(String token) throws DataAccessException { 
-        var statement = "DELETE FROM pet WHERE token=?";
+        var statement = "DELETE FROM authData WHERE token=?";
         executeUpdate(statement, token);
     }
     
@@ -64,7 +64,21 @@ public class SQLAuthAccess implements AuthDAO{
     }
 
     public String getUsername(String auth) throws DataAccessException {
-        return "";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT token, username, json FROM authData";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        if (readAuth(rs).authToken().equals(auth)) {
+                            return readAuth(rs).username();
+                        }
+                    }
+                    throw new DataAccessException ("Error: Unauthorized");
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
