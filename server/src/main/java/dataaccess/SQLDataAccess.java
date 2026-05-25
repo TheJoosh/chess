@@ -3,7 +3,6 @@ package dataaccess;
 import java.sql.*;
 
 import chess.ChessGame;
-import exception.ResponseException;
 import model.AuthData;
 import model.AuthList;
 import model.GameList;
@@ -36,7 +35,7 @@ public class SQLDataAccess implements DataAccess {
         return userAccess.getUser(user);
     }
 
-    public UserList listUsers() {
+    public UserList listUsers() throws DataAccessException {
         return userAccess.listUsers();
     } 
 

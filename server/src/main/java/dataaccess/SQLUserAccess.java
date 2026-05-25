@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 
 import chess.ChessGame;
 import model.AuthData;
+import model.AuthList;
 import model.UserData;
 import model.UserList;
 import results.LoginRequest;
@@ -21,8 +22,21 @@ import java.sql.Connection;
 
 public class SQLUserAccess implements UserDAO{
 
-    public UserList listUsers() {
-        return new UserList();
+    public UserList listUsers() throws DataAccessException {
+        var result = new UserList();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, hashedpassword, json FROM users";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readUsers(rs).username());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result;
     } 
 
     public boolean getUser(UserData user) throws DataAccessException {
@@ -44,6 +58,12 @@ public class SQLUserAccess implements UserDAO{
     public void clear() throws DataAccessException {
         var statement = "TRUNCATE TABLE users";
         executeUpdate (statement);
+    }
+
+    private UserData readUsers(ResultSet rs) throws SQLException {
+        var json = rs.getString("json");
+        UserData user = new Gson().fromJson(json, UserData.class);
+        return user;
     }
 
     public int executeUpdate(String statement, Object... params) throws DataAccessException {

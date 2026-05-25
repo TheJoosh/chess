@@ -19,7 +19,7 @@ public class UserService {
         return userAccess.getUser(user);
     }
 
-    public UserList listUsers() {
+    public UserList listUsers() throws DataAccessException {
         return userAccess.listUsers();
     }
 
@@ -39,7 +39,7 @@ public class UserService {
         return auth;
     }
 
-    public boolean verifyPassword(LoginRequest user) {
+    public boolean verifyPassword(LoginRequest user) throws DataAccessException {
         return userAccess.verifyPassword(user);
     }
 }

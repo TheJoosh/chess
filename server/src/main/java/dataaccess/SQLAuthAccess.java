@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
+import exception.ResponseException;
 import model.AuthData;
 import model.AuthList;
 import results.LoginRequest;
@@ -34,7 +35,8 @@ public class SQLAuthAccess implements AuthDAO{
     }
     
     public boolean authenticate(String token) throws DataAccessException {
-        return false;
+        AuthList list = listAuth();
+        return list.contains(token);
     }
 
     public AuthData login(LoginRequest user) throws DataAccessException {
@@ -42,13 +44,31 @@ public class SQLAuthAccess implements AuthDAO{
     }
 
     public AuthList listAuth() throws DataAccessException {
-        return new AuthList();
+        var result = new AuthList();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT token, username, json FROM authData";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(readAuth(rs).authToken());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return result;
     }
 
     public String getUsername(String auth) throws DataAccessException {
         return "";
     }
 
+    private AuthData readAuth(ResultSet rs) throws SQLException {
+        var json = rs.getString("json");
+        AuthData auth = new Gson().fromJson(json, AuthData.class);
+        return auth;
+    }
     
     public int executeUpdate(String statement, Object... params) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {

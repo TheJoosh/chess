@@ -7,9 +7,9 @@ public interface UserDAO {
 
     public boolean getUser(UserData user) throws DataAccessException;
 
-    public UserList listUsers();
+    public UserList listUsers() throws DataAccessException;
     
-    public boolean verifyPassword(LoginRequest user);
+    public boolean verifyPassword(LoginRequest user) throws DataAccessException;
 
     public AuthData register (UserData user) throws DataAccessException;
 
