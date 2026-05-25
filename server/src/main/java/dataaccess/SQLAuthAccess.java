@@ -3,6 +3,7 @@ package dataaccess;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 import com.google.gson.Gson;
 
@@ -40,7 +41,9 @@ public class SQLAuthAccess implements AuthDAO{
     }
 
     public AuthData login(LoginRequest user) throws DataAccessException {
-        return new AuthData();
+        AuthData auth = new AuthData(UUID.randomUUID().toString(), user.username());
+        addAuth(auth);
+        return auth;
     }
 
     public AuthList listAuth() throws DataAccessException {
