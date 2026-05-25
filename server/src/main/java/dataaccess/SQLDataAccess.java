@@ -3,6 +3,7 @@ package dataaccess;
 import java.sql.*;
 
 import chess.ChessGame;
+import exception.ResponseException;
 import model.AuthData;
 import model.AuthList;
 import model.GameList;
@@ -91,18 +92,16 @@ public class SQLDataAccess implements DataAccess {
               `hashedpassword` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`username`),
-              INDEX(username),
               INDEX(email)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
             CREATE TABLE IF NOT EXISTS  authData (
               `username` varchar(256) NOT NULL,
               `token` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY (`username`),
-              INDEX(username),
               INDEX(token)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
             CREATE TABLE IF NOT EXISTS  games (
               `id` int NOT NULL AUTO_INCREMENT,
@@ -111,8 +110,7 @@ public class SQLDataAccess implements DataAccess {
               `name` varchar(256) NOT NULL,
               `game` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
-              PRIMARY KEY (`username`),
-              INDEX(id),
+              PRIMARY KEY (`id`),
               INDEX(name)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """

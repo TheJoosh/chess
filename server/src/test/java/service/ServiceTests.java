@@ -17,7 +17,7 @@ public class ServiceTests {
     static final UserService USER_SERVICE = new UserService(ACCESS);
     static final GameService GAME_SERVICE = new GameService(ACCESS);
 
-    @BeforeEach
+    @AfterEach
     void clearData() throws DataAccessException {
         AUTH_SERVICE.clear();
         USER_SERVICE.clear();
@@ -26,10 +26,10 @@ public class ServiceTests {
 
     @Test
     void registerTestPositive() throws DataAccessException {
-        var user = new UserData("username", "password", "email");
+        var user = new UserData("usernam", "password", "mail");
         AuthData auth = USER_SERVICE.register(user);
         
-        assertEquals("username", auth.username());
+        assertEquals("usernam", auth.username());
     }
 
     @Test
