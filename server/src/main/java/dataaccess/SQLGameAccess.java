@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
-import model.AuthData;
-import model.AuthList;
 import model.GameList;
 import model.GameData;
 import model.ListGameResult;
@@ -48,7 +46,7 @@ public class SQLGameAccess implements GameDAO {
         var statement = "";
 
         try (Connection conn = DatabaseManager.getConnection()) {
-            var get = "SELECT gameID, whiteUsername, blackUsername, gameName FROM games";
+            var get = "SELECT gameID, whiteUsername, blackUsername, gameName, json FROM games";
             try (PreparedStatement ps = conn.prepareStatement(get)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {

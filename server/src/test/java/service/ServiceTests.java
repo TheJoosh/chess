@@ -108,7 +108,7 @@ public class ServiceTests {
         String authToken = UUID.randomUUID().toString();
         AUTH_SERVICE.addAuth(new AuthData(authToken, "username"));
 
-        assert(AUTH_SERVICE.listAuth().contains("username"));
+        assert(AUTH_SERVICE.listAuth().contains(authToken));
     }
 
     @Test
@@ -126,11 +126,11 @@ public class ServiceTests {
     void removeAuthPositive() throws DataAccessException {
         String authToken = UUID.randomUUID().toString();
         AUTH_SERVICE.addAuth(new AuthData(authToken, "username"));
-        assert(AUTH_SERVICE.listAuth().contains("username"));
+        assert(AUTH_SERVICE.listAuth().contains(authToken));
 
         AUTH_SERVICE.removeAuth(authToken);
 
-        assert(!AUTH_SERVICE.listAuth().contains("username"));
+        assert(!AUTH_SERVICE.listAuth().contains(authToken));
     }
 
     @Test
