@@ -20,12 +20,13 @@ public class Server {
     private final AuthService authService;
     private final GameService gameService;
     private final UserService userService;
+    private final DataAccess dataAccess;
 
     public Server() {
-
-        this.authService = new AuthService(new AuthAccess());
-        this.gameService = new GameService(new GameAccess());
-        this.userService = new UserService(new UserAccess());
+        this.dataAccess = new SQLDataAccess(new SQLGameAccess(), new SQLUserAccess(), new SQLAuthAccess());
+        this.authService = new AuthService(dataAccess);
+        this.gameService = new GameService(dataAccess);
+        this.userService = new UserService(dataAccess);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
             .delete("/db", this::clear)

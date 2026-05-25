@@ -10,6 +10,10 @@ public class SQLAuthAccess implements AuthDAO{
 
     }
 
+    public void addAuth(AuthData authData) throws DataAccessException {
+        
+    }
+
     public void removeAuth(String token) throws DataAccessException { 
 
     }

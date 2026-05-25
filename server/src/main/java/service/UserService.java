@@ -2,19 +2,20 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.UserAccess;
+import dataaccess.DataAccess;
 import model.*;
 import results.LoginRequest;
 import java.util.Collection;
 
 public class UserService {
 
-    private final UserAccess userAccess;
+    private final DataAccess userAccess;
 
-    public UserService(UserAccess userAccess) {
+    public UserService(DataAccess userAccess) {
         this.userAccess = userAccess;
     }
 
-    public boolean getUser(UserData user) {
+    public boolean getUser(UserData user) throws DataAccessException {
         return userAccess.getUser(user);
     }
 

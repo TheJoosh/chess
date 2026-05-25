@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthAccess;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.*;
 import java.util.Collection;
@@ -8,9 +9,9 @@ import results.LoginRequest;
 
 public class AuthService {
 
-    private final AuthAccess authAccess;
+    private final DataAccess authAccess;
 
-    public AuthService(AuthAccess authAccess) {
+    public AuthService(DataAccess authAccess) {
         this.authAccess = authAccess;
     }
 

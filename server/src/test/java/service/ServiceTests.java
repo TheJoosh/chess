@@ -6,18 +6,16 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import chess.ChessGame;
-import dataaccess.AuthAccess;
-import dataaccess.GameAccess;
-import dataaccess.UserAccess;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import model.*;
 import results.LoginRequest;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ServiceTests {
-    static final AuthService AUTH_SERVICE = new AuthService(new AuthAccess());
-    static final UserService USER_SERVICE = new UserService(new UserAccess());
-    static final GameService GAME_SERVICE = new GameService(new GameAccess());
+    static final DataAccess ACCESS = new SQLDataAccess(new SQLGameAccess(), new SQLUserAccess(), new SQLAuthAccess());
+    static final AuthService AUTH_SERVICE = new AuthService(ACCESS);
+    static final UserService USER_SERVICE = new UserService(ACCESS);
+    static final GameService GAME_SERVICE = new GameService(ACCESS);
 
     @BeforeEach
     void clearData() throws DataAccessException {

@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.GameAccess;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.GameList;
 import model.ListGameResult;
@@ -10,9 +11,9 @@ import chess.ChessGame;
 
 public class GameService {
 
-    private final GameAccess gameAccess;
+    private final DataAccess gameAccess;
 
-    public GameService(GameAccess gameAccess) {
+    public GameService(DataAccess gameAccess) {
         this.gameAccess = gameAccess;
     }
 

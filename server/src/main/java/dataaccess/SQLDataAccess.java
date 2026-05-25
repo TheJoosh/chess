@@ -7,19 +7,22 @@ import model.AuthData;
 import model.AuthList;
 import model.GameList;
 import model.UserData;
+import model.UserList;
 import results.LoginRequest;
 
-public class SQLDataAccess {
+public class SQLDataAccess implements DataAccess {
 
     private final SQLGameAccess gameAccess;
     private final SQLUserAccess userAccess;
     private final SQLAuthAccess authAccess;
 
-    public SQLDataAccess(SQLGameAccess gameAccess, SQLUserAccess userAccess, SQLAuthAccess authAccess) throws DataAccessException {
+    public SQLDataAccess(SQLGameAccess gameAccess, SQLUserAccess userAccess, SQLAuthAccess authAccess) {
         this.authAccess = authAccess;
         this.userAccess = userAccess;
         this.gameAccess = gameAccess;
-        configureDatabase();
+        try {
+            configureDatabase();
+        } catch(DataAccessException ex) {}
     }
 
     public void clear() throws DataAccessException {
@@ -32,12 +35,20 @@ public class SQLDataAccess {
         return userAccess.getUser(user);
     }
 
+    public UserList listUsers() {
+        return userAccess.listUsers();
+    } 
+
     public boolean verifyPassword(LoginRequest user) {
         return userAccess.verifyPassword(user);
     }
 
     public AuthData register (UserData user) throws DataAccessException {
         return userAccess.register(user);
+    }
+
+    public void addAuth(AuthData authData) throws DataAccessException {
+        authAccess.addAuth(authData);
     }
 
     public void removeAuth(String token) throws DataAccessException { 
