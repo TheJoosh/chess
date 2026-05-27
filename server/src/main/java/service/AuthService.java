@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.AuthAccess;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.*;

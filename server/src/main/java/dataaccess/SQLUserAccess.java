@@ -58,13 +58,16 @@ public class SQLUserAccess implements UserDAO{
     
     public boolean verifyPassword(LoginRequest user) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, password FROM users WHERE username = ?";
+            var statement = "SELECT username, password FROM users";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ResultSet result = ps.executeQuery(user.username());
-                if (result.next()) {
-                    return result.getString("password") == BCrypt.hashpw(user.password(), BCrypt.gensalt());
+                ResultSet result = ps.executeQuery();
+                boolean found = false;
+                while (result.next()) {
+                    if (result.getString("username").equals(user.username())) {
+                        found = BCrypt.checkpw(user.password(), result.getString("password"));
+                    }
                 }
-                throw new DataAccessException("Invalid Username");
+                return found;
             }
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));

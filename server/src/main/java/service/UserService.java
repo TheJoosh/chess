@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.DataAccessException;
-import dataaccess.UserAccess;
 import dataaccess.DataAccess;
 import model.*;
 import results.LoginRequest;

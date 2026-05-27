@@ -8,7 +8,6 @@ import java.util.UUID;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
-import exception.ResponseException;
 import model.AuthData;
 import model.AuthList;
 import results.LoginRequest;
@@ -25,13 +24,13 @@ public class SQLAuthAccess implements AuthDAO{
     }
 
     public void addAuth(AuthData authData) throws DataAccessException {
-        var statement = "INSERT INTO authData (token, username, json) VALUES (?, ?, ?)";
+        var statement = "INSERT INTO authData (authToken, username, json) VALUES (?, ?, ?)";
         String json = new Gson().toJson(authData);
         executeUpdate(statement, authData.authToken(), authData.username(), json);
     }
 
     public void removeAuth(String token) throws DataAccessException { 
-        var statement = "DELETE FROM authData WHERE token=?";
+        var statement = "DELETE FROM authData WHERE authToken=?";
         executeUpdate(statement, token);
     }
     
@@ -49,7 +48,7 @@ public class SQLAuthAccess implements AuthDAO{
     public AuthList listAuth() throws DataAccessException {
         var result = new AuthList();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT token, username, json FROM authData";
+            var statement = "SELECT authToken, username, json FROM authData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -65,7 +64,7 @@ public class SQLAuthAccess implements AuthDAO{
 
     public String getUsername(String auth) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT token, username, json FROM authData";
+            var statement = "SELECT authToken, username, json FROM authData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
