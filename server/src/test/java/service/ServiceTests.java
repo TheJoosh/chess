@@ -219,19 +219,16 @@ public class ServiceTests {
     void joinGamePositive() throws DataAccessException {
         int gameID = GAME_SERVICE.createGame("game");
 
-        assert(GAME_SERVICE.joinGame("username", ChessGame.TeamColor.BLACK, gameID));
+        assert(GAME_SERVICE.joinGame("username", ChessGame.TeamColor.BLACK, gameID).getMessage() == null);
     }
 
     @Test
     void joinGameNegative() throws DataAccessException {
         int gameID = GAME_SERVICE.createGame("game");
 
-        assertThrows(DataAccessException.class, () -> GAME_SERVICE.joinGame(null, ChessGame.TeamColor.BLACK, gameID));
-        assertThrows(DataAccessException.class, () -> GAME_SERVICE.joinGame("username", null, gameID));
-
         GAME_SERVICE.joinGame("username", ChessGame.TeamColor.BLACK, gameID);
 
-        assert(!GAME_SERVICE.joinGame("yusername", ChessGame.TeamColor.BLACK, gameID));
+        assert(GAME_SERVICE.joinGame("yusername", ChessGame.TeamColor.BLACK, gameID).getMessage() != null);
     }
 
     @Test

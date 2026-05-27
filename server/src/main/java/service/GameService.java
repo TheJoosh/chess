@@ -4,6 +4,7 @@ import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.GameList;
 import results.ListGamesResults;
+import results.Result;
 
 import chess.ChessGame;
 
@@ -33,11 +34,15 @@ public class GameService {
         return gameAccess.listGames();
     }
 
-    public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
+    public Result joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
         if ((color != ChessGame.TeamColor.BLACK && color != ChessGame.TeamColor.WHITE) || username == null) {
-            throw new DataAccessException("Invalid Input");
+            return new Result("Invalid Input");
         }
-        return gameAccess.joinGame(username, color, gameID);
+        boolean success = gameAccess.joinGame(username, color, gameID);
+        if (success) {
+            return new Result(null);
+        }
+        return new Result("Color Already Taken");
     }
 
 }

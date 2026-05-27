@@ -24,9 +24,13 @@ public class SQLAuthAccess implements AuthDAO{
     }
 
     public void addAuth(AuthData authData) throws DataAccessException {
-        var statement = "INSERT INTO authData (authToken, username, json) VALUES (?, ?, ?)";
-        String json = new Gson().toJson(authData);
-        executeUpdate(statement, authData.authToken(), authData.username(), json);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO authData (username, authToken, json) VALUES (?, ?, ?)";
+            String json = new Gson().toJson(authData);
+            executeUpdate(statement, authData.username(), authData.authToken(), json);
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     public void removeAuth(String token) throws DataAccessException { 
@@ -48,7 +52,7 @@ public class SQLAuthAccess implements AuthDAO{
     public AuthList listAuth() throws DataAccessException {
         var result = new AuthList();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username, json FROM authData";
+            var statement = "SELECT username, authToken, json FROM authData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -64,7 +68,7 @@ public class SQLAuthAccess implements AuthDAO{
 
     public String getUsername(String auth) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username, json FROM authData";
+            var statement = "SELECT username, authToken, json FROM authData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {

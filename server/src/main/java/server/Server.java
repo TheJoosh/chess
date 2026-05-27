@@ -178,7 +178,7 @@ public class Server {
             ChessGame.TeamColor color = game.playerColor();
             int gameID = game.gameID();
 
-            if (gameService.joinGame(username, color, gameID)) {
+            if (gameService.joinGame(username, color, gameID).getMessage() == null) {
                 ctx.status(200).result(new Gson().toJson(new Result("")));
             } else {
                 ctx.status(403).result(new Gson().toJson(new Result("Error: already taken")));
