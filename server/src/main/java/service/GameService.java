@@ -1,11 +1,9 @@
 package service;
 
-import dataaccess.GameAccess;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.GameList;
-import model.ListGameResult;
-import java.util.Collection;
+import results.ListGamesResults;
 
 import chess.ChessGame;
 
@@ -18,8 +16,8 @@ public class GameService {
     }
 
     public void clear() throws DataAccessException {
-        Collection<ListGameResult> games = gameAccess.listGames();
-        if (!games.isEmpty()) {
+        ListGamesResults games = new ListGamesResults(gameAccess.listGames());
+        if (!games.getGames().isEmpty()) {
             gameAccess.clear();
         }
     }

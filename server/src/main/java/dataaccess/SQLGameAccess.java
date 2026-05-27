@@ -32,7 +32,7 @@ public class SQLGameAccess implements GameDAO {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         GameData game = readGames(rs);
-                        result.add(game.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+                        result.put(game.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
                     }
                 }
             }
@@ -80,8 +80,8 @@ public class SQLGameAccess implements GameDAO {
 
     private GameData readGames(ResultSet rs) throws SQLException {
         var json = rs.getString("json");
-        GameData auth = new Gson().fromJson(json, GameData.class);
-        return auth;
+        GameData game = new Gson().fromJson(json, GameData.class);
+        return game;
     }
 
     public int executeUpdate(String statement, Object... params) throws DataAccessException {

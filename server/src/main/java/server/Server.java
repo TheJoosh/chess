@@ -13,6 +13,7 @@ import exception.ResponseException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Server {
 
@@ -148,7 +149,7 @@ public class Server {
         }
 
         if (authService.authenticate(authToken)) {
-            ArrayList<ListGameResult> games = gameService.listGames();
+            HashMap<Integer, ListGameResult> games = gameService.listGames();
             ListGamesResults result = new ListGamesResults(games);
             ctx.status(200);
             ctx.result(new Gson().toJson(result));

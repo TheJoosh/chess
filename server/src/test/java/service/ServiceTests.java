@@ -207,7 +207,7 @@ public class ServiceTests {
         GAME_SERVICE.createGame("game");
         ListGameResult game = new ListGameResult(1, null, null, "game");
 
-        assert(GAME_SERVICE.listGames().contains(game));
+        assert(GAME_SERVICE.listGames().containsValue(game));
     }
 
     @Test

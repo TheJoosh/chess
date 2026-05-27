@@ -13,7 +13,9 @@ public class GameAccess implements GameDAO {
     private int next = 1;
 
     public GameList listGames() throws DataAccessException {
-        return new GameList(games.values());
+        GameList newList = new GameList();
+        newList.putAll(games);
+        return newList;
     } 
 
     public void clear() throws DataAccessException {
