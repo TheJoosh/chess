@@ -6,13 +6,14 @@ import model.GameList;
 import model.GameData;
 import model.ListGameResult;
 import chess.ChessGame;
+import java.sql.Connection;
 
 public class GameAccess implements GameDAO {
 
     final private HashMap<Integer, ListGameResult> games = new HashMap<>();
     private int next = 1;
 
-    public GameList listGames() throws DataAccessException {
+    public GameList listGames(Connection conn) throws DataAccessException {
         GameList newList = new GameList();
         newList.putAll(games);
         return newList;

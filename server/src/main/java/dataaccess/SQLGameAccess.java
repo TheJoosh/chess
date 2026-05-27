@@ -20,20 +20,24 @@ public class SQLGameAccess implements GameDAO {
     private int next = 1;
 
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE TABLE games";
-        executeUpdate (statement);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "TRUNCATE TABLE games";
+            executeUpdate (conn, statement);
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
-    public GameList listGames() throws DataAccessException {
+    public GameList listGames(Connection conn) throws DataAccessException {
         var result = new GameList();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, json FROM games";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        GameData game = readGames(rs);
-                        result.put(game.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
-                    }
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
+        try (PreparedStatement ps = conn.prepareStatement(statement)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    System.out.println("whiteUsername from DB = " + rs.getString("whiteUsername"));
+                    System.out.println("blackUsername from DB = " + rs.getString("blackUsername"));
+                    GameData game = readGames(rs);
+                    result.put(game.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
                 }
             }
         } catch (Exception e) {
@@ -50,13 +54,15 @@ public class SQLGameAccess implements GameDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                System.out.println("SELECT gameID = " + rs.getInt("gameID"));
+                System.out.println("UPDATE gameID = " + gameID);
                 if (color == ChessGame.TeamColor.BLACK && rs.getString("blackUsername") == null) {
                     String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
-                    executeUpdate(statement, username, gameID);
+                    executeUpdate(conn, statement, username, gameID);
                     return true;
                 } else if (color == ChessGame.TeamColor.WHITE && rs.getString("whiteUsername") == null) {
                     String statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
-                    executeUpdate(statement, username, gameID);
+                    executeUpdate(conn, statement, username, gameID);
                     return true;
                 }
             }
@@ -75,7 +81,7 @@ public class SQLGameAccess implements GameDAO {
             GameData newGame = new GameData(next++, null, null, game, new ChessGame());
 
             String json = new Gson().toJson(newGame);
-            executeUpdate(statement, newGame.gameID(), newGame.whiteUsername(), newGame.blackUsername(), game, new Gson().toJson(newGame.game()), json);
+            executeUpdate(conn, statement, newGame.gameID(), newGame.whiteUsername(), newGame.blackUsername(), game, new Gson().toJson(newGame.game()), json);
             return newGame.gameID();
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
@@ -83,30 +89,29 @@ public class SQLGameAccess implements GameDAO {
     }
 
     private GameData readGames(ResultSet rs) throws SQLException {
-        var json = rs.getString("json");
-        GameData game = new Gson().fromJson(json, GameData.class);
+        GameData game = new GameData(   
+                                rs.getInt("gameID"), 
+                                rs.getString("whiteUsername"), 
+                                rs.getString("blackUsername"), 
+                                rs.getString("gameName"), 
+                                new Gson().fromJson(rs.getString("game"), ChessGame.class)
+                            );
         return game;
     }
 
-    public int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof ChessGame.TeamColor p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
+    public int executeUpdate(Connection conn, String statement, Object... params) throws DataAccessException {
+        try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+            for (int i = 0; i < params.length; i++) {
+                Object param = params[i];
+                if (param instanceof String p) ps.setString(i + 1, p);
+                else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                else if (param instanceof ChessGame.TeamColor p) ps.setString(i + 1, p.toString());
+                else if (param == null) ps.setNull(i + 1, NULL);
             }
+            int updated = ps.executeUpdate();
+            System.out.println("Rows updated = " + updated);
+            return updated;
+
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }

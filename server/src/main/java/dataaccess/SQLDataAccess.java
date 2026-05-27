@@ -72,7 +72,11 @@ public class SQLDataAccess implements DataAccess {
     }
 
     public GameList listGames() throws DataAccessException {
-        return gameAccess.listGames();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            return gameAccess.listGames(conn);
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
