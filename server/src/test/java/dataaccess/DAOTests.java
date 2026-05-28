@@ -3,7 +3,6 @@ package dataaccess;
 import org.junit.jupiter.api.*;
 
 import chess.ChessGame;
-import dataaccess.*;
 import model.AuthData;
 import model.ListGameResult;
 import model.UserData;
