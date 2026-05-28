@@ -73,7 +73,7 @@ public class SQLAuthAccess implements AuthDAO{
 
     public String getUsername(String auth) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username, json FROM authData";
+            var statement = "SELECT authToken, username FROM authData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {

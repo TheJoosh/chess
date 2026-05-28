@@ -71,13 +71,11 @@ public class SQLGameAccess implements GameDAO {
     }
 
     public int createGame(String game) throws DataAccessException {
-        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game, json) VALUES (?, ?, ?, ?, ?, ?)";
+        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseManager.getConnection()) {
             GameData newGame = new GameData(next++, null, null, game, new ChessGame());
-
-            String json = new Gson().toJson(newGame);
-            executeUpdate(conn, statement, newGame.gameID(), newGame.whiteUsername(), newGame.blackUsername(), game, new Gson().toJson(newGame.game()), json);
+            executeUpdate(conn, statement, newGame.gameID(), newGame.whiteUsername(), newGame.blackUsername(), game, new Gson().toJson(newGame.game()));
             return newGame.gameID();
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
