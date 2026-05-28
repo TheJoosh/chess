@@ -5,8 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-
 import chess.ChessGame;
 import model.AuthData;
 import model.AuthList;
@@ -19,23 +17,30 @@ import java.sql.Connection;
 public class SQLAuthAccess implements AuthDAO{
 
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE TABLE authData";
-        executeUpdate (statement);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "TRUNCATE TABLE authData";
+            executeUpdate (conn, statement);
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     public void addAuth(AuthData authData) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "INSERT INTO authData (username, authToken, json) VALUES (?, ?, ?)";
-            String json = new Gson().toJson(authData);
-            executeUpdate(statement, authData.username(), authData.authToken(), json);
+            var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
+            executeUpdate(conn, statement, authData.authToken(), authData.username());
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
     }
 
     public void removeAuth(String token) throws DataAccessException { 
-        var statement = "DELETE FROM authData WHERE authToken=?";
-        executeUpdate(statement, token);
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "DELETE FROM authData WHERE authToken=?";
+            executeUpdate(conn, statement, token);
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
     
     public boolean authenticate(String token) throws DataAccessException {
@@ -52,7 +57,7 @@ public class SQLAuthAccess implements AuthDAO{
     public AuthList listAuth() throws DataAccessException {
         var result = new AuthList();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, authToken, json FROM authData";
+            var statement = "SELECT username, authToken FROM authData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -68,7 +73,7 @@ public class SQLAuthAccess implements AuthDAO{
 
     public String getUsername(String auth) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, authToken, json FROM authData";
+            var statement = "SELECT authToken, username, json FROM authData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -85,30 +90,27 @@ public class SQLAuthAccess implements AuthDAO{
     }
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
-        var json = rs.getString("json");
-        AuthData auth = new Gson().fromJson(json, AuthData.class);
+        AuthData auth = new AuthData(rs.getString("authToken"), rs.getString("username"));
         return auth;
     }
     
-    public int executeUpdate(String statement, Object... params) throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param instanceof ChessGame.TeamColor p) ps.setString(i + 1, p.toString());
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
+    public int executeUpdate(Connection conn, String statement, Object... params) throws DataAccessException {
+        try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+            for (int i = 0; i < params.length; i++) {
+                Object param = params[i];
+                if (param instanceof String p) ps.setString(i + 1, p);
+                else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                else if (param instanceof ChessGame.TeamColor p) ps.setString(i + 1, p.toString());
+                else if (param == null) ps.setNull(i + 1, NULL);
             }
+            ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+            return 0;
         } catch (SQLException e) {
             throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }

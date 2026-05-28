@@ -117,7 +117,7 @@ public class Server {
 
     private void createGame(Context ctx) throws DataAccessException {
         CreateRequest request = new Gson().fromJson(ctx.body(), CreateRequest.class);
-        String authToken = ctx.header("authorization");
+        String authToken = ctx.header("Authorization");
 
         if (authToken == null) {
             ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));

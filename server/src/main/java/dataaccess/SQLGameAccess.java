@@ -34,8 +34,6 @@ public class SQLGameAccess implements GameDAO {
         try (PreparedStatement ps = conn.prepareStatement(statement)) {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    System.out.println("whiteUsername from DB = " + rs.getString("whiteUsername"));
-                    System.out.println("blackUsername from DB = " + rs.getString("blackUsername"));
                     GameData game = readGames(rs);
                     result.put(game.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
                 }
@@ -54,8 +52,6 @@ public class SQLGameAccess implements GameDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                System.out.println("SELECT gameID = " + rs.getInt("gameID"));
-                System.out.println("UPDATE gameID = " + gameID);
                 if (color == ChessGame.TeamColor.BLACK && rs.getString("blackUsername") == null) {
                     String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
                     executeUpdate(conn, statement, username, gameID);
