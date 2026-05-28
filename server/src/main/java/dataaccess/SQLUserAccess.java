@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import chess.ChessGame;
 import model.AuthData;
 import model.UserData;
 import model.UserList;

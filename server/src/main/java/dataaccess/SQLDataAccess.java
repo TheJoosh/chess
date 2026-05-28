@@ -139,12 +139,15 @@ public class SQLDataAccess implements DataAccess {
         try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
             for (int i = 0; i < params.length; i++) {
                 Object param = params[i];
-                if (param instanceof String p) ps.setString(i + 1, p);
-                else if (param instanceof Integer p) {
+                if (param instanceof String p) {
+                    ps.setString(i + 1, p);
+                } else if (param instanceof Integer p) {
                     ps.setInt(i + 1, p);
                 } else if (param instanceof ChessGame.TeamColor p) {
                     ps.setString(i + 1, p.toString());
-                } else if (param == null) ps.setNull(i + 1, NULL);
+                } else if (param == null) {
+                    ps.setNull(i + 1, NULL);
+                }
             }
             int updated = ps.executeUpdate();
             System.out.println("Rows updated = " + updated);
