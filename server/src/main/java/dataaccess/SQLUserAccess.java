@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import com.google.gson.Gson;
+
 import chess.ChessGame;
 import model.AuthData;
 import model.UserData;
@@ -22,7 +24,7 @@ public class SQLUserAccess implements UserDAO{
     public UserList listUsers() throws DataAccessException {
         var result = new UserList();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, password FROM users";
+            var statement = "SELECT username, password, json FROM users";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -38,7 +40,7 @@ public class SQLUserAccess implements UserDAO{
 
     public boolean getUser(UserData user) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, password FROM users";
+            var statement = "SELECT username, password, json FROM users";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
                     boolean found = false;
@@ -74,9 +76,10 @@ public class SQLUserAccess implements UserDAO{
 
     public AuthData register (UserData user) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
+            var statement = "INSERT INTO users (username, email, password, json) VALUES (?, ?, ?, ?)";
+            String json = new Gson().toJson(user);
             String hashWord = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-            executeUpdate(statement, user.username(), user.email(), hashWord);
+            executeUpdate(statement, user.username(), user.email(), hashWord, json);
             return new AuthData(UUID.randomUUID().toString(), user.username());
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
@@ -89,7 +92,8 @@ public class SQLUserAccess implements UserDAO{
     }
 
     private UserData readUsers(ResultSet rs) throws SQLException {
-        UserData user = new UserData(rs.getString("username"), rs.getString("password"), rs.getString("email"));
+        var json = rs.getString("json");
+        UserData user = new Gson().fromJson(json, UserData.class);
         return user;
     }
 
