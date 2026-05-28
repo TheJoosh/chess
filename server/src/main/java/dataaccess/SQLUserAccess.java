@@ -75,11 +75,15 @@ public class SQLUserAccess implements UserDAO{
     }
 
     public AuthData register (UserData user) throws DataAccessException {
-        var statement = "INSERT INTO users (username, email, password, json) VALUES (?, ?, ?, ?)";
-        String json = new Gson().toJson(user);
-        String hashWord = BCrypt.hashpw(user.password(), BCrypt.gensalt());
-        executeUpdate(statement, user.username(), user.email(), hashWord, json);
-        return new AuthData(UUID.randomUUID().toString(), user.username());
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "INSERT INTO users (username, email, password, json) VALUES (?, ?, ?, ?)";
+            String json = new Gson().toJson(user);
+            String hashWord = BCrypt.hashpw(user.password(), BCrypt.gensalt());
+            executeUpdate(statement, user.username(), user.email(), hashWord, json);
+            return new AuthData(UUID.randomUUID().toString(), user.username());
+        } catch (Exception e) {
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
     }
 
     public void clear() throws DataAccessException {

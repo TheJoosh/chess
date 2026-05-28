@@ -38,6 +38,7 @@ public class GameService {
         if ((color != ChessGame.TeamColor.BLACK && color != ChessGame.TeamColor.WHITE) || username == null) {
             return new Result("Invalid Input");
         }
+        
         boolean success = gameAccess.joinGame(username, color, gameID);
         if (success) {
             return new Result(null);
