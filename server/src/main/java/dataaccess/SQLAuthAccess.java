@@ -5,13 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import chess.ChessGame;
 import model.AuthData;
 import model.AuthList;
 import results.LoginRequest;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
 import java.sql.Connection;
 
 public class SQLAuthAccess implements AuthDAO{
@@ -19,7 +16,7 @@ public class SQLAuthAccess implements AuthDAO{
     public void clear() throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "TRUNCATE TABLE authData";
-            executeUpdate (conn, statement);
+            SQLDataAccess.executeUpdate (conn, statement);
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
@@ -28,7 +25,7 @@ public class SQLAuthAccess implements AuthDAO{
     public void addAuth(AuthData authData) throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "INSERT INTO authData (authToken, username) VALUES (?, ?)";
-            executeUpdate(conn, statement, authData.authToken(), authData.username());
+            SQLDataAccess.executeUpdate(conn, statement, authData.authToken(), authData.username());
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
@@ -37,7 +34,7 @@ public class SQLAuthAccess implements AuthDAO{
     public void removeAuth(String token) throws DataAccessException { 
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "DELETE FROM authData WHERE authToken=?";
-            executeUpdate(conn, statement, token);
+            SQLDataAccess.executeUpdate(conn, statement, token);
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
         }
@@ -76,10 +73,9 @@ public class SQLAuthAccess implements AuthDAO{
             var statement = "SELECT authToken, username FROM authData";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        if (readAuth(rs).authToken().equals(auth)) {
-                            return readAuth(rs).username();
-                        }
+                    String verify = verifyAuth(rs, ps, auth);
+                    if (verify != null) {
+                        return verify;
                     }
                     throw new DataAccessException ("Error: Unauthorized");
                 }
@@ -89,31 +85,17 @@ public class SQLAuthAccess implements AuthDAO{
         }
     }
 
+    private String verifyAuth (ResultSet rs, PreparedStatement ps, String auth) throws SQLException {
+        while (rs.next()) {
+            if (readAuth(rs).authToken().equals(auth)) {
+                return readAuth(rs).username();
+            }
+        }
+        return null;
+    }
+
     private AuthData readAuth(ResultSet rs) throws SQLException {
         AuthData auth = new AuthData(rs.getString("authToken"), rs.getString("username"));
         return auth;
     }
-    
-    public int executeUpdate(Connection conn, String statement, Object... params) throws DataAccessException {
-        try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-            for (int i = 0; i < params.length; i++) {
-                Object param = params[i];
-                if (param instanceof String p) ps.setString(i + 1, p);
-                else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                else if (param instanceof ChessGame.TeamColor p) ps.setString(i + 1, p.toString());
-                else if (param == null) ps.setNull(i + 1, NULL);
-            }
-            ps.executeUpdate();
-
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-
-            return 0;
-        } catch (SQLException e) {
-            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
-
 }

@@ -10,6 +10,9 @@ import model.UserData;
 import model.UserList;
 import results.LoginRequest;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+import static java.sql.Types.NULL;
+
 public class SQLDataAccess implements DataAccess {
 
     private final SQLGameAccess gameAccess;
@@ -132,4 +135,23 @@ public class SQLDataAccess implements DataAccess {
         }
     }
 
+    public static int executeUpdate(Connection conn, String statement, Object... params) throws DataAccessException {
+        try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+            for (int i = 0; i < params.length; i++) {
+                Object param = params[i];
+                if (param instanceof String p) ps.setString(i + 1, p);
+                else if (param instanceof Integer p) {
+                    ps.setInt(i + 1, p);
+                } else if (param instanceof ChessGame.TeamColor p) {
+                    ps.setString(i + 1, p.toString());
+                } else if (param == null) ps.setNull(i + 1, NULL);
+            }
+            int updated = ps.executeUpdate();
+            System.out.println("Rows updated = " + updated);
+            return updated;
+
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
 }
