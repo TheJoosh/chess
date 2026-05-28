@@ -69,6 +69,9 @@ public class SQLGameAccess implements GameDAO {
     }
 
     public int createGame(String game) throws DataAccessException {
+        if (game == null) {
+            throw new DataAccessException("Invalid Input");
+        }
         var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseManager.getConnection()) {

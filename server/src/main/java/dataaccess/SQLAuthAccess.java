@@ -31,7 +31,10 @@ public class SQLAuthAccess implements AuthDAO{
         }
     }
 
-    public void removeAuth(String token) throws DataAccessException { 
+    public void removeAuth(String token) throws DataAccessException {
+        if (token == null) {
+            throw new DataAccessException("Invalid Token");
+        } 
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "DELETE FROM authData WHERE authToken=?";
             SQLDataAccess.executeUpdate(conn, statement, token);

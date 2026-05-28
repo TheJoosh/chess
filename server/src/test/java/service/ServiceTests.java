@@ -244,5 +244,4 @@ public class ServiceTests {
         assertEquals(0, USER_SERVICE.listUsers().size());
         assertEquals(0, AUTH_SERVICE.listAuth().size());
     }
-
 }
