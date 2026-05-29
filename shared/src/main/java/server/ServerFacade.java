@@ -11,11 +11,11 @@ import model.*;
 
 import com.google.gson.Gson;
 
-public class ServerHandler {
+public class ServerFacade {
     private final String serverUrl;
     private final HttpClient client = HttpClient.newHttpClient();
 
-    public ServerHandler(String url) {
+    public ServerFacade(String url) {
         serverUrl = url;
     }
 
