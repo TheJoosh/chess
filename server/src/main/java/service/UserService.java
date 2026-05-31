@@ -30,6 +30,7 @@ public class UserService {
     }
 
     public AuthData register(UserData user) throws DataAccessException {
+        System.out.print("UserService - register\n");
         if (user == null || user.username() == null || user.email() == null || user.password() == null) {
             throw new DataAccessException("Invalid Input");
         }

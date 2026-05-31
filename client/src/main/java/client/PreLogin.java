@@ -5,10 +5,14 @@ import server.ServerFacade;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import com.google.gson.Gson;
+
 import exception.ResponseException;
+import results.*;
+import model.*;
 
 public class PreLogin {
-    private String visitorName = null;
+    private String requestBody = null;
     private final ServerFacade server;
 
     String url;
@@ -60,8 +64,8 @@ public class PreLogin {
 
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
-            visitorName = String.join(" ", params);
-            server.login(visitorName);
+            requestBody = String.join(" ", params);
+            server.login(requestBody);
             return String.format("You signed in as %s.", params[0]);
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <username> <password>\n");
@@ -69,17 +73,17 @@ public class PreLogin {
 
     public String register(String... params) throws ResponseException {
         if (params.length == 3) {
-            visitorName = String.join(" ", params);
-            server.register(visitorName);
+            UserData request = new UserData(params[0], params[1], params[2]);
+            server.register(request);
             return String.format("You signed in as %s.", params[0]);
         }
-        throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <username> <email> <password>\n");
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <username> <password> <email>\n");
     }
 
     public String help() {
         return """
                 - login <username> <password>
-                - register <username> <email> <password>
+                - register <username> <password> <email>
                 - help
                 - quit
                 """;
