@@ -12,6 +12,9 @@ import model.*;
 public class PostLogin {
     private final ServerFacade server;
 
+    public static final String RESET = "\u001B[0m";
+    public static final String PURPLE = "\u001B[35m";
+
     String url;
     boolean signedIn = true;
 
@@ -22,18 +25,19 @@ public class PostLogin {
 
     public void run() {
 
-        System.out.print(help());
+        System.out.print(PURPLE + help());
         System.out.println();
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Closing chess")) {
+            System.out.print(RESET);
             String line = scanner.nextLine();
             System.out.println();
 
             try {
                 result = eval(line);
-                System.out.print(result);
+                System.out.print(PURPLE + result + RESET);
                 System.out.println();
                 if (!signedIn) {
                     return;
@@ -66,19 +70,19 @@ public class PostLogin {
     }
 
     public String createGame(String... params) {
-        return "Game created";
+        return "Game created\n";
     }
 
     public String listGames(String... params) {
-        return "Games listed";
+        return "Games listed\n";
     }
 
     public String joinGame(String... params) {
-        return "Game joined";
+        return "Game joined\n";
     }
 
     public String observeGame(String... params) {
-        return "Game observed";
+        return "Game observed\n";
     }
 
     public String clear(String... params) throws ResponseException {

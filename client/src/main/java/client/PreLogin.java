@@ -12,6 +12,9 @@ import model.*;
 public class PreLogin {
     private final ServerFacade server;
 
+    public static final String RESET = "\u001B[0m";
+    public static final String PURPLE = "\u001B[35m";
+
     String url;
     boolean signedIn = false;
 
@@ -21,7 +24,8 @@ public class PreLogin {
     }
 
     public void run() {
-        System.out.println("Log in or Register to play Chess.");
+        System.out.println();
+        System.out.println(PURPLE + "Log in or Register to play Chess.");
         System.out.println();
         System.out.print(help());
         System.out.println();
@@ -29,12 +33,13 @@ public class PreLogin {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Closing chess")) {
+            System.out.print(RESET);
             String line = scanner.nextLine();
             System.out.println();
 
             try {
                 result = eval(line);
-                System.out.print(result);
+                System.out.print(PURPLE + result + RESET);
                 System.out.println();
                 if (signedIn) {
                     try {
