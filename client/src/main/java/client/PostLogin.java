@@ -40,7 +40,12 @@ public class PostLogin {
                 System.out.print(PURPLE + result + RESET);
                 System.out.println();
                 if (!signedIn) {
-                    return;
+                    try {
+                        new PreLogin(url).run();
+                        return;
+                    } catch (Throwable ex) {
+                        System.out.printf("Unable to sign out: %s%n", ex.getMessage());
+                    }
                 }
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -61,12 +66,18 @@ public class PostLogin {
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
                 case "clear" -> clear(params);
+                case "logout" -> logout();
                 case "quit" -> "Closing chess";
                 default -> help();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    public String logout() {
+        signedIn = false;
+        return "Signed out";
     }
 
     public String createGame(String... params) {
@@ -89,7 +100,8 @@ public class PostLogin {
         if (params.length == 0) {
             try {
                 server.clear();
-                return "Data cleared\n";
+                signedIn = false;
+                return "Data clearedregi";
             } catch (Exception e) {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Clear unsuccessful\n");
             }
