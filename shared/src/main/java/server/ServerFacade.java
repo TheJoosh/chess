@@ -30,7 +30,7 @@ public class ServerFacade {
         handleResponse(response, UserData.class);
     }
 
-    public void login(String body) throws ResponseException{
+    public void login(Object body) throws ResponseException{
         var request = buildRequest("POST", "/session", body);
         var response = sendRequest(request);
         handleResponse(response, AuthData.class);
@@ -61,7 +61,6 @@ public class ServerFacade {
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {
-        System.out.print("ServerFacade - buildRequest\n");
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
@@ -72,7 +71,6 @@ public class ServerFacade {
     }
 
     private BodyPublisher makeRequestBody(Object request) {
-        System.out.print("ServerFacade - makeRequestBody\n");
         if (request != null) {
             return BodyPublishers.ofString(new Gson().toJson(request));
         } else {
@@ -81,7 +79,6 @@ public class ServerFacade {
     }
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws ResponseException {
-        System.out.print("ServerFacade - sendRequest\n");
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {

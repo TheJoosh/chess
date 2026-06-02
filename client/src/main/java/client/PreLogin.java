@@ -5,14 +5,11 @@ import server.ServerFacade;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import com.google.gson.Gson;
-
 import exception.ResponseException;
 import results.*;
 import model.*;
 
 public class PreLogin {
-    private String requestBody = null;
     private final ServerFacade server;
 
     String url;
@@ -35,7 +32,7 @@ public class PreLogin {
             System.out.println();
 
             try {
-                result = eval(line);
+                result = eval(scanner, line);
                 System.out.print(result);
                 System.out.println();
             } catch (Throwable e) {
@@ -46,14 +43,15 @@ public class PreLogin {
         System.out.println();
     }
 
-    public String eval(String input) {
+    public String eval(Scanner scanner, String input) {
         try {
             String[] tokens = input.toLowerCase().split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "login" -> login(params);
-                case "register" -> register(params);
+                case "login" -> login(scanner, params);
+                case "register" -> register(scanner, params);
+                case "clear" -> clear(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -62,22 +60,54 @@ public class PreLogin {
         }
     }
 
-    public String login(String... params) throws ResponseException {
+    public String login(Scanner scanner, String... params) throws ResponseException {
         if (params.length == 2) {
-            requestBody = String.join(" ", params);
-            server.login(requestBody);
-            return String.format("You signed in as %s.", params[0]);
+            try {
+                LoginRequest request = new LoginRequest(params[0], params[1]);
+                server.login(request);
+                try {
+                    new PostLogin(scanner, url).run();
+                    return String.format("Signed in as %s.\n", params[0]);
+                } catch (Throwable ex) {
+                    System.out.printf("Unable to sign in: %s%n", ex.getMessage());
+                }
+                
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Incorrect username or password\n");
+            }
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <username> <password>\n");
     }
 
-    public String register(String... params) throws ResponseException {
+    public String register(Scanner scanner, String... params) throws ResponseException {
         if (params.length == 3) {
-            UserData request = new UserData(params[0], params[1], params[2]);
-            server.register(request);
-            return String.format("You signed in as %s.", params[0]);
+            try {
+                UserData request = new UserData(params[0], params[1], params[2]);
+                server.register(request);
+                try {
+                    new PostLogin(scanner, url).run();
+                    return String.format("Signed in as %s.\n", params[0]);
+                } catch (Throwable ex) {
+                    System.out.printf("Unable to sign in: %s%n", ex.getMessage());
+                }
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Existing username or email\n");
+            }
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <username> <password> <email>\n");
+    }
+
+    public String clear(String... params) throws ResponseException {
+        if (params.length == 0) {
+            try {
+                server.clear();
+                return "Data Cleared\n";
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Clear unsuccessful\n");
+            }
+        }
+
+        throw new ResponseException(ResponseException.Code.BadRequest, "Bad Input\n");
     }
 
     public String help() {
