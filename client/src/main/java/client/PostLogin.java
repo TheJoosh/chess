@@ -2,8 +2,11 @@ package client;
 
 import server.ServerFacade;
 
+import java.util.List;
 import java.util.Arrays;
 import java.util.Scanner;
+
+import com.google.gson.Gson;
 
 import exception.ResponseException;
 import results.*;
@@ -14,13 +17,16 @@ public class PostLogin {
 
     public static final String RESET = "\u001B[0m";
     public static final String PURPLE = "\u001B[35m";
+    public static final String RED = "\u001B[31m";
 
-    String url;
+    private String url;
+    private String auth;
     boolean signedIn = true;
 
-    public PostLogin (String url) throws ResponseException {
+    public PostLogin (String auth, String url) throws ResponseException {
         server = new ServerFacade(url);
         this.url = url;
+        this.auth = auth;
     }
 
     public void run() {
@@ -62,7 +68,7 @@ public class PostLogin {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "create" -> createGame(params);
-                case "list" -> listGames(params);
+                case "list" -> listGames();
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
                 case "clear" -> clear(params);
@@ -75,17 +81,59 @@ public class PostLogin {
         }
     }
 
-    public String logout() {
-        signedIn = false;
+    public String logout() throws ResponseException {
+        try {
+            System.out.print("Logout\n");
+            server.logout(auth, null);
+            signedIn = false;
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Failed to log out\n");
+        }
         return "Signed out";
     }
 
-    public String createGame(String... params) {
-        return "Game created\n";
+    public String createGame(String... params) throws ResponseException {
+        if (params.length == 1) {
+            try {
+                CreateRequest request = new CreateRequest(auth, params[0]);
+                server.createGame(auth, request);
+                return String.format("Created game %s\n", params[0]);
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized\n");
+            }
+        }
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <game name>\n");
     }
 
-    public String listGames(String... params) {
-        return "Games listed\n";
+    public String listGames() throws ResponseException {
+        try {
+            List<ListGameResult> result = server.listGames(auth, null).getGames();
+            System.out.print("listGames\nresult: " + result.toString() + "\n\n");
+            System.out.print(PURPLE + "Active Games:\n");
+
+            int i = 1;
+            for (ListGameResult item : result) {
+                System.out.print("   " + i + ". " + item.gameName() + " - White: ");
+                if (item.whiteUsername() == null) {
+                    System.out.print(RED + "None" + PURPLE + ", Black: ");
+                } else {
+                    System.out.print(item.whiteUsername() + ", Black: ");
+                }
+
+                if (item.blackUsername() == null) {
+                    System.out.print(RED + "None\n" + PURPLE);
+                } else {
+                    System.out.print(item.blackUsername() + "\n");
+                }
+                i++;
+            }
+
+            System.out.print(RESET);
+
+            return "";
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized\n");
+        }
     }
 
     public String joinGame(String... params) {
@@ -101,7 +149,7 @@ public class PostLogin {
             try {
                 server.clear();
                 signedIn = false;
-                return "Data clearedregi";
+                return "Data cleared";
             } catch (Exception e) {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Clear unsuccessful\n");
             }

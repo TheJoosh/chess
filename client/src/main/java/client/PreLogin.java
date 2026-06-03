@@ -17,6 +17,7 @@ public class PreLogin {
 
     String url;
     boolean signedIn = false;
+    String auth;
 
     public PreLogin (String url) throws ResponseException {
         server = new ServerFacade(url);
@@ -43,7 +44,7 @@ public class PreLogin {
                 System.out.println();
                 if (signedIn) {
                     try {
-                        new PostLogin(url).run();
+                        new PostLogin(auth, url).run();
                         return;
                     } catch (Throwable ex) {
                         System.out.printf("Unable to sign in: %s%n", ex.getMessage());
@@ -78,7 +79,8 @@ public class PreLogin {
         if (params.length == 2) {
             try {
                 LoginRequest request = new LoginRequest(params[0], params[1]);
-                server.login(request);
+                auth = server.login(request).authToken();
+                System.out.print("Auth Token: " + auth + "\n\n");
                 signedIn = true;
                 return String.format("Signed in as %s\n", params[0]);
             } catch (Exception e) {
@@ -92,7 +94,7 @@ public class PreLogin {
         if (params.length == 3) {
             try {
                 UserData request = new UserData(params[0], params[1], params[2]);
-                server.register(request);
+                auth = server.register(request).authToken();
                 signedIn = true;
                 return String.format("Signed in as %s\n", params[0]);
             } catch (Exception e) {

@@ -66,13 +66,13 @@ public class Server {
         }
     }
 
-    private void register(Context ctx) throws DataAccessException {
+    private AuthData register(Context ctx) throws DataAccessException {
         try {
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
 
             if (user == null || user.username() == null || user.email() == null || user.password() == null) {
                 ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
-                return;
+                return null;
             }
 
             if (!userService.getUser(user)) {
@@ -80,39 +80,46 @@ public class Server {
                 authService.addAuth(auth);
                 ctx.status(200);
                 ctx.result(new Gson().toJson(auth));
+                return auth;
             } else {
                 ctx.status(403).result(new Gson().toJson(new Result("Error: already taken")));
+                return null;
             }
         } catch (DataAccessException e) {
             ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            return null;
         }
     }
 
-    private void login(Context ctx) throws DataAccessException {
+    private AuthData login(Context ctx) throws DataAccessException {
         try {
             LoginRequest user = new Gson().fromJson(ctx.body(), LoginRequest.class);
 
             if (user == null || user.username() == null || user.password() == null) {
                 ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
-                return;
+                return null;
             }
 
             if(userService.verifyPassword(user)) {
                 AuthData auth = authService.login(user);
                 ctx.status(200);
                 ctx.result(new Gson().toJson(auth));
-                return;
+                return auth;
             }
 
             ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
+            return null;
         } catch (DataAccessException e) {
             ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            return null;
         }
     }
 
     private void logout(Context ctx) throws DataAccessException {
         try {
+            System.out.print("Server logout\n");
             String authToken = ctx.header("authorization");
+            System.out.print("Auth Token: " + authToken + "\n\n");
 
             if (authToken == null) {
                 ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
@@ -120,10 +127,12 @@ public class Server {
             }
 
             if (authService.authenticate(authToken)) {
+                System.out.print("Authenticated\n");
                 authService.removeAuth(authToken);
                 ctx.status(200);
                 ctx.result(new Gson().toJson(new LogoutResult("")));
             } else {
+                System.out.print("Not Authenticated\n");
                 ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
             }
         } catch (DataAccessException e) {
@@ -133,7 +142,9 @@ public class Server {
 
     private void createGame(Context ctx) throws DataAccessException {
         try {
+            System.out.print("Server createGame\n");
             CreateRequest request = new Gson().fromJson(ctx.body(), CreateRequest.class);
+            System.out.print("request: " + request.toString() + "\n\n");
             String authToken = ctx.header("Authorization");
 
             if (authToken == null) {

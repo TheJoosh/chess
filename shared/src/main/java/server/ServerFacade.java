@@ -5,9 +5,11 @@ import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.ArrayList;
 
 import exception.*;
 import model.*;
+import results.*;
 
 import com.google.gson.Gson;
 
@@ -20,54 +22,64 @@ public class ServerFacade {
     }
 
     public void clear() throws ResponseException{
-        var request = buildRequest("DELETE","/db", null);
+        var request = buildRequest("DELETE","/db", null, null);
         sendRequest(request);
     }
 
-    public void register(Object body) throws ResponseException{
-        var request = buildRequest("POST", "/user", body);
+    public AuthData register(Object body) throws ResponseException{
+        var request = buildRequest("POST", "/user", null, body);
         var response = sendRequest(request);
-        handleResponse(response, UserData.class);
+        return handleResponse(response, AuthData.class);
     }
 
-    public void login(Object body) throws ResponseException{
-        var request = buildRequest("POST", "/session", body);
+    public AuthData login(Object body) throws ResponseException{
+        var request = buildRequest("POST", "/session", null, body);
         var response = sendRequest(request);
-        handleResponse(response, AuthData.class);
+        return handleResponse(response, AuthData.class);
     }
 
-    public void logout(String body) throws ResponseException{
-        var request = buildRequest("DELETE", "/session", body);
+    public void logout(String header, String body) throws ResponseException{
+        System.out.print("ServerFacade logout\nheader: " + header + "\nbody: " + body + "\n\n");
+        var request = buildRequest("DELETE", "/session", header, body);
+        var response = sendRequest(request);
+        System.out.print("response: \n" + response.toString() + "\n\n");
+        handleResponse(response, null);
+    }
+
+    public void createGame(String header, Object body) throws ResponseException{
+        System.out.print("ServerFacade createGame\nbody: " + body + "\n\n");
+        var request = buildRequest("POST", "/game", header, body);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
+    public ListGamesResults listGames(String header, String body) throws ResponseException {
+        var request = buildRequest("GET", "/game", header, body);
+        var response = sendRequest(request);
+        return handleResponse(response, ListGamesResults.class);
+    }
+
+    public void joinGame(String header, String body) throws ResponseException{
+        var request = buildRequest("PUT", "/game", header, body);
         var response = sendRequest(request);
         handleResponse(response, String.class);
     }
 
-    public void createGame(String body) throws ResponseException{
-        var request = buildRequest("POST", "/game", body);
-        var response = sendRequest(request);
-        handleResponse(response, Integer.class);
-    }
-
-    public void listGames(String body) throws ResponseException {
-        var request = buildRequest("GET", "/game", body);
-        var response = sendRequest(request);
-        handleResponse(response, String.class);
-    }
-
-    public void joinGame(String body) throws ResponseException{
-        var request = buildRequest("PUT", "/game", body);
-        var response = sendRequest(request);
-        handleResponse(response, String.class);
-    }
-
-    private HttpRequest buildRequest(String method, String path, Object body) {
-        var request = HttpRequest.newBuilder()
+    private HttpRequest buildRequest(String method, String path, String header, Object body) {
+            var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
-        if (body != null) {
-            request.setHeader("Content-Type", "application/json");
-        }
-        return request.build();
+
+            System.out.print("ServerFacade BuildRequest\nmethod: " + "\npath: " + path + "\nheader: " + header + "\nbody: " + body + "\n\n");
+            if (body != null) {
+                request.setHeader("Content-Type", "application/json");
+            }
+            if (header != null) {
+                request.setHeader("authorization", header);
+            }
+
+            System.out.print("request: " + request.toString() + "\n\n");
+            return request.build();
     }
 
     private BodyPublisher makeRequestBody(Object request) {
@@ -80,6 +92,7 @@ public class ServerFacade {
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws ResponseException {
         try {
+            System.out.print("ServerFacade sendRequest\n");
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.BadRequest, ex.getMessage());
@@ -88,6 +101,7 @@ public class ServerFacade {
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
         var status = response.statusCode();
+        System.out.print("ServerFacade handleResponse\nresponse: " + response.toString() + "\n\n");
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
@@ -98,6 +112,7 @@ public class ServerFacade {
         }
 
         if (responseClass != null) {
+            System.out.print("class: " + responseClass.toString() + "\n\n");
             return new Gson().fromJson(response.body(), responseClass);
         }
 
