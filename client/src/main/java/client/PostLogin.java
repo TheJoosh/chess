@@ -185,7 +185,6 @@ public class PostLogin {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Must select either WHITE or BLACK\n");
             }
 
-            System.out.print("gameID = " + gameList.get(id - 1).gameID() + "\n");
             JoinRequest request = new JoinRequest(color, gameList.get(id - 1).gameID());
 
             
@@ -202,8 +201,26 @@ public class PostLogin {
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <id> [WHITE|BLACK]\n");
     }
 
-    public String observeGame(String... params) {
-        return "Game observed\n";
+    public String observeGame(String... params) throws ResponseException {
+        if (params.length == 1) {
+
+            int id;
+
+            try {
+                id = Integer.parseInt(params[0]);
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "ID must be an integer\n");
+            }
+
+            if (id <= 0 || id > gameList.size()) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Invalid game ID\n");
+            }
+
+            inGame = true;
+
+            return String.format("Observing game %s\n", gameList.get(id - 1).gameName());
+        }
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <id>\n");
     }
 
     public String clear(String... params) throws ResponseException {
