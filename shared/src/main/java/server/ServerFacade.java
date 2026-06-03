@@ -5,7 +5,6 @@ import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.util.ArrayList;
 
 import exception.*;
 import model.*;
@@ -39,15 +38,12 @@ public class ServerFacade {
     }
 
     public void logout(String header, String body) throws ResponseException{
-        System.out.print("ServerFacade logout\nheader: " + header + "\nbody: " + body + "\n\n");
         var request = buildRequest("DELETE", "/session", header, body);
         var response = sendRequest(request);
-        System.out.print("response: \n" + response.toString() + "\n\n");
         handleResponse(response, null);
     }
 
     public void createGame(String header, Object body) throws ResponseException{
-        System.out.print("ServerFacade createGame\nbody: " + body + "\n\n");
         var request = buildRequest("POST", "/game", header, body);
         var response = sendRequest(request);
         handleResponse(response, null);
@@ -59,10 +55,10 @@ public class ServerFacade {
         return handleResponse(response, ListGamesResults.class);
     }
 
-    public void joinGame(String header, String body) throws ResponseException{
+    public void joinGame(String header, Object body) throws ResponseException{
         var request = buildRequest("PUT", "/game", header, body);
         var response = sendRequest(request);
-        handleResponse(response, String.class);
+        handleResponse(response, null);
     }
 
     private HttpRequest buildRequest(String method, String path, String header, Object body) {
@@ -70,7 +66,6 @@ public class ServerFacade {
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
 
-            System.out.print("ServerFacade BuildRequest\nmethod: " + "\npath: " + path + "\nheader: " + header + "\nbody: " + body + "\n\n");
             if (body != null) {
                 request.setHeader("Content-Type", "application/json");
             }
@@ -78,11 +73,11 @@ public class ServerFacade {
                 request.setHeader("authorization", header);
             }
 
-            System.out.print("request: " + request.toString() + "\n\n");
             return request.build();
     }
 
     private BodyPublisher makeRequestBody(Object request) {
+
         if (request != null) {
             return BodyPublishers.ofString(new Gson().toJson(request));
         } else {
@@ -92,7 +87,6 @@ public class ServerFacade {
 
     private HttpResponse<String> sendRequest(HttpRequest request) throws ResponseException {
         try {
-            System.out.print("ServerFacade sendRequest\n");
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
             throw new ResponseException(ResponseException.Code.BadRequest, ex.getMessage());
@@ -101,7 +95,7 @@ public class ServerFacade {
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
         var status = response.statusCode();
-        System.out.print("ServerFacade handleResponse\nresponse: " + response.toString() + "\n\n");
+
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
@@ -112,7 +106,6 @@ public class ServerFacade {
         }
 
         if (responseClass != null) {
-            System.out.print("class: " + responseClass.toString() + "\n\n");
             return new Gson().fromJson(response.body(), responseClass);
         }
 

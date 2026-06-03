@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import com.google.gson.Gson;
 
+import chess.ChessGame;
 import exception.ResponseException;
 import results.*;
 import model.*;
@@ -22,6 +23,8 @@ public class PostLogin {
     private String url;
     private String auth;
     boolean signedIn = true;
+    boolean inGame = false;
+    List<ListGameResult> gameList;
 
     public PostLogin (String auth, String url) throws ResponseException {
         server = new ServerFacade(url);
@@ -29,10 +32,12 @@ public class PostLogin {
         this.auth = auth;
     }
 
-    public void run() {
+    public void run() throws ResponseException {
 
         System.out.print(PURPLE + help());
         System.out.println();
+
+        makeList();
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -51,6 +56,14 @@ public class PostLogin {
                         return;
                     } catch (Throwable ex) {
                         System.out.printf("Unable to sign out: %s%n", ex.getMessage());
+                    }
+                }
+                if (inGame) {
+                    try {
+                        new Gameplay(auth, url).run();
+                        return;
+                    } catch (Throwable ex) {
+                        System.out.printf("Unable to join game: %s%n", ex.getMessage());
                     }
                 }
             } catch (Throwable e) {
@@ -83,7 +96,6 @@ public class PostLogin {
 
     public String logout() throws ResponseException {
         try {
-            System.out.print("Logout\n");
             server.logout(auth, null);
             signedIn = false;
         } catch (Exception e) {
@@ -97,6 +109,9 @@ public class PostLogin {
             try {
                 CreateRequest request = new CreateRequest(auth, params[0]);
                 server.createGame(auth, request);
+
+                makeList();
+
                 return String.format("Created game %s\n", params[0]);
             } catch (Exception e) {
                 throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized\n");
@@ -107,12 +122,16 @@ public class PostLogin {
 
     public String listGames() throws ResponseException {
         try {
-            List<ListGameResult> result = server.listGames(auth, null).getGames();
-            System.out.print("listGames\nresult: " + result.toString() + "\n\n");
-            System.out.print(PURPLE + "Active Games:\n");
+            makeList();
+
+            if (gameList.size() == 0) {
+                return "No active games\n";
+            }
+
+            System.out.print(PURPLE + "Active games:\n");
 
             int i = 1;
-            for (ListGameResult item : result) {
+            for (ListGameResult item : gameList) {
                 System.out.print("   " + i + ". " + item.gameName() + " - White: ");
                 if (item.whiteUsername() == null) {
                     System.out.print(RED + "None" + PURPLE + ", Black: ");
@@ -136,8 +155,51 @@ public class PostLogin {
         }
     }
 
-    public String joinGame(String... params) {
-        return "Game joined\n";
+    private void makeList() throws ResponseException {
+        try {
+            gameList = server.listGames(auth, null).getGames();
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized\n");
+        }
+    }
+
+    public String joinGame(String... params) throws ResponseException {
+        if (params.length == 2) {
+
+            int id;
+
+            try {
+                id = Integer.parseInt(params[0]);
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "ID must be an integer\n");
+            }
+
+            if (id <= 0 || id > gameList.size()) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Invalid game ID\n");
+            }
+
+            ChessGame.TeamColor color;
+            try {
+                color = ChessGame.TeamColor.valueOf(params[1].trim().toUpperCase());
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Must select either WHITE or BLACK\n");
+            }
+
+            System.out.print("gameID = " + gameList.get(id - 1).gameID() + "\n");
+            JoinRequest request = new JoinRequest(color, gameList.get(id - 1).gameID());
+
+            
+            try {
+                server.joinGame(auth, request);
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.AlreadyTaken, color + " already taken\n");
+            }
+
+            inGame = true;
+
+            return String.format("Joined game %s\n", gameList.get(id - 1).gameName());
+        }
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <id> [WHITE|BLACK]\n");
     }
 
     public String observeGame(String... params) {

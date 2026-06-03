@@ -117,9 +117,7 @@ public class Server {
 
     private void logout(Context ctx) throws DataAccessException {
         try {
-            System.out.print("Server logout\n");
             String authToken = ctx.header("authorization");
-            System.out.print("Auth Token: " + authToken + "\n\n");
 
             if (authToken == null) {
                 ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
@@ -127,12 +125,10 @@ public class Server {
             }
 
             if (authService.authenticate(authToken)) {
-                System.out.print("Authenticated\n");
                 authService.removeAuth(authToken);
                 ctx.status(200);
                 ctx.result(new Gson().toJson(new LogoutResult("")));
             } else {
-                System.out.print("Not Authenticated\n");
                 ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
             }
         } catch (DataAccessException e) {
@@ -142,9 +138,7 @@ public class Server {
 
     private void createGame(Context ctx) throws DataAccessException {
         try {
-            System.out.print("Server createGame\n");
             CreateRequest request = new Gson().fromJson(ctx.body(), CreateRequest.class);
-            System.out.print("request: " + request.toString() + "\n\n");
             String authToken = ctx.header("Authorization");
 
             if (authToken == null) {
