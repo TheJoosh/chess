@@ -1,6 +1,11 @@
 package client;
 
 import java.util.Arrays;
+import java.io.PrintStream;
+import java.io.FileOutputStream;
+import java.io.FileDescriptor;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -12,10 +17,13 @@ import ui.EscapeSequences;
 public class Gameplay {
     private final ServerFacade server;
 
-    public static final String WHITE = "\u001B[47m";
-    public static final String BLACK = "\u001B[100m";
-    public static final String BLACK_PIECE = "\u001B[30m";
-    public static final String WHITE_PIECE = "\u001B[37m";
+    public static final String WHITE  = "\u001B[48;5;230m";
+    public static final String BLACK  = "\u001B[48;5;235m";
+
+
+    public static final String WHITE_PIECE = EscapeSequences.SET_TEXT_COLOR_RED;
+    public static final String BLACK_PIECE = "\u001B[38;5;233m";
+
     public static final String RESET = "\u001B[0m";
 
     boolean inGame = false;
@@ -31,6 +39,8 @@ public class Gameplay {
     }
 
     public void run() {
+
+        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
         
         draw(reversed);
 
@@ -42,7 +52,15 @@ public class Gameplay {
 
             try {
                 result = eval(line);
-                } catch (Throwable e) {
+                if (!inGame) {
+                    try {
+                        new PostLogin(auth, url).run();
+                        return;
+                    } catch (Throwable ex) {
+                        System.out.printf("Unable to leave game: %s%n", ex.getMessage());
+                    }
+                }
+            } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg + "\n\n");
             }
@@ -56,6 +74,7 @@ public class Gameplay {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
+                case "leave" -> leaveGame();
                 default -> "Closing chess";
             };
         } catch (Exception ex) {
@@ -100,47 +119,52 @@ public class Gameplay {
     }
 
     private String placePiece(int row, int col) {
-        if (row == 2) {
-            return EscapeSequences.BLACK_PAWN;
-        }
         if (row == 7) {
-            return EscapeSequences.WHITE_PAWN;
+            return BLACK_PIECE + EscapeSequences.BLACK_PAWN + RESET;
         }
-        if (row == 1) {
-            if (col == 1 || col == 8) {
-                return EscapeSequences.BLACK_ROOK;
-            }
-            if (col == 2 || col == 7) {
-                return EscapeSequences.BLACK_KNIGHT;
-            }
-            if (col == 3 || col == 6) {
-                return EscapeSequences.BLACK_BISHOP;
-            }
-            if ((col == 4 && !reversed) || (col == 5 && reversed)) {
-                return EscapeSequences.BLACK_KING;
-            }
-            if ((col == 5 && !reversed) || (col == 4 && reversed)) {
-                return EscapeSequences.BLACK_QUEEN;
-            }
+        if (row == 2) {
+            return WHITE_PIECE + EscapeSequences.BLACK_PAWN + RESET;
         }
         if (row == 8) {
             if (col == 1 || col == 8) {
-                return EscapeSequences.WHITE_ROOK;
+                return BLACK_PIECE + EscapeSequences.BLACK_ROOK + RESET;
             }
             if (col == 2 || col == 7) {
-                return EscapeSequences.WHITE_KNIGHT;
+                return BLACK_PIECE + EscapeSequences.BLACK_KNIGHT + RESET;
             }
             if (col == 3 || col == 6) {
-                return EscapeSequences.WHITE_BISHOP;
+                return BLACK_PIECE + EscapeSequences.BLACK_BISHOP + RESET;
             }
-            if ((col == 4 && reversed) || (col == 5 && !reversed)) {
-                return EscapeSequences.WHITE_KING;
+            if ((col == 4 && !reversed) || (col == 5 && reversed)) {
+                return BLACK_PIECE + EscapeSequences.BLACK_KING + RESET;
             }
-            if ((col == 5 && reversed) || (col == 4 && !reversed)) {
-                return EscapeSequences.WHITE_QUEEN;
+            if ((col == 5 && !reversed) || (col == 4 && reversed)) {
+                return BLACK_PIECE + EscapeSequences.BLACK_QUEEN + RESET;
+            }
+        }
+        if (row == 1) {
+            if (col == 1 || col == 8) {
+                return WHITE_PIECE + EscapeSequences.BLACK_ROOK + RESET;
+            }
+            if (col == 2 || col == 7) {
+                return WHITE_PIECE + EscapeSequences.BLACK_KNIGHT + RESET;
+            }
+            if (col == 3 || col == 6) {
+                return WHITE_PIECE + EscapeSequences.BLACK_BISHOP + RESET;
+            }
+            if ((col == 4 && !reversed) || (col == 5 && reversed)) {
+                return WHITE_PIECE + EscapeSequences.BLACK_KING + RESET;
+            }
+            if ((col == 5 && !reversed) || (col == 4 && reversed)) {
+                return WHITE_PIECE + EscapeSequences.BLACK_QUEEN + RESET;
             }
         }
 
         return EscapeSequences.EMPTY;
+    }
+
+    public String leaveGame() {
+        inGame = false;
+        return "Exiting game\n";
     }
 }

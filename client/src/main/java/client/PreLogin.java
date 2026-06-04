@@ -80,7 +80,6 @@ public class PreLogin {
             try {
                 LoginRequest request = new LoginRequest(params[0], params[1]);
                 auth = server.login(request).authToken();
-                System.out.print("Auth Token: " + auth + "\n\n");
                 signedIn = true;
                 return String.format("Signed in as %s\n", params[0]);
             } catch (Exception e) {

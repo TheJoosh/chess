@@ -1,4 +1,6 @@
 {
     "java.debug.settings.onBuildFailureProceed": true,
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": false
 }
