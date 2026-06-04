@@ -75,26 +75,6 @@ public class PostLogin {
         System.out.println();
     }
 
-    public String eval(String input) {
-        try {
-            String[] tokens = input.toLowerCase().split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0] : "help";
-            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "create" -> createGame(params);
-                case "list" -> listGames();
-                case "join" -> joinGame(params);
-                case "observe" -> observeGame(params);
-                case "clear" -> clear(params);
-                case "logout" -> logout();
-                case "quit" -> "Closing chess";
-                default -> help();
-            };
-        } catch (ResponseException ex) {
-            return ex.getMessage();
-        }
-    }
-
     public String logout() throws ResponseException {
         try {
             server.logout(auth, null);
@@ -107,16 +87,16 @@ public class PostLogin {
 
     public String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
-            //try {
+            try {
                 CreateRequest request = new CreateRequest(auth, params[0]);
                 server.createGame(auth, request);
 
                 makeList();
 
                 return String.format("Created game %s\n", params[0]);
-            // } catch (Exception e) {
-            //     throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized\n");
-            // }
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized\n");
+            }
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <game name>\n");
     }
@@ -252,5 +232,25 @@ public class PostLogin {
                 - logout
                 - quit
                 """;
+    }
+
+    public String eval(String input) {
+        try {
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+                case "create" -> createGame(params);
+                case "list" -> listGames();
+                case "join" -> joinGame(params);
+                case "observe" -> observeGame(params);
+                case "clear" -> clear(params);
+                case "logout" -> logout();
+                case "quit" -> "Closing chess";
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
     }
 }

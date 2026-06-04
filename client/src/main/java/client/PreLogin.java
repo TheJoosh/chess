@@ -107,7 +107,9 @@ public class PreLogin {
         if (params.length == 0) {
             try {
                 server.clear();
+                
                 return "Data cleared\n";
+
             } catch (Exception e) {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Clear unsuccessful\n");
             }

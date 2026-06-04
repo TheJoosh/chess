@@ -70,20 +70,6 @@ public class Gameplay {
         System.out.println();
     }
 
-    public String eval(String input) {
-        try {
-            String[] tokens = input.toLowerCase().split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0] : "help";
-            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "leave" -> leaveGame();
-                default -> "Closing chess";
-            };
-        } catch (Exception ex) {
-            return ex.getMessage();
-        }
-    }
-
     public void draw(boolean reversed) {
         drawBoard(reversed);
     }
@@ -168,5 +154,19 @@ public class Gameplay {
     public String leaveGame() {
         inGame = false;
         return "Exiting game\n";
+    }
+    
+    public String eval(String input) {
+        try {
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+                case "leave" -> leaveGame();
+                default -> "Closing chess";
+            };
+        } catch (Exception ex) {
+            return ex.getMessage();
+        }
     }
 }
