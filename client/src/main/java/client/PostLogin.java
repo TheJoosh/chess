@@ -24,6 +24,7 @@ public class PostLogin {
     private String auth;
     boolean signedIn = true;
     boolean inGame = false;
+    boolean reversed = false;
     List<ListGameResult> gameList;
 
     public PostLogin (String auth, String url) throws ResponseException {
@@ -60,7 +61,7 @@ public class PostLogin {
                 }
                 if (inGame) {
                     try {
-                        new Gameplay(auth, url).run();
+                        new Gameplay(auth, url, reversed).run();
                         return;
                     } catch (Throwable ex) {
                         System.out.printf("Unable to join game: %s%n", ex.getMessage());
@@ -195,6 +196,10 @@ public class PostLogin {
             }
 
             inGame = true;
+
+            if (color == ChessGame.TeamColor.BLACK) {
+                reversed = true;
+            }
 
             return String.format("Joined game %s\n", gameList.get(id - 1).gameName());
         }
