@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.FileDescriptor;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import exception.ResponseException;
@@ -20,6 +19,7 @@ public class Gameplay {
     public static final String WHITE  = "\u001B[48;5;230m";
     public static final String BLACK  = "\u001B[48;5;235m";
 
+    public static final String PURPLE = "\u001B[35m";
 
     public static final String WHITE_PIECE = EscapeSequences.SET_TEXT_COLOR_RED;
     public static final String BLACK_PIECE = "\u001B[38;5;233m";
@@ -52,6 +52,8 @@ public class Gameplay {
 
             try {
                 result = eval(line);
+                System.out.print(PURPLE + result + RESET);
+                System.out.println();
                 if (!inGame) {
                     try {
                         new PostLogin(auth, url).run();

@@ -107,16 +107,16 @@ public class PostLogin {
 
     public String createGame(String... params) throws ResponseException {
         if (params.length == 1) {
-            try {
+            //try {
                 CreateRequest request = new CreateRequest(auth, params[0]);
                 server.createGame(auth, request);
 
                 makeList();
 
                 return String.format("Created game %s\n", params[0]);
-            } catch (Exception e) {
-                throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized\n");
-            }
+            // } catch (Exception e) {
+            //     throw new ResponseException(ResponseException.Code.Unauthorized, "Unauthorized\n");
+            // }
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <game name>\n");
     }

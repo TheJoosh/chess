@@ -1,6 +1,8 @@
 package dataaccess;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
 import java.util.UUID;
 
 import model.*;
@@ -8,7 +10,7 @@ import results.LoginRequest;
 
 public class AuthAccess implements AuthDAO {
 
-    final private HashMap<String, String> auth = new HashMap<>();
+    final private ConcurrentHashMap<String, String> auth = new ConcurrentHashMap<String, String>();
 
     public void clear() {
         auth.clear();
