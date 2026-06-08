@@ -123,10 +123,10 @@ public class Gameplay {
             if (col == 3 || col == 6) {
                 return BLACK_PIECE + EscapeSequences.BLACK_BISHOP + RESET;
             }
-            if ((col == 4 && !reversed) || (col == 5 && reversed)) {
+            if ((col == 4 && reversed) || (col == 5 && !reversed)) {
                 return BLACK_PIECE + EscapeSequences.BLACK_KING + RESET;
             }
-            if ((col == 5 && !reversed) || (col == 4 && reversed)) {
+            if ((col == 5 && reversed) || (col == 4 && !reversed)) {
                 return BLACK_PIECE + EscapeSequences.BLACK_QUEEN + RESET;
             }
         }
@@ -140,10 +140,10 @@ public class Gameplay {
             if (col == 3 || col == 6) {
                 return WHITE_PIECE + EscapeSequences.BLACK_BISHOP + RESET;
             }
-            if ((col == 4 && !reversed) || (col == 5 && reversed)) {
+            if ((col == 4 && reversed) || (col == 5 && !reversed)) {
                 return WHITE_PIECE + EscapeSequences.BLACK_KING + RESET;
             }
-            if ((col == 5 && !reversed) || (col == 4 && reversed)) {
+            if ((col == 5 && reversed) || (col == 4 && !reversed)) {
                 return WHITE_PIECE + EscapeSequences.BLACK_QUEEN + RESET;
             }
         }
