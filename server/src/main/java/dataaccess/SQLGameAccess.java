@@ -9,7 +9,6 @@ import com.google.gson.Gson;
 import chess.ChessGame;
 import model.GameList;
 import model.GameData;
-import model.ListGameResult;
 
 import java.sql.Connection;
 

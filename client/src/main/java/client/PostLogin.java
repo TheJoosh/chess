@@ -26,7 +26,7 @@ public class PostLogin {
     boolean inGame = false;
     boolean reversed = false;
     boolean observing = false;
-    List<ListGameResult> gameList;
+    List<GameData> gameList;
 
     public PostLogin (String auth, String url) throws ResponseException {
         server = new ServerFacade(url);
@@ -113,7 +113,7 @@ public class PostLogin {
             System.out.print(PURPLE + "Active games:\n");
 
             int i = 1;
-            for (ListGameResult item : gameList) {
+            for (GameData item : gameList) {
                 System.out.print("   " + i + ". " + item.gameName() + " - White: ");
                 if (item.whiteUsername() == null) {
                     System.out.print(RED + "None" + PURPLE + ", Black: ");

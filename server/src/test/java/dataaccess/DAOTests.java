@@ -3,9 +3,7 @@ package dataaccess;
 import org.junit.jupiter.api.*;
 
 import chess.ChessGame;
-import model.AuthData;
-import model.ListGameResult;
-import model.UserData;
+import model.*;
 import results.LoginRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -213,7 +211,7 @@ public class DAOTests {
     @Test
     void createGamePositive() throws DataAccessException {
         ACCESS.createGame("game");
-        ListGameResult game = new ListGameResult(1, null, null, "game");
+        GameData game = new GameData(1, null, null, "game", new ChessGame());
 
         assert(ACCESS.listGames().containsValue(game));
     }
