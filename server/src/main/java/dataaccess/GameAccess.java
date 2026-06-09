@@ -4,13 +4,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import model.GameList;
 import model.GameData;
-import model.ListGameResult;
 import chess.ChessGame;
 import java.sql.Connection;
 
 public class GameAccess implements GameDAO {
 
-    final private ConcurrentHashMap<Integer, ListGameResult> games = new ConcurrentHashMap<>();
+    final private ConcurrentHashMap<Integer, GameData> games = new ConcurrentHashMap<>();
     private int next = 1;
 
     public GameList listGames(Connection conn) throws DataAccessException {
@@ -24,14 +23,14 @@ public class GameAccess implements GameDAO {
     }
 
     public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
-        ListGameResult game = games.get(gameID);
+        GameData game = games.get(gameID);
 
         if (color == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) {
-            games.replace(gameID, new ListGameResult(gameID, username, game.blackUsername(), game.gameName()));
+            games.replace(gameID, new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game()));
             return true;
 
         } else if (color == ChessGame.TeamColor.BLACK && game.blackUsername() == null) {
-            games.replace(gameID, new ListGameResult(gameID, game.whiteUsername(), username, game.gameName()));
+            games.replace(gameID, new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game()));
             return true;
         }
 
@@ -40,11 +39,10 @@ public class GameAccess implements GameDAO {
 
     public int createGame(String name) throws DataAccessException {
         GameData game = new GameData(next++, null, null, name, new ChessGame());
-        ListGameResult gameResult = new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
-        if (games.containsValue(gameResult)) {
+        if (games.containsValue(game)) {
             throw new DataAccessException("Game Already Exists");
         }
-        games.put(game.gameID(), gameResult);
+        games.put(game.gameID(), game);
         return game.gameID();
     }
 }

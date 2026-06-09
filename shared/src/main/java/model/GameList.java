@@ -4,12 +4,12 @@ import java.util.HashMap;
 
 import com.google.gson.Gson;
 
-public class GameList extends HashMap<Integer, ListGameResult> {
+public class GameList extends HashMap<Integer, GameData> {
     public GameList() {
 
     }
 
-    public GameList(HashMap<Integer, ListGameResult> data) {
+    public GameList(HashMap<Integer, GameData> data) {
         super(data);
     }
 

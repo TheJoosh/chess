@@ -205,7 +205,7 @@ public class ServiceTests {
     @Test
     void createGamePositive() throws DataAccessException {
         GAME_SERVICE.createGame("game");
-        ListGameResult game = new ListGameResult(1, null, null, "game");
+        GameData game = new GameData(1, null, null, "game", new ChessGame());
 
         assert(GAME_SERVICE.listGames().containsValue(game));
     }

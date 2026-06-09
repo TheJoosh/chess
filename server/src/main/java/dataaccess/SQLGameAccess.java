@@ -33,7 +33,7 @@ public class SQLGameAccess implements GameDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     GameData game = readGames(rs);
-                    result.put(game.gameID(), new ListGameResult(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName()));
+                    result.put(game.gameID(), new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), game.game()));
                 }
             }
         } catch (Exception e) {
