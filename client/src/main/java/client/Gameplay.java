@@ -26,23 +26,25 @@ public class Gameplay {
 
     public static final String RESET = "\u001B[0m";
 
-    boolean inGame = false;
+    boolean inGame = true;
     boolean reversed;
+    boolean observing;
     String url;
     String auth;
 
-    public Gameplay (String auth, String url, boolean reversed) throws ResponseException {
+    public Gameplay (String auth, String url, boolean reversed, boolean observing) throws ResponseException {
         server = new ServerFacade(url);
         this.url = url;
         this.auth = auth;
         this.reversed = reversed;
+        this.observing = observing;
     }
 
     public void run() {
 
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
         
-        draw(reversed);
+        draw(reversed, false);
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -70,8 +72,13 @@ public class Gameplay {
         System.out.println();
     }
 
-    public void draw(boolean reversed) {
+    public String draw(boolean reversed, boolean redraw) {
         drawBoard(reversed);
+
+        if (redraw) {
+            return "Board redrawn\n";
+        }
+        return "";
     }
 
     public void drawBoard(boolean reversed) {
@@ -163,10 +170,30 @@ public class Gameplay {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "leave" -> leaveGame();
-                default -> "Closing chess";
+                case "redraw" -> draw(reversed, true);
+                default -> help();
             };
         } catch (Exception ex) {
             return ex.getMessage();
         }
+    }
+
+    public String help() {
+        if (observing) {
+            return """
+                    - showMoves <start square>
+                    - redraw
+                    - help
+                    - leave
+                    """;
+        }
+        return """
+                - makeMove <start square> <end square>
+                - showMoves <start square>
+                - redraw
+                - resign
+                - help
+                - leave
+                """;
     }
 }

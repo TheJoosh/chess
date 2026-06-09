@@ -1,6 +1,6 @@
 package dataaccess;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import model.GameList;
 import model.GameData;
@@ -10,7 +10,7 @@ import java.sql.Connection;
 
 public class GameAccess implements GameDAO {
 
-    final private HashMap<Integer, ListGameResult> games = new HashMap<>();
+    final private ConcurrentHashMap<Integer, ListGameResult> games = new ConcurrentHashMap<>();
     private int next = 1;
 
     public GameList listGames(Connection conn) throws DataAccessException {

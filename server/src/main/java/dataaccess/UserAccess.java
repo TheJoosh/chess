@@ -1,6 +1,6 @@
 package dataaccess;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 import model.*;
@@ -8,7 +8,7 @@ import results.LoginRequest;
 
 public class UserAccess implements UserDAO {
 
-    final private HashMap<String, String> users = new HashMap<>();
+    final private ConcurrentHashMap<String, String> users = new ConcurrentHashMap<>();
 
     public UserList listUsers() {
         return new UserList(users.keySet());
