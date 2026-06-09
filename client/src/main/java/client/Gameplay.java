@@ -8,6 +8,8 @@ import java.io.FileDescriptor;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+import chess.*;
+
 import exception.ResponseException;
 import server.ServerFacade;
 import model.GameData;
@@ -85,15 +87,17 @@ public class Gameplay {
     }
 
     public void drawBoard(boolean reversed) {
+        ChessBoard board = game.game().getBoard();
+
         if (!reversed) {
             System.out.print("   a  b  c  d  e  f  g  h\n");
             for (int i = 8; i >= 1; i--) {
                 System.out.print(i + " ");
                 for (int j = 1; j <= 8; j++) {
                     if ((i + j) % 2 != 0) {
-                        System.out.print(WHITE + placePiece(i, j) + RESET);
+                        System.out.print(WHITE + placePiece(board.getPiece(new ChessPosition(i, j))) + RESET);
                     } else {
-                        System.out.print(BLACK + placePiece(i, j) + RESET);
+                        System.out.print(BLACK + placePiece(board.getPiece(new ChessPosition(i, j))) + RESET);
                     }
                 }
                 System.out.print(" " + i + "\n");
@@ -105,9 +109,9 @@ public class Gameplay {
                 System.out.print(i + " ");
                 for (int j = 1; j <= 8; j++) {
                     if ((i + j) % 2 == 0) {
-                        System.out.print(WHITE + placePiece(i, j) + RESET);
+                        System.out.print(WHITE + placePiece(board.getPiece(new ChessPosition(i, 9 - j))) + RESET);
                     } else {
-                        System.out.print(BLACK + placePiece(i, j) + RESET);
+                        System.out.print(BLACK + placePiece(board.getPiece(new ChessPosition(i, 9 - j))) + RESET);
                     }
                 }
                 System.out.print(" " + i + "\n");
@@ -116,49 +120,38 @@ public class Gameplay {
         }
     }
 
-    private String placePiece(int row, int col) {
-        if (row == 7) {
-            return BLACK_PIECE + EscapeSequences.BLACK_PAWN + RESET;
-        }
-        if (row == 2) {
-            return WHITE_PIECE + EscapeSequences.BLACK_PAWN + RESET;
-        }
-        if (row == 8) {
-            if (col == 1 || col == 8) {
-                return BLACK_PIECE + EscapeSequences.BLACK_ROOK + RESET;
-            }
-            if (col == 2 || col == 7) {
-                return BLACK_PIECE + EscapeSequences.BLACK_KNIGHT + RESET;
-            }
-            if (col == 3 || col == 6) {
-                return BLACK_PIECE + EscapeSequences.BLACK_BISHOP + RESET;
-            }
-            if ((col == 4 && reversed) || (col == 5 && !reversed)) {
-                return BLACK_PIECE + EscapeSequences.BLACK_KING + RESET;
-            }
-            if ((col == 5 && reversed) || (col == 4 && !reversed)) {
-                return BLACK_PIECE + EscapeSequences.BLACK_QUEEN + RESET;
-            }
-        }
-        if (row == 1) {
-            if (col == 1 || col == 8) {
-                return WHITE_PIECE + EscapeSequences.BLACK_ROOK + RESET;
-            }
-            if (col == 2 || col == 7) {
-                return WHITE_PIECE + EscapeSequences.BLACK_KNIGHT + RESET;
-            }
-            if (col == 3 || col == 6) {
-                return WHITE_PIECE + EscapeSequences.BLACK_BISHOP + RESET;
-            }
-            if ((col == 4 && reversed) || (col == 5 && !reversed)) {
-                return WHITE_PIECE + EscapeSequences.BLACK_KING + RESET;
-            }
-            if ((col == 5 && reversed) || (col == 4 && !reversed)) {
-                return WHITE_PIECE + EscapeSequences.BLACK_QUEEN + RESET;
-            }
+    private String placePiece(ChessPiece piece) {
+        String icon;
+
+        if (piece == null) {
+            return EscapeSequences.EMPTY;
         }
 
-        return EscapeSequences.EMPTY;
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            icon = WHITE_PIECE;
+        } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            icon = BLACK_PIECE;
+        } else {
+            return EscapeSequences.EMPTY;
+        }
+
+        if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
+            icon = icon + EscapeSequences.BLACK_BISHOP;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            icon = icon + EscapeSequences.BLACK_KING;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+            icon = icon + EscapeSequences.BLACK_QUEEN;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+            icon = icon + EscapeSequences.BLACK_ROOK;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+            icon = icon + EscapeSequences.BLACK_KNIGHT;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            icon = icon + EscapeSequences.BLACK_PAWN;
+        } else {
+            return EscapeSequences.EMPTY;
+        }
+
+        return icon + RESET;
     }
 
     public String leaveGame() {

@@ -172,18 +172,19 @@ public class PostLogin {
 
             
             try {
-                server.joinGame(auth, request);
+                 server.joinGame(auth, request);
             } catch (Exception e) {
                 throw new ResponseException(ResponseException.Code.AlreadyTaken, color + " already taken\n");
             }
 
             inGame = true;
+            game = gameList.get(id - 1);
 
             if (color == ChessGame.TeamColor.BLACK) {
                 reversed = true;
             }
 
-            return String.format("Joined game %s\n", gameList.get(id - 1).gameName());
+            return String.format("Joined game %s\n", game.gameName());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <id> [WHITE|BLACK]\n");
     }
@@ -206,7 +207,9 @@ public class PostLogin {
             inGame = true;
             observing = true;
 
-            return String.format("Observing game %s\n", gameList.get(id - 1).gameName());
+            game = gameList.get(id - 1);
+
+            return String.format("Observing game %s\n", game.gameName());
         }
         throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <id>\n");
     }
