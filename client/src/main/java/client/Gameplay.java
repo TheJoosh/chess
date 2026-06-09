@@ -10,6 +10,7 @@ import java.util.Scanner;
 
 import exception.ResponseException;
 import server.ServerFacade;
+import model.GameData;
 
 import ui.EscapeSequences;
 
@@ -31,13 +32,15 @@ public class Gameplay {
     boolean observing;
     String url;
     String auth;
+    GameData game;
 
-    public Gameplay (String auth, String url, boolean reversed, boolean observing) throws ResponseException {
+    public Gameplay (String auth, String url, boolean reversed, boolean observing, GameData game) throws ResponseException {
         server = new ServerFacade(url);
         this.url = url;
         this.auth = auth;
         this.reversed = reversed;
         this.observing = observing;
+        this.game = game;
     }
 
     public void run() {

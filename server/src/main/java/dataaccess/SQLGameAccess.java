@@ -41,7 +41,7 @@ public class SQLGameAccess implements GameDAO {
         return result;
     }
 
-    public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
+    public GameData joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
         var get = "SELECT * FROM games WHERE gameID = ? LIMIT 1";
 
         try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(get)) {
@@ -52,15 +52,27 @@ public class SQLGameAccess implements GameDAO {
                 if (color == ChessGame.TeamColor.BLACK && rs.getString("blackUsername") == null) {
                     String statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
                     SQLDataAccess.executeUpdate(conn, statement, username, gameID);
-                    return true;
+                    return new GameData(
+                                    rs.getInt("gameID"), 
+                                    rs.getString("whiteUsername"), 
+                                    rs.getString("blackUsername"), 
+                                    rs.getString("gameName"), 
+                                    new Gson().fromJson(rs.getString("game"), ChessGame.class)
+                                );
                 } else if (color == ChessGame.TeamColor.WHITE && rs.getString("whiteUsername") == null) {
                     String statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
                     SQLDataAccess.executeUpdate(conn, statement, username, gameID);
-                    return true;
+                    return new GameData(
+                                    rs.getInt("gameID"), 
+                                    rs.getString("whiteUsername"), 
+                                    rs.getString("blackUsername"), 
+                                    rs.getString("gameName"), 
+                                    new Gson().fromJson(rs.getString("game"), ChessGame.class)
+                                );
                 }
             }
 
-            return false;
+            return null;
             
         } catch (Exception e) {
             throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));

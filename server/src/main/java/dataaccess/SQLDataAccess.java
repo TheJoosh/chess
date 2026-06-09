@@ -8,6 +8,7 @@ import model.AuthList;
 import model.GameList;
 import model.UserData;
 import model.UserList;
+import model.GameData;
 import results.LoginRequest;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
@@ -82,7 +83,7 @@ public class SQLDataAccess implements DataAccess {
         }
     }
 
-    public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
+    public GameData joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
         return gameAccess.joinGame(username, color, gameID);
     }
 

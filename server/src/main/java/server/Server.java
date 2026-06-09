@@ -13,7 +13,6 @@ import exception.ResponseException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
 
@@ -61,9 +60,9 @@ public class Server {
             authService.clear();
             userService.clear();
             gameService.clear();
-            ctx.status(200).result(new Gson().toJson(new Result("")));
+            ctx.status(200).result(new Gson().toJson(new Result("", null)));
         } catch (DataAccessException e) {
-            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request", null)));
         }
     }
 
@@ -72,7 +71,7 @@ public class Server {
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
 
             if (user == null || user.username() == null || user.email() == null || user.password() == null) {
-                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
+                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request", null)));
                 return null;
             }
 
@@ -83,11 +82,11 @@ public class Server {
                 ctx.result(new Gson().toJson(auth));
                 return auth;
             } else {
-                ctx.status(403).result(new Gson().toJson(new Result("Error: already taken")));
+                ctx.status(403).result(new Gson().toJson(new Result("Error: already taken", null)));
                 return null;
             }
         } catch (DataAccessException e) {
-            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request", null)));
             return null;
         }
     }
@@ -97,7 +96,7 @@ public class Server {
             LoginRequest user = new Gson().fromJson(ctx.body(), LoginRequest.class);
 
             if (user == null || user.username() == null || user.password() == null) {
-                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
+                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request", null)));
                 return null;
             }
 
@@ -108,10 +107,10 @@ public class Server {
                 return auth;
             }
 
-            ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
+            ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized", null)));
             return null;
         } catch (DataAccessException e) {
-            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request", null)));
             return null;
         }
     }
@@ -121,7 +120,7 @@ public class Server {
             String authToken = ctx.header("authorization");
 
             if (authToken == null) {
-                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
+                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request", null)));
                 return;
             }
 
@@ -130,10 +129,10 @@ public class Server {
                 ctx.status(200);
                 ctx.result(new Gson().toJson(new LogoutResult("")));
             } else {
-                ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
+                ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized", null)));
             }
         } catch (DataAccessException e) {
-            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request", null)));
         }
     }
 
@@ -143,14 +142,14 @@ public class Server {
             String authToken = ctx.header("Authorization");
 
             if (authToken == null) {
-                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
+                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request", null)));
                 return;
             }
 
             if (authToken != null && authService.authenticate(authToken)) {
 
                 if (request == null || request.gameName() == null) {
-                    ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
+                    ctx.status(400).result(new Gson().toJson(new Result("Error: bad request", null)));
                     return;
                 }
                 int gameID = gameService.createGame(request.gameName());
@@ -158,10 +157,10 @@ public class Server {
                 ctx.result(new Gson().toJson(result));
                 ctx.status(200);
             } else {
-                ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
+                ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized", null)));
             }
         } catch (DataAccessException e) {
-            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request", null)));
         }
     }
 
@@ -170,7 +169,7 @@ public class Server {
             String authToken = ctx.header("authorization");
 
             if (authToken == null) {
-                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
+                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request", null)));
                 return;
             }
 
@@ -180,44 +179,50 @@ public class Server {
                 ctx.status(200);
                 ctx.result(new Gson().toJson(result));
             } else {
-                ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
+                ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized", null)));
             }
         } catch (DataAccessException e) {
-            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request", null)));
         }
     }
 
-    private void joinGame(Context ctx) throws DataAccessException {
+    private GameData joinGame(Context ctx) throws DataAccessException {
         try {
             String authToken = ctx.header("authorization");
 
             if (authToken == null) {
-                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
-                return;
+                ctx.status(400).result(new Gson().toJson(new Result("Error: bad request", null)));
+                return null;
             }
 
             if (authService.authenticate(authToken)) {
                 JoinRequest game = new Gson().fromJson(ctx.body(), JoinRequest.class);
 
                 if (game == null || game.playerColor() == null || game.gameID() <= 0) {
-                    ctx.status(400).result(new Gson().toJson(new Result("Error: bad request")));
-                    return;
+                    ctx.status(400).result(new Gson().toJson(new Result("Error: bad request", null)));
+                    return null;
                 }
                 
                 String username = authService.getUsername(authToken);
                 ChessGame.TeamColor color = game.playerColor();
                 int gameID = game.gameID();
 
-                if (gameService.joinGame(username, color, gameID).getMessage() == null) {
-                    ctx.status(200).result(new Gson().toJson(new Result("")));
+                Result result = gameService.joinGame(username, color, gameID);
+
+                if (result.getMessage() == null) {
+                    ctx.status(200).result(new Gson().toJson(new Result("", null)));
+                    return result.getGame();
                 } else {
-                    ctx.status(403).result(new Gson().toJson(new Result("Error: already taken")));
+                    ctx.status(403).result(new Gson().toJson(new Result("Error: already taken", null)));
+                    return null;
                 }
             } else {
-                ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized")));
+                ctx.status(401).result(new Gson().toJson(new Result("Error: unauthorized", null)));
+                return null;
             }
         } catch (DataAccessException e) {
-            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request")));
+            ctx.status(500).result(new Gson().toJson(new Result("Error: bad request", null)));
+            return null;
         }
     }
 }

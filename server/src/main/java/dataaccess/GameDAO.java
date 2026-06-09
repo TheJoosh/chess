@@ -10,7 +10,7 @@ public interface GameDAO {
 
     GameList listGames(Connection conn) throws DataAccessException;
 
-    boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException;
+    GameData joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException;
 
     int createGame(String game) throws DataAccessException;
 

@@ -196,7 +196,7 @@ public class DAOTests {
     void joinGamePositive() throws DataAccessException {
         int gameID = ACCESS.createGame("game");
 
-        assert(ACCESS.joinGame("username", ChessGame.TeamColor.BLACK, gameID));
+        assert(ACCESS.joinGame("username", ChessGame.TeamColor.BLACK, gameID) != null);
     }
 
     @Test
@@ -205,7 +205,7 @@ public class DAOTests {
 
         ACCESS.joinGame("username", ChessGame.TeamColor.BLACK, gameID);
 
-        assert(!ACCESS.joinGame("yusername", ChessGame.TeamColor.BLACK, gameID));
+        assert(ACCESS.joinGame("yusername", ChessGame.TeamColor.BLACK, gameID) == null);
     }
 
     @Test

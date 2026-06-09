@@ -27,6 +27,7 @@ public class PostLogin {
     boolean reversed = false;
     boolean observing = false;
     List<GameData> gameList;
+    GameData game;
 
     public PostLogin (String auth, String url) throws ResponseException {
         server = new ServerFacade(url);
@@ -62,7 +63,7 @@ public class PostLogin {
                 }
                 if (inGame) {
                     try {
-                        new Gameplay(auth, url, reversed, observing).run();
+                        new Gameplay(auth, url, reversed, observing, game).run();
                         return;
                     } catch (Throwable ex) {
                         System.out.printf("Unable to join game: %s%n", ex.getMessage());

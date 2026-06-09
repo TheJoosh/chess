@@ -1,11 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
-import model.AuthData;
-import model.AuthList;
-import model.GameList;
-import model.UserData;
-import model.UserList;
+import model.*;
 import results.LoginRequest;
 
 public interface DataAccess {
@@ -34,7 +30,7 @@ public interface DataAccess {
 
     public GameList listGames() throws DataAccessException;
 
-    public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException;
+    public GameData joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException;
 
     public int createGame(String game) throws DataAccessException;
 }

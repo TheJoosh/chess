@@ -22,19 +22,19 @@ public class GameAccess implements GameDAO {
         games.clear();
     }
 
-    public boolean joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
+    public GameData joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
         GameData game = games.get(gameID);
 
         if (color == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) {
             games.replace(gameID, new GameData(gameID, username, game.blackUsername(), game.gameName(), game.game()));
-            return true;
+            return game;
 
         } else if (color == ChessGame.TeamColor.BLACK && game.blackUsername() == null) {
             games.replace(gameID, new GameData(gameID, game.whiteUsername(), username, game.gameName(), game.game()));
-            return true;
+            return game;
         }
 
-        return false;
+        return null;
     }
 
     public int createGame(String name) throws DataAccessException {
