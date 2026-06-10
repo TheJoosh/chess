@@ -58,4 +58,16 @@
         </plugins>
     </build>
 
+
+
+    <dependencies>
+    
+
+        <dependency>
+            <groupId>org.glassfish.tyrus.bundles</groupId>
+            <artifactId>tyrus-standalone-client-jdk</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+    </dependencies>
 </project>

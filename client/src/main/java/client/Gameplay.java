@@ -10,15 +10,17 @@ import java.util.Scanner;
 import java.util.Collection;
 
 import chess.*;
-
+import client.websocket.*;
+import websocket.messages.ServerMessage;
 import exception.ResponseException;
 import server.ServerFacade;
 import model.GameData;
 
 import ui.EscapeSequences;
 
-public class Gameplay {
+public class Gameplay implements NotificationHandler {
     private final ServerFacade server;
+    private final WebSocketFacade ws;
 
     public static final String WHITE  = "\u001B[48;5;230m";
     public static final String BLACK  = "\u001B[48;5;235m";
@@ -37,11 +39,13 @@ public class Gameplay {
     boolean observing;
     String url;
     String auth;
+    String username;
     GameData game;
     ChessGame chessGame;
 
     public Gameplay (String auth, String url, boolean reversed, boolean observing, GameData game) throws ResponseException {
         server = new ServerFacade(url);
+        ws = new WebSocketFacade(url, this);
         this.url = url;
         this.auth = auth;
         this.reversed = reversed;
@@ -50,9 +54,13 @@ public class Gameplay {
         this.chessGame = game.game();
     }
 
-    public void run() {
+    public void run() throws ResponseException {
 
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
+
+        if (!observing) {
+            ws.joinGame(auth);
+        }
         
         draw(reversed, false, null);
 
@@ -83,7 +91,10 @@ public class Gameplay {
         System.out.println();
     }
 
-    public String resign() {
+    public String resign() throws ResponseException {
+        if (observing) {
+            return leaveGame();
+        }
 
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -219,10 +230,13 @@ public class Gameplay {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "leave" -> leaveGame();
+                case "quit" -> leaveGame();
                 case "redraw" -> draw(reversed, true, null);
-                case "moves" -> showMoves(params);
+                case "draw" -> draw(reversed, true, null);
+                case "seemoves" -> showMoves(params);
+                case "showmoves" -> showMoves(params);
                 case "resign" -> resign();
-                case "makemove" -> makeMove(params);
+                case "move" -> makeMove(params);
                 default -> help();
             };
         } catch (Exception ex) {
@@ -269,6 +283,17 @@ public class Gameplay {
     }
 
     public String makeMove(String... params) throws ResponseException {
+        if (observing) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Observers cannot make moves\n");
+        }
+
+        if (
+            (chessGame.getTeamTurn() == ChessGame.TeamColor.BLACK && !reversed) || 
+            (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE && reversed)
+        ) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Cannot move out of turn\n");
+        }
+
         if (params.length != 2 && params.length != 3) {
             throw new ResponseException(ResponseException.Code.BadRequest, "A Expected: <start position> <end position>\n");
         }
@@ -375,19 +400,23 @@ public class Gameplay {
     public String help() {
         if (observing) {
             return """
-                    - moves <start position>
+                    - seemoves <start position>
                     - redraw
                     - help
                     - leave
                     """;
         }
         return """
-                - makeMove <start position> <end position>
-                - moves <start position>
+                - move <start position> <end position>
+                - seemoves <start position>
                 - redraw
                 - resign
                 - help
                 - leave
                 """;
+    }
+
+    public void notify(ServerMessage message) {
+        System.out.println(PURPLE + message.getServerMessageType().toString() + "\n\n" + RESET);
     }
 }

@@ -1,6 +1,7 @@
 package client.websocket;
 
 import com.google.gson.Gson;
+
 import exception.ResponseException;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
@@ -11,15 +12,24 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@ClientEndpoint
 public class WebSocketFacade extends Endpoint {
 
     Session session;
     NotificationHandler notificationHandler;
 
+    public static final String PURPLE = "\u001B[35m";
+    public static final String RESET = "\u001B[0m";
+
     public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "/ws");
+            if (!url.endsWith("/ws")) {
+                url = url + "/ws";
+            }
+
+            URI socketURI = new URI(url);
+
             this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -29,21 +39,21 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
+                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     notificationHandler.notify(notification);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            System.out.print(PURPLE);
+            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage() + "\n" + RESET);
         }
     }
 
-    //Endpoint requires this method, but you don't have to do anything
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String visitorName) throws ResponseException {
+    public void joinGame(String auth) throws ResponseException {
         try {
             var action = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
@@ -52,9 +62,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void leavePetShop(String visitorName) throws ResponseException {
+    public void leavePetShop(String auth, Integer gameID) throws ResponseException {
         try {
-            var action = new Action(Action.Type.EXIT, visitorName);
+            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, auth, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());

@@ -7,6 +7,7 @@ import results.*;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
+import websocket.*;
 import dataaccess.*;
 import exception.ResponseException;
 
@@ -21,12 +22,15 @@ public class Server {
     private final GameService gameService;
     private final UserService userService;
     private final DataAccess dataAccess;
+    private final WebSocketHandler webSocket;
 
     public Server() {
         this.dataAccess = new SQLDataAccess(new SQLGameAccess(), new SQLUserAccess(), new SQLAuthAccess());
         this.authService = new AuthService(dataAccess);
         this.gameService = new GameService(dataAccess);
         this.userService = new UserService(dataAccess);
+
+        this.webSocket = new WebSocketHandler();
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
             .delete("/db", this::clear)
@@ -37,6 +41,11 @@ public class Server {
             .get("/game", this::listGames)
             .put("/game", this::joinGame)
             .exception(ResponseException.class, this::exceptionHandler)
+            .ws("/ws", ws -> {
+                    ws.onConnect(webSocket);
+                    ws.onMessage(webSocket);
+                    ws.onClose(webSocket);
+                });
         ;
 
     }
