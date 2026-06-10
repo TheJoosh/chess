@@ -31,6 +31,7 @@ public class PreLogin {
         System.out.print(help());
         System.out.println();
 
+        @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Closing chess")) {

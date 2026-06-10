@@ -56,6 +56,7 @@ public class Gameplay {
         
         draw(reversed, false, null);
 
+        @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Closing chess")) {
@@ -136,7 +137,6 @@ public class Gameplay {
         String black = BLACK;
 
         if (moves != null) {
-            boolean possible = false;
             for (ChessMove move : moves) {
                 if (move.getEndPosition().getRow() == i && move.getEndPosition().getColumn() == j) {
                     white = GREENW;
@@ -199,7 +199,7 @@ public class Gameplay {
             return switch (cmd) {
                 case "leave" -> leaveGame();
                 case "redraw" -> draw(reversed, true, null);
-                case "show" -> showMoves(params);
+                case "moves" -> showMoves(params);
                 default -> help();
             };
         } catch (Exception ex) {
@@ -255,7 +255,7 @@ public class Gameplay {
     public String help() {
         if (observing) {
             return """
-                    - showMoves <start square>
+                    - moves <start square>
                     - redraw
                     - help
                     - leave
@@ -263,7 +263,7 @@ public class Gameplay {
         }
         return """
                 - makeMove <start square> <end square>
-                - showMoves <start square>
+                - moves <start square>
                 - redraw
                 - resign
                 - help

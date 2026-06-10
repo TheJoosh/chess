@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import com.google.gson.Gson;
-
 import chess.ChessGame;
 import exception.ResponseException;
 import results.*;
@@ -42,6 +40,7 @@ public class PostLogin {
 
         makeList();
 
+        @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("Closing chess")) {
