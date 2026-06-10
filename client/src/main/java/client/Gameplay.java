@@ -72,7 +72,7 @@ public class Gameplay {
                         new PostLogin(auth, url).run();
                         return;
                     } catch (Throwable ex) {
-                        System.out.printf("Unable to leave game: %s%n", ex.getMessage());
+                        System.out.printf("Unable to leave game: %s%n\n", ex.getMessage());
                     }
                 }
             } catch (Throwable e) {
@@ -81,6 +81,27 @@ public class Gameplay {
             }
         }
         System.out.println();
+    }
+
+    public String resign() {
+
+        @SuppressWarnings("resource")
+        Scanner scanner = new Scanner(System.in);
+
+        var result = "";
+        while (!result.equals("y") && !result.equals("Y") && !result.equals("n") && !result.equals("N")) {
+            System.out.printf(PURPLE +"Confirm game resignation [Y/N]\n\n" + RESET);
+
+            result = scanner.nextLine();
+            System.out.println();
+
+            if (result.equals("Y") || result.equals("y")) {
+                inGame = false;
+                return "Resigned game\n";
+            }
+       }
+
+        return "Resignation canceled\n";
     }
 
     public String draw(boolean reversed, boolean redraw, Collection<ChessMove> moves) {
@@ -200,6 +221,8 @@ public class Gameplay {
                 case "leave" -> leaveGame();
                 case "redraw" -> draw(reversed, true, null);
                 case "moves" -> showMoves(params);
+                case "resign" -> resign();
+                case "makemove" -> makeMove(params);
                 default -> help();
             };
         } catch (Exception ex) {
@@ -207,19 +230,21 @@ public class Gameplay {
         }
     }
 
-    public String showMoves(String... params) throws ResponseException {
-        if (params.length == 1) {
-            String square = params[0];
-            if (square.length() == 2) {
+    public int[] coordify(String... params) throws ResponseException {
+        int[] coords = new int[4];
+        int i = 0;
+
+        for (String item : params) {
+            if (item.length() == 2) {
                 int row;
 
                 try {
-                    row = Integer.parseInt(square.substring(1, 2));
+                    row = Integer.parseInt(item.substring(1, 2));
                 } catch (Exception e) {
-                    throw new ResponseException(ResponseException.Code.BadRequest, "Square must have format <letter><number>\n");
+                    throw new ResponseException(ResponseException.Code.BadRequest, "Position must have format <letter><number>\n");
                 }
 
-                String colLetter = square.substring(0, 1);
+                String colLetter = item.substring(0, 1);
                 int col = switch (colLetter) {
                     case "a" -> 1;
                     case "b" -> 2;
@@ -232,38 +257,133 @@ public class Gameplay {
                     default -> 0;
                 };
 
-                if (col != 0 && row <= 8 && row >= 1) {
-                    Collection<ChessMove> moves;
-                    try {
-                        moves = chessGame.validMoves(new ChessPosition(row, col));
-                    } catch (Exception e) {
-                        throw new ResponseException(ResponseException.Code.ServerError, "Unable to access moves");
-                    }
-                    draw(reversed, false, moves);
-                    return "Calculated possible moves\n";
-                } else {
-                    throw new ResponseException(ResponseException.Code.BadRequest, "Square must be within range a1-h8\n");
-                }
+                coords[i] = row;
+                coords[i + 1] = col;
+                i += 2;
+            } else {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Position must have format <letter><number>\n");
+            }
+        }
+
+        return coords;
+    }
+
+    public String makeMove(String... params) throws ResponseException {
+        if (params.length != 2 && params.length != 3) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "A Expected: <start position> <end position>\n");
+        }
+
+        ChessPiece.PieceType promotion = null;
+        int[] coords = coordify(params[0], params[1]);
+        ChessPiece piece = chessGame.getBoard().getPiece(new ChessPosition(coords[0], coords[1]));
+
+        if (params.length == 3) {
+            if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "B Expected: <start position> <end position>\n");
             }
 
-            throw new ResponseException(ResponseException.Code.BadRequest, "Square must have format <letter><number>\n");
+            if (
+                (piece.getTeamColor() == ChessGame.TeamColor.BLACK && coords[0] != 2) || 
+                (piece.getTeamColor() == ChessGame.TeamColor.WHITE && coords[0] != 7)
+            ) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "C Expected: <start position> <end position>\n");
+            }
 
-        } 
-        throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <start square>\n");
+            promotion = switch (params[2]) {
+                case "queen" -> ChessPiece.PieceType.QUEEN;
+                case "Queen" -> ChessPiece.PieceType.QUEEN;
+                case "q" -> ChessPiece.PieceType.QUEEN;
+                case "Q" -> ChessPiece.PieceType.QUEEN;
+                case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+                case "bishop" -> ChessPiece.PieceType.BISHOP;
+                case "Bishop" -> ChessPiece.PieceType.BISHOP;
+                case "b" -> ChessPiece.PieceType.BISHOP;
+                case "B" -> ChessPiece.PieceType.BISHOP;
+                case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+                case "rook" -> ChessPiece.PieceType.ROOK;
+                case "Rook" -> ChessPiece.PieceType.ROOK;
+                case "r" -> ChessPiece.PieceType.ROOK;
+                case "R" -> ChessPiece.PieceType.ROOK;
+                case "ROOK" -> ChessPiece.PieceType.ROOK;
+                case "knight" -> ChessPiece.PieceType.KNIGHT;
+                case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+                case "k" -> ChessPiece.PieceType.KNIGHT;
+                case "K" -> ChessPiece.PieceType.KNIGHT;
+                case "n" -> ChessPiece.PieceType.KNIGHT;
+                case "N" -> ChessPiece.PieceType.KNIGHT;
+                case "Knight" -> ChessPiece.PieceType.KNIGHT;
+                default -> null;
+            };
+
+            if (promotion == null) {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Invalid promotion piece");
+            }
+        } else if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+            if (
+                (piece.getTeamColor() == ChessGame.TeamColor.BLACK && coords[0] == 2) || 
+                (piece.getTeamColor() == ChessGame.TeamColor.WHITE && coords[0] == 7)
+            ) {
+                throw new ResponseException(ResponseException.Code.BadRequest, 
+                                            "Pawn must promote: <start position> <end position> <promotion piece>\n"
+                                            );
+            }
+        }
+
+        if(coords[1] != 0 && coords[3] != 0 && coords[0] <= 8 && coords[0] >= 1 && coords[2] <= 8 && coords[2] >= 1) {
+            ChessMove move = new ChessMove(new ChessPosition(coords[0], coords[1]), new ChessPosition(coords[2], coords[3]), promotion);
+            try {
+                chessGame.makeMove(move);
+            } catch (InvalidMoveException e) {
+                throw new ResponseException(ResponseException.Code.BadRequest, e.getMessage() + "\n");
+            }
+            draw(reversed, false, null);
+
+            return "Moved " + piece.getPieceType().toString() + " from " + params[0] + " to " + params[1] + "\n";
+        } else {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Position must be within range a1-h8\n");
+        }
+    }
+
+    public String showMoves(String... params) throws ResponseException {
+        if (params.length == 1) {
+
+            int[] coords = coordify(params);
+
+            if (coords[1] != 0 && coords[0] <= 8 && coords[0] >= 1) {
+                Collection<ChessMove> moves;
+                try {
+                    moves = chessGame.validMoves(new ChessPosition(coords[0], coords[1]));
+                } catch (Exception e) {
+                    throw new ResponseException(ResponseException.Code.BadRequest, "No piece at that position\n");
+                }
+
+                if (moves.isEmpty()) {
+                    throw new ResponseException(ResponseException.Code.BadRequest, "Piece cannot move\n");
+                }
+
+                draw(reversed, false, moves);
+            } else {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Position must be within range a1-h8\n");
+            }
+
+            return "Calculated possible moves\n";
+        }
+
+        throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <start position>\n");
     }
 
     public String help() {
         if (observing) {
             return """
-                    - moves <start square>
+                    - moves <start position>
                     - redraw
                     - help
                     - leave
                     """;
         }
         return """
-                - makeMove <start square> <end square>
-                - moves <start square>
+                - makeMove <start position> <end position>
+                - moves <start position>
                 - redraw
                 - resign
                 - help
