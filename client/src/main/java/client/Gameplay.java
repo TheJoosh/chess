@@ -334,31 +334,7 @@ public class Gameplay implements NotificationHandler {
                 throw new ResponseException(ResponseException.Code.BadRequest, "C Expected: <start position> <end position>\n");
             }
 
-            promotion = switch (params[2]) {
-                case "queen" -> ChessPiece.PieceType.QUEEN;
-                case "Queen" -> ChessPiece.PieceType.QUEEN;
-                case "q" -> ChessPiece.PieceType.QUEEN;
-                case "Q" -> ChessPiece.PieceType.QUEEN;
-                case "QUEEN" -> ChessPiece.PieceType.QUEEN;
-                case "bishop" -> ChessPiece.PieceType.BISHOP;
-                case "Bishop" -> ChessPiece.PieceType.BISHOP;
-                case "b" -> ChessPiece.PieceType.BISHOP;
-                case "B" -> ChessPiece.PieceType.BISHOP;
-                case "BISHOP" -> ChessPiece.PieceType.BISHOP;
-                case "rook" -> ChessPiece.PieceType.ROOK;
-                case "Rook" -> ChessPiece.PieceType.ROOK;
-                case "r" -> ChessPiece.PieceType.ROOK;
-                case "R" -> ChessPiece.PieceType.ROOK;
-                case "ROOK" -> ChessPiece.PieceType.ROOK;
-                case "knight" -> ChessPiece.PieceType.KNIGHT;
-                case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
-                case "k" -> ChessPiece.PieceType.KNIGHT;
-                case "K" -> ChessPiece.PieceType.KNIGHT;
-                case "n" -> ChessPiece.PieceType.KNIGHT;
-                case "N" -> ChessPiece.PieceType.KNIGHT;
-                case "Knight" -> ChessPiece.PieceType.KNIGHT;
-                default -> null;
-            };
+            promotion = parsePromotion(params[2]);
 
             if (promotion == null) {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Invalid promotion piece");
@@ -404,6 +380,34 @@ public class Gameplay implements NotificationHandler {
         } else {
             throw new ResponseException(ResponseException.Code.BadRequest, "Position must be within range a1-h8\n");
         }
+    }
+
+    private ChessPiece.PieceType parsePromotion (String input) {
+        return switch (input) {
+                case "queen" -> ChessPiece.PieceType.QUEEN;
+                case "Queen" -> ChessPiece.PieceType.QUEEN;
+                case "q" -> ChessPiece.PieceType.QUEEN;
+                case "Q" -> ChessPiece.PieceType.QUEEN;
+                case "QUEEN" -> ChessPiece.PieceType.QUEEN;
+                case "bishop" -> ChessPiece.PieceType.BISHOP;
+                case "Bishop" -> ChessPiece.PieceType.BISHOP;
+                case "b" -> ChessPiece.PieceType.BISHOP;
+                case "B" -> ChessPiece.PieceType.BISHOP;
+                case "BISHOP" -> ChessPiece.PieceType.BISHOP;
+                case "rook" -> ChessPiece.PieceType.ROOK;
+                case "Rook" -> ChessPiece.PieceType.ROOK;
+                case "r" -> ChessPiece.PieceType.ROOK;
+                case "R" -> ChessPiece.PieceType.ROOK;
+                case "ROOK" -> ChessPiece.PieceType.ROOK;
+                case "knight" -> ChessPiece.PieceType.KNIGHT;
+                case "KNIGHT" -> ChessPiece.PieceType.KNIGHT;
+                case "k" -> ChessPiece.PieceType.KNIGHT;
+                case "K" -> ChessPiece.PieceType.KNIGHT;
+                case "n" -> ChessPiece.PieceType.KNIGHT;
+                case "N" -> ChessPiece.PieceType.KNIGHT;
+                case "Knight" -> ChessPiece.PieceType.KNIGHT;
+                default -> null;
+            };
     }
 
     public String showMoves(String... params) throws ResponseException {
