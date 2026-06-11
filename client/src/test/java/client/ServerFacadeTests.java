@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 
 import chess.ChessGame;
 import server.Server;
-import serverFacade.ServerFacade;
+import serverfacade.ServerFacade;
 import exception.ResponseException;
 import model.*;
 import results.*;

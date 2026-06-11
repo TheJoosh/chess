@@ -1,4 +1,4 @@
-package serverFacade;
+package serverfacade;
 
 import java.net.URI;
 import java.net.http.*;

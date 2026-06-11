@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import exception.ResponseException;
 import results.*;
-import serverFacade.ServerFacade;
+import serverfacade.ServerFacade;
 import model.*;
 
 public class PreLogin {

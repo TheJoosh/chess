@@ -7,7 +7,7 @@ import java.util.Scanner;
 import chess.ChessGame;
 import exception.ResponseException;
 import results.*;
-import serverFacade.ServerFacade;
+import serverfacade.ServerFacade;
 import model.*;
 
 public class PostLogin {
