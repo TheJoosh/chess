@@ -1,7 +1,5 @@
 package client;
 
-import server.ServerFacade;
-
 import java.util.List;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -9,6 +7,7 @@ import java.util.Scanner;
 import chess.ChessGame;
 import exception.ResponseException;
 import results.*;
+import serverFacade.ServerFacade;
 import model.*;
 
 public class PostLogin {
@@ -169,7 +168,7 @@ public class PostLogin {
         if (params.length == 1) {
             String black = gameData.blackUsername();
             String white = gameData.whiteUsername();
-            
+
             if (black != null && black.equals(username)) {
                 inGame = true;
                 game = gameData;

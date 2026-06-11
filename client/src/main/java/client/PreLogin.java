@@ -1,12 +1,11 @@
 package client;
 
-import server.ServerFacade;
-
 import java.util.Arrays;
 import java.util.Scanner;
 
 import exception.ResponseException;
 import results.*;
+import serverFacade.ServerFacade;
 import model.*;
 
 public class PreLogin {
