@@ -13,13 +13,11 @@ import chess.*;
 import client.websocket.*;
 import websocket.messages.ServerMessage;
 import exception.ResponseException;
-import server.ServerFacade;
 import model.GameData;
 
 import ui.EscapeSequences;
 
 public class Gameplay implements NotificationHandler {
-    private final ServerFacade server;
     private final WebSocketFacade ws;
 
     public static final String WHITE  = "\u001B[48;5;230m";
@@ -44,7 +42,6 @@ public class Gameplay implements NotificationHandler {
     ChessGame chessGame;
 
     public Gameplay (String auth, String url, boolean reversed, boolean observing, GameData game, String username) throws ResponseException {
-        server = new ServerFacade(url);
         ws = new WebSocketFacade(url, this);
         this.url = url;
         this.auth = auth;
@@ -385,6 +382,23 @@ public class Gameplay implements NotificationHandler {
                 throw new ResponseException(ResponseException.Code.BadRequest, e.getMessage() + "\n");
             }
             draw(reversed, false, null);
+
+            boolean checkmate = false;
+            boolean check = false;
+
+            if (
+                (reversed && chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) ||
+                (!reversed && chessGame.isInCheckmate(ChessGame.TeamColor.BLACK))
+            ) {
+                checkmate = true;
+            } else if (
+                (reversed && chessGame.isInCheck(ChessGame.TeamColor.WHITE)) ||
+                (!reversed && chessGame.isInCheck(ChessGame.TeamColor.BLACK))
+            ) {
+                check = true;
+            }
+
+            ws.makeMove(username, auth, game.gameID(), move, check, checkmate);
 
             return "Moved " + piece.getPieceType().toString() + " from " + params[0] + " to " + params[1] + "\n";
         } else {

@@ -3,7 +3,7 @@ package websocket;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
-import exception.ResponseException;
+import chess.ChessMove;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -13,7 +13,6 @@ import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.*;
 import websocket.messages.*;
-import server.Server;
 
 import java.io.IOException;
 
@@ -34,7 +33,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (action.getCommandType()) {
                 case CONNECT -> enter(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
                 case LEAVE -> exit(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
-                case MAKE_MOVE -> enter(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
+                case MAKE_MOVE -> move(
+                                    action.getUsername(), 
+                                    action.getMove(), 
+                                    action.inCheck(), 
+                                    action.inMate(), 
+                                    action.getTeam(), 
+                                    action.getGameID(), 
+                                    ctx.session
+                                );
                 case RESIGN -> resign(action.getUsername(), action.getGameID(), ctx.session);
             }
         } catch (IOException ex) {
@@ -49,6 +56,62 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void notify(int id, Session session, ServerMessage message) throws IOException {
         connections.broadcast(id, session, message);
+    }
+
+    private void move(
+                    String username, 
+                    ChessMove move, 
+                    boolean check, 
+                    boolean checkmate, 
+                    ChessGame.TeamColor team, 
+                    int id, 
+                    Session session
+                ) throws IOException {
+        var message = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+        
+        String start = parsePosition(move.getStartPosition().toString());
+        String end = parsePosition(move.getEndPosition().toString());
+        String piece = null;
+
+        if (move.getPromotionPiece() != null) {
+            piece = move.getPromotionPiece().toString();
+        }
+
+        if (checkmate) {
+            message.setMessage("Checkmate - " + username + " wins");
+        } else {
+            if (piece != null) {
+                if (check) {
+                    message.setMessage(username + " moved from " + start + " to " + end + "and promoted to " + piece + " - Check");
+                } else {
+                    message.setMessage(username + " moved from " + start + " to " + end + " and promoted to " + piece);
+                }
+            } else if (check) {
+                message.setMessage(username + " moved from " + start + " to " + end + " - Check");
+            } else {
+                message.setMessage(username + " moved from " + start + " to " + end);
+            }
+        }
+
+        notify(id, session, message);
+    }
+
+    private String parsePosition(String position) {
+        String col = position.substring(3, 4);
+        String row = position.substring(1, 2);
+
+        col = switch (col) {
+            case "8" -> "h";
+            case "7" -> "g";
+            case "6" -> "f";
+            case "5" -> "e";
+            case "4" -> "d";
+            case "3" -> "c";
+            case "2" -> "b";
+            default -> "a";
+        };
+
+        return col + row;
     }
 
     private void enter(String username, ChessGame.TeamColor team, int id, Session session) throws IOException {

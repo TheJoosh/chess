@@ -3,6 +3,7 @@ package client.websocket;
 import com.google.gson.Gson;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import exception.ResponseException;
 import websocket.messages.ServerMessage;
 import websocket.commands.UserGameCommand;
@@ -83,6 +84,18 @@ public class WebSocketFacade extends Endpoint {
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+
+    public void makeMove(String username, String auth, Integer gameID, ChessMove move, boolean check, boolean checkmate) throws ResponseException {
+        try {
+            var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, auth, gameID);
+            action.setMove(move);
+            action.setCheck(check);
+            action.setMate(checkmate);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException e) {
+            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
         }
     }
 }
