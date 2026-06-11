@@ -20,6 +20,7 @@ public class PostLogin {
 
     private String url;
     private String auth;
+    private String username;
     boolean signedIn = true;
     boolean inGame = false;
     boolean reversed = false;
@@ -27,10 +28,11 @@ public class PostLogin {
     List<GameData> gameList;
     GameData game;
 
-    public PostLogin (String auth, String url) throws ResponseException {
+    public PostLogin (String auth, String url, String username) throws ResponseException {
         server = new ServerFacade(url);
         this.url = url;
         this.auth = auth;
+        this.username = username;
     }
 
     public void run() throws ResponseException {
@@ -62,7 +64,7 @@ public class PostLogin {
                 }
                 if (inGame) {
                     try {
-                        new Gameplay(auth, url, reversed, observing, game).run();
+                        new Gameplay(auth, url, reversed, observing, game, username).run();
                         return;
                     } catch (Throwable ex) {
                         System.out.printf("Unable to join game: %s%n", ex.getMessage());

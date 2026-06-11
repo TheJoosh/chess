@@ -1,6 +1,8 @@
 package websocket;
 
 import com.google.gson.Gson;
+
+import chess.ChessGame;
 import exception.ResponseException;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
@@ -30,9 +32,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand action = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (action.getCommandType()) {
-                case CONNECT -> enter(action.getAuthToken(), action.getGameID(), ctx.session);
+                case CONNECT -> enter(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
                 case LEAVE -> exit(action.getAuthToken(), action.getGameID(), ctx.session);
-                case MAKE_MOVE -> enter(action.getAuthToken(), action.getGameID(), ctx.session);
+                case MAKE_MOVE -> enter(action.getAuthToken(), action.getTeam(), action.getGameID(), ctx.session);
                 case RESIGN -> exit(action.getAuthToken(), action.getGameID(), ctx.session);
             }
         } catch (IOException ex) {
@@ -49,10 +51,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(id, session, message);
     }
 
-    private void enter(String username, int id, Session session) throws IOException {
+    private void enter(String username, ChessGame.TeamColor team, int id, Session session) throws IOException {
         connections.add(id, session);
         ServerMessage message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        message.setMessage(username + " joined the game as ");
+
+        if (team == null) {
+            message.setMessage(username + " is observing the game");
+        } else {
+            message.setMessage(username + " joined the game as " + team.toString());
+        }
         notify(id, session, message);
     }
 

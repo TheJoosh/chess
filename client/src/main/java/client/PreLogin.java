@@ -18,6 +18,7 @@ public class PreLogin {
     String url;
     boolean signedIn = false;
     String auth;
+    String username;
 
     public PreLogin (String url) throws ResponseException {
         server = new ServerFacade(url);
@@ -45,7 +46,7 @@ public class PreLogin {
                 System.out.println();
                 if (signedIn) {
                     try {
-                        new PostLogin(auth, url).run();
+                        new PostLogin(auth, url, username).run();
                         return;
                     } catch (Throwable ex) {
                         System.out.printf("Unable to sign in: %s%n", ex.getMessage());
@@ -82,6 +83,7 @@ public class PreLogin {
                 LoginRequest request = new LoginRequest(params[0], params[1]);
                 auth = server.login(request).authToken();
                 signedIn = true;
+                username = params[0];
                 return String.format("Signed in as %s\n", params[0]);
             } catch (Exception e) {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Incorrect username or password\n");

@@ -43,7 +43,7 @@ public class Gameplay implements NotificationHandler {
     GameData game;
     ChessGame chessGame;
 
-    public Gameplay (String auth, String url, boolean reversed, boolean observing, GameData game) throws ResponseException {
+    public Gameplay (String auth, String url, boolean reversed, boolean observing, GameData game, String username) throws ResponseException {
         server = new ServerFacade(url);
         ws = new WebSocketFacade(url, this);
         this.url = url;
@@ -52,21 +52,25 @@ public class Gameplay implements NotificationHandler {
         this.observing = observing;
         this.game = game;
         this.chessGame = game.game();
+        this.username = username;
     }
 
     public void run() throws ResponseException {
 
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
+        ChessGame.TeamColor team = null;
+
         if (!observing) {
-            String username;
             if (!reversed) {
-                username = game.whiteUsername();
+                team = ChessGame.TeamColor.WHITE;
             } else {
-                username = game.blackUsername();
+                team = ChessGame.TeamColor.BLACK;
             }
-            ws.joinGame(username, game.gameID());
         }
+
+        ws.joinGame(username, auth, game.gameID(), team);
+        
         
         draw(reversed, false, null);
 
@@ -83,7 +87,7 @@ public class Gameplay implements NotificationHandler {
                 System.out.println();
                 if (!inGame) {
                     try {
-                        new PostLogin(auth, url).run();
+                        new PostLogin(auth, url, username).run();
                         return;
                     } catch (Throwable ex) {
                         System.out.printf("Unable to leave game: %s%n\n", ex.getMessage());
