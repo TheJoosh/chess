@@ -118,6 +118,7 @@ public class Gameplay implements NotificationHandler {
 
             if (result.equals("Y") || result.equals("y")) {
                 inGame = false;
+                ws.resign(username, auth, game.gameID());
                 return "Resigned game\n";
             }
        }

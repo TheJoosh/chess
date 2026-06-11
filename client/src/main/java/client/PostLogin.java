@@ -148,19 +148,44 @@ public class PostLogin {
     }
 
     public String joinGame(String... params) throws ResponseException {
-        if (params.length == 2) {
+        if (params.length != 1 && params.length != 2) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <id> [WHITE|BLACK]\n");
+        }
 
-            int id;
+        int id;
+            
+        try {
+            id = Integer.parseInt(params[0]);
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "ID must be an integer\n");
+        }
 
-            try {
-                id = Integer.parseInt(params[0]);
-            } catch (Exception e) {
-                throw new ResponseException(ResponseException.Code.BadRequest, "ID must be an integer\n");
+        if (id <= 0 || id > gameList.size()) {
+            throw new ResponseException(ResponseException.Code.BadRequest, "Invalid game ID\n");
+        }
+
+        GameData gameData = gameList.get(id - 1);
+
+        if (params.length == 1) {
+            String black = gameData.blackUsername();
+            String white = gameData.whiteUsername();
+            
+            if (black != null && black.equals(username)) {
+                inGame = true;
+                game = gameData;
+                reversed = true;
+                return String.format("Rejoined game %s\n", game.gameName());
+
+            } else if (white != null && white.equals(username)) {
+                inGame = true;
+                game = gameData;
+                return String.format("Rejoined game %s\n", game.gameName());
+
+            } else {
+                throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <id> [WHITE|BLACK]\n");
             }
-
-            if (id <= 0 || id > gameList.size()) {
-                throw new ResponseException(ResponseException.Code.BadRequest, "Invalid game ID\n");
-            }
+        
+        } else {
 
             ChessGame.TeamColor color;
             try {
@@ -169,9 +194,7 @@ public class PostLogin {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Must select either WHITE or BLACK\n");
             }
 
-            JoinRequest request = new JoinRequest(color, gameList.get(id - 1).gameID());
-
-            
+            JoinRequest request = new JoinRequest(color, gameData.gameID());
             try {
                  server.joinGame(auth, request);
             } catch (Exception e) {
@@ -179,7 +202,7 @@ public class PostLogin {
             }
 
             inGame = true;
-            game = gameList.get(id - 1);
+            game = gameData;
 
             if (color == ChessGame.TeamColor.BLACK) {
                 reversed = true;
@@ -187,7 +210,6 @@ public class PostLogin {
 
             return String.format("Joined game %s\n", game.gameName());
         }
-        throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <id> [WHITE|BLACK]\n");
     }
 
     public String observeGame(String... params) throws ResponseException {

@@ -35,7 +35,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case CONNECT -> enter(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
                 case LEAVE -> exit(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
                 case MAKE_MOVE -> enter(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
-                case RESIGN -> exit(action.getAuthToken(), action.getTeam(), action.getGameID(), ctx.session);
+                case RESIGN -> resign(action.getUsername(), action.getGameID(), ctx.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -71,7 +71,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } else {
             message.setMessage(username + " left the game");
         }
-        
+
+        connections.broadcast(id, session, message);
+        connections.remove(id, session);
+    }
+
+    private void resign(String username, int id, Session session) throws IOException {
+        var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+
+        message.setMessage(username + " forfeit the game");
+
         connections.broadcast(id, session, message);
         connections.remove(id, session);
     }
