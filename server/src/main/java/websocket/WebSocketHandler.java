@@ -33,9 +33,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand action = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (action.getCommandType()) {
                 case CONNECT -> enter(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
-                case LEAVE -> exit(action.getAuthToken(), action.getGameID(), ctx.session);
-                case MAKE_MOVE -> enter(action.getAuthToken(), action.getTeam(), action.getGameID(), ctx.session);
-                case RESIGN -> exit(action.getAuthToken(), action.getGameID(), ctx.session);
+                case LEAVE -> exit(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
+                case MAKE_MOVE -> enter(action.getUsername(), action.getTeam(), action.getGameID(), ctx.session);
+                case RESIGN -> exit(action.getAuthToken(), action.getTeam(), action.getGameID(), ctx.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -63,9 +63,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         notify(id, session, message);
     }
 
-    private void exit(String visitorName, int id, Session session) throws IOException {
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        connections.broadcast(id, session, notification);
+    private void exit(String username, ChessGame.TeamColor team, int id, Session session) throws IOException {
+        var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+
+        if (team == null) {
+            message.setMessage(username + " is no longer observing");
+        } else {
+            message.setMessage(username + " left the game");
+        }
+        
+        connections.broadcast(id, session, message);
         connections.remove(id, session);
     }
 }

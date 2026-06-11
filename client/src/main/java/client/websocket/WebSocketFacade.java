@@ -65,9 +65,11 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void leavePetShop(String auth, Integer gameID) throws ResponseException {
+    public void leaveGame(String username, String auth, Integer gameID, ChessGame.TeamColor team) throws ResponseException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, auth, gameID);
+            action.setTeam(team);
+            action.setUsername(username);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());

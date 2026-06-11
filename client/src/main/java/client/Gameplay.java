@@ -228,8 +228,20 @@ public class Gameplay implements NotificationHandler {
         return icon + RESET;
     }
 
-    public String leaveGame() {
+    public String leaveGame() throws ResponseException {
         inGame = false;
+
+        ChessGame.TeamColor team = null;
+        if (!observing) {
+            if (!reversed) {
+                team = ChessGame.TeamColor.WHITE;
+            } else {
+                team = ChessGame.TeamColor.BLACK;
+            }
+        }
+
+        ws.leaveGame(username, auth, game.gameID(), team);
+
         return "Exiting game\n";
     }
     
