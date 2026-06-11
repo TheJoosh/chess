@@ -11,6 +11,7 @@ import io.javalin.websocket.WsMessageHandler;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.*;
 import websocket.messages.*;
+import server.Server;
 
 import java.io.IOException;
 
@@ -29,10 +30,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand action = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (action.getCommandType()) {
-                case CONNECT -> enter(action.getAuthToken(), ctx.session);
-                case LEAVE -> exit(action.getAuthToken(), ctx.session);
-                case MAKE_MOVE -> enter(action.getAuthToken(), ctx.session);
-                case RESIGN -> exit(action.getAuthToken(), ctx.session);
+                case CONNECT -> enter(action.getAuthToken(), action.getGameID(), ctx.session);
+                case LEAVE -> exit(action.getAuthToken(), action.getGameID(), ctx.session);
+                case MAKE_MOVE -> enter(action.getAuthToken(), action.getGameID(), ctx.session);
+                case RESIGN -> exit(action.getAuthToken(), action.getGameID(), ctx.session);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -44,15 +45,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed\n");
     }
 
-    private void enter(String visitorName, Session session) throws IOException {
-        connections.add(session);
-        var notification = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-        connections.broadcast(session, notification);
+    private void notify(int id, Session session, ServerMessage message) throws IOException {
+        connections.broadcast(id, session, message);
     }
 
-    private void exit(String visitorName, Session session) throws IOException {
+    private void enter(String username, int id, Session session) throws IOException {
+        connections.add(id, session);
+        ServerMessage message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        message.setMessage(username + " joined the game as ");
+        notify(id, session, message);
+    }
+
+    private void exit(String visitorName, int id, Session session) throws IOException {
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        connections.broadcast(session, notification);
-        connections.remove(session);
+        connections.broadcast(id, session, notification);
+        connections.remove(id, session);
     }
 }

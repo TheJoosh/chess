@@ -59,7 +59,13 @@ public class Gameplay implements NotificationHandler {
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
 
         if (!observing) {
-            ws.joinGame(auth);
+            String username;
+            if (!reversed) {
+                username = game.whiteUsername();
+            } else {
+                username = game.blackUsername();
+            }
+            ws.joinGame(username, game.gameID());
         }
         
         draw(reversed, false, null);
@@ -417,6 +423,6 @@ public class Gameplay implements NotificationHandler {
     }
 
     public void notify(ServerMessage message) {
-        System.out.println(PURPLE + message.getServerMessageType().toString() + "\n\n" + RESET);
+        System.out.println(PURPLE + message.getMessage() + "\n" + RESET);
     }
 }
