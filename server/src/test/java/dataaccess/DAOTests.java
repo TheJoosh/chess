@@ -2,15 +2,12 @@ package dataaccess;
 
 import org.junit.jupiter.api.*;
 
-import com.google.gson.Gson;
-
 import chess.ChessGame;
 import model.*;
 import results.LoginRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 

@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
-import chess.ChessPosition;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsCloseHandler;
 import io.javalin.websocket.WsConnectContext;
@@ -24,7 +23,6 @@ import dataaccess.SQLAuthAccess;
 import dataaccess.SQLGameAccess;
 import dataaccess.SQLUserAccess;
 import dataaccess.DataAccessException;
-import model.AuthData;
 
 import java.io.IOException;
 
