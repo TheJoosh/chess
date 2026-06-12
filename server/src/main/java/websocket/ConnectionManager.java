@@ -32,9 +32,24 @@ public class ConnectionManager {
             return;
         }
 
-        for (Session c : set) {
-            if (c.isOpen() && !c.equals(excludeSession)) {
-                c.getRemote().sendString(msg);
+        for (Session s : set) {
+            if (s.isOpen() && !s.equals(excludeSession)) {
+                s.getRemote().sendString(msg);
+            }
+        }
+    }
+
+    public void send(int id, Session session, ServerMessage notification) throws IOException {
+        var set = connections.get(id);
+        if (set == null) {
+            return;
+        }
+
+        String msg = new Gson().toJson(notification);
+
+        for (Session s : set) {
+            if (s.isOpen() && s.equals(session)) {
+                s.getRemote().sendString(msg);
             }
         }
     }

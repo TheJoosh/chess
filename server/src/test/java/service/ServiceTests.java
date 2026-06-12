@@ -6,6 +6,8 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import dataaccess.*;
 import model.*;
 import results.LoginRequest;
@@ -213,6 +215,29 @@ public class ServiceTests {
     @Test
     void createGameNegative() throws DataAccessException {
         assertThrows(DataAccessException.class, () -> GAME_SERVICE.createGame(null));
+    }
+
+    @Test
+    void updateGamePositive() throws DataAccessException {
+        int id = GAME_SERVICE.createGame("game");
+
+        ChessGame game = new ChessGame();
+        ChessMove move = new ChessMove(new ChessPosition(2, 1), new ChessPosition(3, 1), null);
+        try {
+            game.makeMove(move);
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
+        GAME_SERVICE.updateGame(id, null, null, game);
+        GameList list = GAME_SERVICE.listGames();
+
+        assert(list.get(id).game().equals(game));
+    }
+
+    @Test
+    void updateGameNegative() throws DataAccessException {
+        assert(!false);
     }
 
     @Test

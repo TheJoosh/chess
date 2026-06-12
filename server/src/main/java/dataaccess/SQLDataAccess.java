@@ -87,6 +87,10 @@ public class SQLDataAccess implements DataAccess {
         return gameAccess.joinGame(username, color, gameID);
     }
 
+    public void updateGame(int gameID, String white, String black, ChessGame game) throws DataAccessException {
+        gameAccess.updateGame(gameID, white, black, game);
+    }
+
     public int createGame(String game) throws DataAccessException {
         return gameAccess.createGame(game);
     }

@@ -55,11 +55,12 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void joinGame(String username, String auth, int gameID, ChessGame.TeamColor team) throws ResponseException {
+    public void joinGame(String username, String auth, int gameID, ChessGame game, ChessGame.TeamColor team) throws ResponseException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, auth, gameID);
             action.setUsername(username);
             action.setTeam(team);
+            action.setGame(game);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
@@ -87,12 +88,12 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(String username, String auth, Integer gameID, ChessMove move, boolean check, boolean checkmate) throws ResponseException {
+    public void makeMove(String username, String auth, Integer gameID, ChessGame.TeamColor team, ChessMove move) throws ResponseException {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, auth, gameID);
+            action.setUsername(username);
             action.setMove(move);
-            action.setCheck(check);
-            action.setMate(checkmate);
+            action.setTeam(team);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException e) {
             throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());

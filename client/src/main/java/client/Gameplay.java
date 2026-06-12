@@ -40,6 +40,7 @@ public class Gameplay implements NotificationHandler {
     String username;
     GameData game;
     ChessGame chessGame;
+    ChessGame.TeamColor team;
 
     public Gameplay (String auth, String url, boolean reversed, boolean observing, GameData game, String username) throws ResponseException {
         ws = new WebSocketFacade(url, this);
@@ -50,6 +51,11 @@ public class Gameplay implements NotificationHandler {
         this.game = game;
         this.chessGame = game.game();
         this.username = username;
+        if (reversed) {
+            team = ChessGame.TeamColor.BLACK;
+        } else {
+            team = ChessGame.TeamColor.WHITE;
+        }
     }
 
     public void run() throws ResponseException {
@@ -66,10 +72,7 @@ public class Gameplay implements NotificationHandler {
             }
         }
 
-        ws.joinGame(username, auth, game.gameID(), team);
-        
-        
-        draw(reversed, false, null);
+        ws.joinGame(username, auth, game.gameID(), chessGame, team);
 
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -99,9 +102,6 @@ public class Gameplay implements NotificationHandler {
     }
 
     public String resign() throws ResponseException {
-        if (observing) {
-            return leaveGame();
-        }
 
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -123,8 +123,8 @@ public class Gameplay implements NotificationHandler {
         return "Resignation canceled\n";
     }
 
-    public String draw(boolean reversed, boolean redraw, Collection<ChessMove> moves) {
-        drawBoard(reversed, moves);
+    public String draw(boolean reversed, boolean redraw, Collection<ChessMove> moves, ChessGame gameState) {
+        drawBoard(reversed, moves, gameState);
 
         if (redraw) {
             return "Board redrawn\n";
@@ -132,8 +132,8 @@ public class Gameplay implements NotificationHandler {
         return "";
     }
 
-    public void drawBoard(boolean reversed, Collection<ChessMove> moves) {
-        ChessBoard board = game.game().getBoard();
+    public void drawBoard(boolean reversed, Collection<ChessMove> moves, ChessGame gameState) {
+        ChessBoard board = gameState.getBoard();
 
         int iReversed;
         int jReversed;
@@ -251,8 +251,8 @@ public class Gameplay implements NotificationHandler {
             return switch (cmd) {
                 case "leave" -> leaveGame();
                 case "quit" -> leaveGame();
-                case "redraw" -> draw(reversed, true, null);
-                case "draw" -> draw(reversed, true, null);
+                case "redraw" -> draw(reversed, true, null, game.game());
+                case "draw" -> draw(reversed, true, null, game.game());
                 case "seemoves" -> showMoves(params);
                 case "showmoves" -> showMoves(params);
                 case "resign" -> resign();
@@ -352,29 +352,8 @@ public class Gameplay implements NotificationHandler {
 
         if(coords[1] != 0 && coords[3] != 0 && coords[0] <= 8 && coords[0] >= 1 && coords[2] <= 8 && coords[2] >= 1) {
             ChessMove move = new ChessMove(new ChessPosition(coords[0], coords[1]), new ChessPosition(coords[2], coords[3]), promotion);
-            try {
-                chessGame.makeMove(move);
-            } catch (InvalidMoveException e) {
-                throw new ResponseException(ResponseException.Code.BadRequest, e.getMessage() + "\n");
-            }
-            draw(reversed, false, null);
 
-            boolean checkmate = false;
-            boolean check = false;
-
-            if (
-                (reversed && chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) ||
-                (!reversed && chessGame.isInCheckmate(ChessGame.TeamColor.BLACK))
-            ) {
-                checkmate = true;
-            } else if (
-                (reversed && chessGame.isInCheck(ChessGame.TeamColor.WHITE)) ||
-                (!reversed && chessGame.isInCheck(ChessGame.TeamColor.BLACK))
-            ) {
-                check = true;
-            }
-
-            ws.makeMove(username, auth, game.gameID(), move, check, checkmate);
+            ws.makeMove(username, auth, game.gameID(), team, move);
 
             return "Moved " + piece.getPieceType().toString() + " from " + params[0] + " to " + params[1] + "\n";
         } else {
@@ -427,7 +406,7 @@ public class Gameplay implements NotificationHandler {
                     throw new ResponseException(ResponseException.Code.BadRequest, "Piece cannot move\n");
                 }
 
-                draw(reversed, false, moves);
+                draw(reversed, false, moves, game.game());
             } else {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Position must be within range a1-h8\n");
             }
@@ -458,6 +437,13 @@ public class Gameplay implements NotificationHandler {
     }
 
     public void notify(ServerMessage message) {
+
+        if (message.getGame() != null) {
+            draw(reversed, false, null, message.getGame());
+            game = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), message.getGame());
+            chessGame = game.game();
+        }
+
         System.out.println(PURPLE + message.getMessage() + "\n" + RESET);
     }
 }

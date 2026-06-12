@@ -31,6 +31,10 @@ public class GameService {
         return gameAccess.createGame(game);
     }
 
+    public void updateGame(int gameID, String white, String black, ChessGame game) throws DataAccessException {
+        gameAccess.updateGame(gameID, white, black, game);
+    }
+
     public GameList listGames() throws DataAccessException {
         return gameAccess.listGames();
     }

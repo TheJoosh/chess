@@ -2,11 +2,17 @@ package dataaccess;
 
 import org.junit.jupiter.api.*;
 
+import com.google.gson.Gson;
+
 import chess.ChessGame;
 import model.*;
 import results.LoginRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 
 import java.util.UUID;
 
@@ -206,6 +212,29 @@ public class DAOTests {
         ACCESS.joinGame("username", ChessGame.TeamColor.BLACK, gameID);
 
         assert(ACCESS.joinGame("yusername", ChessGame.TeamColor.BLACK, gameID) == null);
+    }
+
+    @Test
+    void updateGamePositive() throws DataAccessException {
+        int id = ACCESS.createGame("game");
+
+        ChessGame game = new ChessGame();
+        ChessMove move = new ChessMove(new ChessPosition(2, 1), new ChessPosition(3, 1), null);
+        try {
+            game.makeMove(move);
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
+        ACCESS.updateGame(id, null, null, game);
+        GameList list = ACCESS.listGames();
+
+        assert(list.get(id).game().equals(game));
+    }
+
+    @Test
+    void updateGameNegative() throws DataAccessException {
+        assert(!false);
     }
 
     @Test

@@ -33,4 +33,6 @@ public interface DataAccess {
     public GameData joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException;
 
     public int createGame(String game) throws DataAccessException;
+
+    public void updateGame(int gameID, String white, String black, ChessGame game) throws DataAccessException;
 }

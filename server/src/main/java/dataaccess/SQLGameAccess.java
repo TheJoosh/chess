@@ -79,6 +79,32 @@ public class SQLGameAccess implements GameDAO {
         }
     }
 
+    public void updateGame(int gameID, String white, String black, ChessGame game) throws DataAccessException {
+
+        var statement = "REPLACE INTO games (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = DatabaseManager.getConnection()) {
+            GameList games = listGames(conn);
+
+            if (!games.containsKey(gameID)) {
+                throw new DataAccessException("Invalid game ID");
+            }
+
+            GameData gameData = games.get(gameID);
+            SQLDataAccess.executeUpdate(
+                                conn, 
+                                statement, 
+                                gameID, 
+                                white, 
+                                black, 
+                                gameData.gameName(), 
+                                new Gson().toJson(game)
+                            );
+        } catch (SQLException e) {
+            throw new DataAccessException(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
     public int createGame(String game) throws DataAccessException {
         if (game == null) {
             throw new DataAccessException("Invalid Input");
@@ -88,14 +114,14 @@ public class SQLGameAccess implements GameDAO {
         try (Connection conn = DatabaseManager.getConnection()) {
             GameData newGame = new GameData(next++, null, null, game, new ChessGame());
             SQLDataAccess.executeUpdate(
-                                    conn, 
-                                    statement, 
-                                    newGame.gameID(), 
-                                    newGame.whiteUsername(), 
-                                    newGame.blackUsername(), 
-                                    game, 
-                                    new Gson().toJson(newGame.game())
-                                );
+                                conn, 
+                                statement, 
+                                newGame.gameID(), 
+                                newGame.whiteUsername(), 
+                                newGame.blackUsername(), 
+                                game, 
+                                new Gson().toJson(newGame.game())
+                            );
                                 
             return newGame.gameID();
         } catch (SQLException e) {

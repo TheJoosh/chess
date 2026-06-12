@@ -22,6 +22,10 @@ public class GameAccess implements GameDAO {
         games.clear();
     }
 
+    public void updateGame(int id, String white, String black, ChessGame game) {
+        
+    }
+
     public GameData joinGame(String username, ChessGame.TeamColor color, int gameID) throws DataAccessException {
         GameData game = games.get(gameID);
 

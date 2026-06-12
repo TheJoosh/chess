@@ -2,6 +2,8 @@ package websocket.messages;
 
 import java.util.Objects;
 
+import chess.ChessGame;
+
 /**
  * Represents a Message the server can send through a WebSocket
  * <p>
@@ -11,6 +13,8 @@ import java.util.Objects;
 public class ServerMessage {
     ServerMessageType serverMessageType;
     String message = null;
+    String errorMessage = null;
+    ChessGame game = null;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -28,6 +32,22 @@ public class ServerMessage {
     
     public String getMessage() {
         return message;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setGame(ChessGame game) {
+        this.game = game;
+    }
+
+    public ChessGame getGame() {
+        return game;
     }
 
     public ServerMessageType getServerMessageType() {
