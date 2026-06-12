@@ -73,54 +73,36 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(id, session, message);
     }
 
-    private void move(
-                    String username, 
-                    String auth, 
-                    ChessMove move, 
-                    ChessGame.TeamColor team,
-                    ChessGame.TeamColor otherTeam,
-                    int id, 
-                    Session session
-                ) throws IOException {
-
+    private void move(String username, String auth, ChessMove move, ChessGame.TeamColor team,
+                    ChessGame.TeamColor otherTeam,int id, Session session) throws IOException {
         connections.add(id, session);
-        
         var message = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
         var broadcast = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-
         if (!authenticated(auth)) {
             message = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             message.setErrorMessage("Unauthorized");
             connections.send(id, session, message);
-            return;
-        }
-
+            return;}
         try {
             username = authService.getUsername(auth);
         } catch (Exception e) {
             message = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             message.setErrorMessage("Unauthorized");
             connections.send(id, session, message);
-            return;
-        }
-
+            return;}
         GameList games;
-
-        try {
-            games = gameService.listGames();
+        try {games = gameService.listGames();
         } catch (Exception e) {
             message = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             message.setErrorMessage(e.getMessage());
             connections.send(id, session, message);
-            return;
-        }
+            return;}
 
         if (!games.containsKey(id)) {
             message = new ServerMessage(ServerMessageType.ERROR);
             message.setErrorMessage("Invalid game ID");
             connections.send(id, session, message);
-            return;
-        }
+            return;}
         GameData gameData = games.get(id);
         ChessGame game = gameData.game();
 
@@ -128,100 +110,66 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             message = new ServerMessage(ServerMessageType.ERROR);
             message.setErrorMessage("Game is over");
             connections.send(id, session, message);
-            return;
-        }
-
+            return;}
         if (gameData.blackUsername() != null && gameData.blackUsername().equals(username)) {
             team = ChessGame.TeamColor.BLACK;
         } else if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
             team = ChessGame.TeamColor.WHITE;
         } else {
-            team = null;
-        }
-
-        if (team == null) {
             message = new ServerMessage(ServerMessageType.ERROR);
             message.setErrorMessage("Observers cannot move");
             connections.send(id, session, message);
-            return;
-        }
+            return;}
 
         ChessPiece chessPiece = game.board.getPiece(move.getStartPosition());
         if (chessPiece.getTeamColor() != team) {
             message = new ServerMessage(ServerMessageType.ERROR);
             message.setErrorMessage("Cannot move opponent's pieces");
             connections.send(id, session, message);
-            return;
-        }
+            return;}
         
         String start = parsePosition(move.getStartPosition().toString());
         String end = parsePosition(move.getEndPosition().toString());
         String piece = null;
         String notification = "";
 
-        try {
-            game.makeMove(move);
+        try {game.makeMove(move);
             gameService.updateGame(id, games.get(id).whiteUsername(), games.get(id).blackUsername(), game);
         } catch (Exception e) {
             message = new ServerMessage(ServerMessageType.ERROR);
             message.setErrorMessage(e.getMessage());
             connections.send(id, session, message);
-            return;
-        }
+            return;}
 
-        if (team == ChessGame.TeamColor.BLACK) {
-            otherTeam = ChessGame.TeamColor.WHITE;
-        } else {
-            otherTeam = ChessGame.TeamColor.BLACK;
-        }
+        if (team == ChessGame.TeamColor.BLACK) { otherTeam = ChessGame.TeamColor.WHITE;} 
+        else {otherTeam = ChessGame.TeamColor.BLACK;}
 
         boolean check = game.isInCheck(otherTeam);
         boolean checkmate = game.isInCheckmate(otherTeam);
         boolean stalemate = game.isInStalemate(otherTeam);
 
-        if (move.getPromotionPiece() != null) {
-            piece = move.getPromotionPiece().toString();
-        }
+        if (move.getPromotionPiece() != null) {piece = move.getPromotionPiece().toString();}
 
         String mateNotification = null;
 
-        if (checkmate) {
-            mateNotification = "Checkmate";
-        } else if (stalemate) {
-            mateNotification = "Stalemate";
-        }
-
+        if (checkmate) {mateNotification = "Checkmate";} else if (stalemate) {mateNotification = "Stalemate";}
         notification += username + " moved from " + start + " to " + end;
 
-        if (piece != null) {
-            notification += " and promoted to " + piece;
-        }
-
-        if (!checkmate && check) {
-            notification += " - Check";
-        }
+        if (piece != null) {notification += " and promoted to " + piece;}
+        if (!checkmate && check) {notification += " - Check";}
 
         if (checkmate || stalemate) {
-            try {
-                gameService.updateGame(id, "GAME", "OVER", game);
-            } catch (Exception e) {
+            try {gameService.updateGame(id, "GAME", "OVER", game);} catch (Exception e) {
                 message = new ServerMessage(ServerMessageType.ERROR);
                 message.setErrorMessage(e.getMessage());
                 connections.send(id, session, message);
-                return;
-            }
-        }
-        broadcast.setMessage(notification);
-
-        message.setGame(game);
-
-        if (checkmate || stalemate) {
+                return;}
             var checkMate = new ServerMessage(ServerMessageType.NOTIFICATION);
             checkMate.setMessage(mateNotification);
             notify(id, session, checkMate);
-            connections.send(id, session, checkMate);
-        }
-        
+            connections.send(id, session, checkMate);}
+        broadcast.setMessage(notification);
+        message.setGame(game);
         connections.send(id, session, message);
         notify(id, session, message);
         notify(id, session, broadcast);
