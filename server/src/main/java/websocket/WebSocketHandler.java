@@ -321,10 +321,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 }
             }
         }
-
-        loadMessage.setMessage("Joined as " + team.toString());
-        notify(id, session, message);
+        
         connections.send(id, session, loadMessage);
+        notify(id, session, message);
     }
 
     private void exit(String username, String auth, ChessGame.TeamColor team, int id, Session session) throws IOException {
