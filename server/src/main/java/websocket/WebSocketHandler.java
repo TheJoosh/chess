@@ -322,6 +322,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
         }
 
+        loadMessage.setMessage("Joined as " + team.toString());
         notify(id, session, message);
         connections.send(id, session, loadMessage);
     }

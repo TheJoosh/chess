@@ -303,62 +303,29 @@ public class Gameplay implements NotificationHandler {
     }
 
     public String makeMove(String... params) throws ResponseException {
-        if (observing) {
-            throw new ResponseException(ResponseException.Code.BadRequest, "Observers cannot make moves\n");
-        }
-
-        if (
-            (chessGame.getTeamTurn() == ChessGame.TeamColor.BLACK && !reversed) || 
-            (chessGame.getTeamTurn() == ChessGame.TeamColor.WHITE && reversed)
-        ) {
-            throw new ResponseException(ResponseException.Code.BadRequest, "Cannot move out of turn\n");
-        }
 
         if (params.length != 2 && params.length != 3) {
-            throw new ResponseException(ResponseException.Code.BadRequest, "A Expected: <start position> <end position>\n");
+            throw new ResponseException(ResponseException.Code.BadRequest, "Expected: <start position> <end position>\n");
         }
 
         ChessPiece.PieceType promotion = null;
         int[] coords = coordify(params[0], params[1]);
-        ChessPiece piece = chessGame.getBoard().getPiece(new ChessPosition(coords[0], coords[1]));
 
         if (params.length == 3) {
-            if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
-                throw new ResponseException(ResponseException.Code.BadRequest, "B Expected: <start position> <end position>\n");
-            }
-
-            if (
-                (piece.getTeamColor() == ChessGame.TeamColor.BLACK && coords[0] != 2) || 
-                (piece.getTeamColor() == ChessGame.TeamColor.WHITE && coords[0] != 7)
-            ) {
-                throw new ResponseException(ResponseException.Code.BadRequest, "C Expected: <start position> <end position>\n");
-            }
 
             promotion = parsePromotion(params[2]);
 
             if (promotion == null) {
                 throw new ResponseException(ResponseException.Code.BadRequest, "Invalid promotion piece");
             }
-        } else if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
-            if (
-                (piece.getTeamColor() == ChessGame.TeamColor.BLACK && coords[0] == 2) || 
-                (piece.getTeamColor() == ChessGame.TeamColor.WHITE && coords[0] == 7)
-            ) {
-                throw new ResponseException(ResponseException.Code.BadRequest, 
-                                            "Pawn must promote: <start position> <end position> <promotion piece>\n"
-                                            );
-            }
-        }
+        } 
 
-        if(coords[1] != 0 && coords[3] != 0 && coords[0] <= 8 && coords[0] >= 1 && coords[2] <= 8 && coords[2] >= 1) {
-            ChessMove move = new ChessMove(new ChessPosition(coords[0], coords[1]), new ChessPosition(coords[2], coords[3]), promotion);
+        ChessMove move = new ChessMove(new ChessPosition(coords[0], coords[1]), new ChessPosition(coords[2], coords[3]), promotion);
 
-            ws.makeMove(username, auth, game.gameID(), team, move);
+        ws.makeMove(username, auth, game.gameID(), team, move);
 
-            return "Moved " + piece.getPieceType().toString() + " from " + params[0] + " to " + params[1] + "\n";
-        } else {
-            throw new ResponseException(ResponseException.Code.BadRequest, "Position must be within range a1-h8\n");
-        }
+        return "Attempting move from " + params[0] + " to " + params[1] + "...\n";
+        
     }
 
     private ChessPiece.PieceType parsePromotion (String input) {
@@ -444,6 +411,14 @@ public class Gameplay implements NotificationHandler {
             chessGame = game.game();
         }
 
-        System.out.println(PURPLE + message.getMessage() + "\n" + RESET);
+        String text = message.getMessage();
+        String error = message.getErrorMessage();
+
+        if (text != null && !text.isBlank()) {
+            System.out.println(PURPLE + text + "\n" + RESET);
+        }
+        if (error != null && !error.isBlank()) {
+            System.out.println(PURPLE + error + "\n" + RESET);
+        }
     }
 }
